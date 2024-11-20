@@ -3,9 +3,9 @@ library(here)
 library(readr)
 library(lubridate)
 library(tidyverse)
-library(skimr)  
+library(skimr)
 library(DataExplorer)
-library(lunar) 
+library(lunar)
 
 # Read the data
 # here() starting path is root of the project
@@ -45,9 +45,24 @@ lc_engineered <- raw_data %>%
       TRUE ~ "Late Night"
     ),
     
-    # # Moon phase (0-1, where 0/1 = new moon, 0.5 = full moon)
-    # Moon_Phase = lunar::lunar.phase(Check_In_Date),
-    # Is_Full_Moon = Moon_Phase >= 0.45 & Moon_Phase <= 0.55,
+    # Moon phases using radian measures (0 to 2π)
+    Moon_Phase = lunar::lunar.phase(Check_In_Date),
+    Moon_4Phases = case_when(
+      Moon_Phase <= pi/4 | Moon_Phase > 7*pi/4 ~ "New",
+      Moon_Phase > pi/4 & Moon_Phase <= 3*pi/4 ~ "Waxing",
+      Moon_Phase > 3*pi/4 & Moon_Phase <= 5*pi/4 ~ "Full",
+      Moon_Phase > 5*pi/4 & Moon_Phase <= 7*pi/4 ~ "Waning"
+    ),
+    Moon_8Phases = case_when(
+      Moon_Phase <= pi/8 | Moon_Phase > 15*pi/8 ~ "New",
+      Moon_Phase > pi/8 & Moon_Phase <= 3*pi/8 ~ "Waxing crescent",
+      Moon_Phase > 3*pi/8 & Moon_Phase <= 5*pi/8 ~ "First quarter",
+      Moon_Phase > 5*pi/8 & Moon_Phase <= 7*pi/8 ~ "Waxing gibbous",
+      Moon_Phase > 7*pi/8 & Moon_Phase <= 9*pi/8 ~ "Full",
+      Moon_Phase > 9*pi/8 & Moon_Phase <= 11*pi/8 ~ "Waning gibbous",
+      Moon_Phase > 11*pi/8 & Moon_Phase <= 13*pi/8 ~ "Last quarter",
+      Moon_Phase > 13*pi/8 & Moon_Phase <= 15*pi/8 ~ "Waning crescent"
+    ),
     
     # Course-related features
     Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands),
