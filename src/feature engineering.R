@@ -19,7 +19,7 @@ lc_engineered <- raw_data %>%
     Check_Out_Time = hms::as_hms(Check_Out_Time)
   ) %>%
   # Sort in ascending order
-  arrange(Check_In_Date, Check_In_Time) %>% 
+  arrange(Check_In_Date, Check_In_Time) %>%
   # Group by each date
   group_by(Check_In_Date) %>%
   mutate(
@@ -30,7 +30,7 @@ lc_engineered <- raw_data %>%
           Check_Out_Time[1:i] <= Check_In_Time[i])
     }),
     Occupancy = Cum_Arrivals - Cum_Departures,
-    
+
     # New temporal features
     Day_of_Week = wday(Check_In_Date, label = TRUE),
     Is_Weekend = if_else(Day_of_Week %in% c("Sat", "Sun"), TRUE, FALSE),
@@ -44,7 +44,7 @@ lc_engineered <- raw_data %>%
       Hour_of_Day < 22 ~ "Evening",
       TRUE ~ "Late Night"
     ),
-    
+
     # Moon phases using radian measures (0 to 2π)
     Moon_Phase = lunar::lunar.phase(Check_In_Date),
     Moon_4Phases = case_when(
@@ -63,7 +63,7 @@ lc_engineered <- raw_data %>%
       Moon_Phase > 11*pi/8 & Moon_Phase <= 13*pi/8 ~ "Last quarter",
       Moon_Phase > 13*pi/8 & Moon_Phase <= 15*pi/8 ~ "Waning crescent"
     ),
-    
+
     # Course-related features
     Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands),
     Course_Level = case_when(
@@ -72,7 +72,7 @@ lc_engineered <- raw_data %>%
       Course_Code_by_Thousands >= "3000" ~ "Advanced",
       TRUE ~ "Other"
     ),
-    
+
     # Student performance indicators
     Is_Good_Standing = Cumulative_GPA >= 2.0,
     GPA_Category = case_when(
@@ -81,16 +81,17 @@ lc_engineered <- raw_data %>%
       Cumulative_GPA >= 2.0 ~ "Satisfactory",
       TRUE ~ "Needs Improvement"
     ),
-    
-    # Study session features
-    Duration_In_Min = difftime(Check_Out_Time, Check_In_Time, units = "mins"),
-    Session_Length_Category = case_when(
-      Duration_In_Min <= 30 ~ "Short",
-      Duration_In_Min <= 90 ~ "Medium",
-      Duration_In_Min <= 180 ~ "Long",
-      TRUE ~ "Extended"
-    ),
-    
+
+    # # Study session features
+    # # NO CHECK_OUT_TIME IN TEST SET
+    # Duration_In_Min = difftime(Check_Out_Time, Check_In_Time, units = "mins"),
+    # Session_Length_Category = case_when(
+    #   Duration_In_Min <= 30 ~ "Short",
+    #   Duration_In_Min <= 90 ~ "Medium",
+    #   Duration_In_Min <= 180 ~ "Long",
+    #   TRUE ~ "Extended"
+    # ),
+
     # Credit load features
     Credit_Load_Category = case_when(
       Term_Credit_Hours <= 6 ~ "Part Time",
