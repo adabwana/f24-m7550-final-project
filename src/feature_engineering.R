@@ -2,16 +2,11 @@
 library(here)
 library(readr)
 library(lubridate)
-library(tidyverse)
-library(skimr)
-library(DataExplorer)
+library(dplyr)
 library(lunar)
 
-# Read the data
-# here() starting path is root of the project
-raw_data <- readr::read_csv(here("data", "LC_train.csv"))
 
-lc_engineered <- raw_data %>%
+lc_engineered <- data_training %>%
   # Convert dates and times to appropriate formats
   mutate(
     Check_In_Date = mdy(Check_In_Date),
@@ -74,7 +69,7 @@ lc_engineered <- raw_data %>%
     ),
 
     # Student performance indicators
-    Is_Good_Standing = Cumulative_GPA >= 2.0,
+    # Is_Good_Standing = Cumulative_GPA >= 2.0,
     GPA_Category = case_when(
       Cumulative_GPA >= 3.5 ~ "Excellent",
       Cumulative_GPA >= 3.0 ~ "Good",
@@ -82,15 +77,15 @@ lc_engineered <- raw_data %>%
       TRUE ~ "Needs Improvement"
     ),
 
-    # # Study session features
-    # # NO CHECK_OUT_TIME IN TEST SET
-    # Duration_In_Min = difftime(Check_Out_Time, Check_In_Time, units = "mins"),
-    # Session_Length_Category = case_when(
-    #   Duration_In_Min <= 30 ~ "Short",
-    #   Duration_In_Min <= 90 ~ "Medium",
-    #   Duration_In_Min <= 180 ~ "Long",
-    #   TRUE ~ "Extended"
-    # ),
+    # Study session features
+    # TODO: NO `CHECK_OUT_TIME` IN TEST SET ... HASH OUT LATER
+    Duration_In_Min = difftime(Check_Out_Time, Check_In_Time, units = "mins"),
+    Session_Length_Category = case_when(
+      Duration_In_Min <= 30 ~ "Short",
+      Duration_In_Min <= 90 ~ "Medium",
+      Duration_In_Min <= 180 ~ "Long",
+      TRUE ~ "Extended"
+    ),
 
     # Credit load features
     Credit_Load_Category = case_when(
@@ -102,4 +97,7 @@ lc_engineered <- raw_data %>%
   ) %>%
   ungroup() %>%
   # Remove intermediate columns
-  select(-c(Cum_Arrivals, Cum_Departures))
+  select(-c(Cum_Arrivals, Cum_Departures)) # Check_Out_Time
+
+# Save the engineered data
+readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))

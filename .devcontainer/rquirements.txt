@@ -5,6 +5,7 @@ dplyr
 tidyr
 readr
 lunar
+openmeteo
 
 # Data exploration and visualization
 ggplot2

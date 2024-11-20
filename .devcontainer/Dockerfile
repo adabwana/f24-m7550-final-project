@@ -71,10 +71,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install R packages from requirements file
 COPY /rquirements.txt /tmp/rquirements.txt
-RUN cat /tmp/rquirements.txt | \
-    grep -v '^#' | \
-    grep -v '^$' | \
-    xargs install2.r --error --skipinstalled \
+RUN Rscript -e '\
+    pkg <- readLines("/tmp/rquirements.txt"); \
+    pkg <- pkg[!grepl("^#", pkg) & pkg != ""]; \
+    new_pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]; \
+    if (length(new_pkg) > 0) install.packages(new_pkg, repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1); \
+    invisible(sapply(pkg, require, character.only=TRUE))' \
     && rm -rf /tmp/downloaded_packages /tmp/rquirements.txt
 
 # User Setup Layer

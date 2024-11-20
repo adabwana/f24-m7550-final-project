@@ -1,6 +1,6 @@
 {
   // Basic container configuration
-  "name": "Data Science in Clojure",
+  "name": "M7550 Project",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
