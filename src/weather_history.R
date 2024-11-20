@@ -33,15 +33,18 @@ weather_variables() %>%
   .[["hourly_history_vars"]]
 
 # Select the hourly weather variables to get
-hourly_vars <- c("cloudcover", "temperature_2m", "windspeed_10m")
+hourly_vars <- c("cloudcover", "temperature_2m", "windspeed_10m",
+  "precipitation", "rain", "snowfall")
 
 # Get the weather history
-weather_history(bowling_green_coords,
+(weather_history <- weather_history(bowling_green_coords,
   start = start_date,
   end = end_date,
   response_units = response_units,
   hourly = hourly_vars
-)
+))
+
+# View(weather_history)
 
 # Save the weather history
-# readr::write_csv(weather_history, here("data", "weather_history.csv"))
+readr::write_csv(weather_history, here("data", "weather_history.csv"))

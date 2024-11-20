@@ -6,6 +6,11 @@ library(tidyverse)
 library(skimr)  
 library(DataExplorer)
 
+
+# -----------------------------------------------------------------------------
+# RAW DATA EXPLORATION
+# -----------------------------------------------------------------------------
+
 # Read the data
 # here() starting path is root of the project
 raw_data <- readr::read_csv(here("data", "LC_train.csv"))
@@ -31,7 +36,7 @@ lc_data <- raw_data %>%
     }),
     # Current occupancy
     Occupancy = Cum_Arrivals - Cum_Departures,
-    Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands)
+    # Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands)
   ) %>%
   ungroup() #%>%
   # Remove intermediate columns
@@ -58,3 +63,18 @@ DataExplorer::plot_boxplot(lc_data, by = "Class_Standing")
 # Correlation analysis of numeric columns
 DataExplorer::plot_correlation(lc_data)
 DataExplorer::plot_prcomp(lc_data, variance_cap = 0.9, nrow = 2L, ncol = 2L)
+
+# -----------------------------------------------------------------------------
+# ENGINEERED DATA EXPLORATION (AFTER RUNNING FEATURE ENGINEERING SCRIPT)
+# -----------------------------------------------------------------------------
+
+# Read the engineered data
+engineered_data <- readr::read_csv(here("data", "LC_engineered.csv"))
+
+# Basic overview of the data
+glimpse(engineered_data)
+
+# Get comprehensive summary statistics
+skim(engineered_data)
+DataExplorer::plot_intro(engineered_data) 
+

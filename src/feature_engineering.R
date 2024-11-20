@@ -60,7 +60,7 @@ lc_engineered <- data_training %>%
     ),
 
     # Course-related features
-    Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands),
+    # Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands),
     Course_Level = case_when(
       Course_Code_by_Thousands == "1000" ~ "Introductory",
       Course_Code_by_Thousands == "2000" ~ "Intermediate",
@@ -93,11 +93,32 @@ lc_engineered <- data_training %>%
       Term_Credit_Hours <= 12 ~ "Half Time",
       Term_Credit_Hours <= 18 ~ "Full Time",
       TRUE ~ "Overload"
-    )
+    ),
+
+    # Renaming column and values for Class_Standing
+    Class_Standing_Self_Reported = case_when(
+      Class_Standing == "Freshman" ~ "First Year",
+      Class_Standing == "Sophomore" ~ "Second Year",
+      Class_Standing == "Junior" ~ "Third Year",
+      Class_Standing == "Senior" ~ "Fourth Year",
+      TRUE ~ Class_Standing
+    ),
+
+    # Class_standing by BGSU's definition
+    # https://www.bgsu.edu/academic-advising/student-resources/academic-standing.html
+    Class_Standing_BGSU = case_when(
+      Total_Credit_Hours_Earned < 30 ~ "Freshman",
+      Total_Credit_Hours_Earned < 60 ~ "Sophomore",
+      Total_Credit_Hours_Earned < 90 ~ "Junior",
+      Total_Credit_Hours_Earned <= 120 ~ "Senior",
+      TRUE ~ "Extended"
+    ),
   ) %>%
   ungroup() %>%
   # Remove intermediate columns
-  select(-c(Cum_Arrivals, Cum_Departures)) # Check_Out_Time
+  select(-c(Cum_Arrivals, Cum_Departures)) # Check_Out_Time, Class_Standing
+
+View(lc_engineered)
 
 # Save the engineered data
 readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
