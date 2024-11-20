@@ -1,0 +1,24 @@
+# Data manipulation and tidyverse ecosystem
+tidyverse
+lubridate
+dplyr
+tidyr
+readr
+
+# Data exploration and visualization
+ggplot2
+DataExplorer
+skimr
+
+# Statistics and modeling
+broom
+caret
+
+# Data import/export
+here
+jsonlite
+
+# better plotting in vscode
+# https://stackoverflow.com/questions/52284345/how-to-show-r-graph-from-visual-studio-code
+httpgd
+languageserver
