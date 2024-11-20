@@ -7,7 +7,7 @@ library(skimr)
 library(DataExplorer)
 
 # Read the data
-# here() is a function that returns the path to the root of the project
+# here() starting path is root of the project
 raw_data <- readr::read_csv(here("data", "LC_train.csv"))
 
 lc_data <- raw_data %>%
@@ -30,11 +30,12 @@ lc_data <- raw_data %>%
           Check_Out_Time[1:i] <= Check_In_Time[i])
     }),
     # Current occupancy
-    Occupancy = Cum_Arrivals - Cum_Departures 
+    Occupancy = Cum_Arrivals - Cum_Departures,
+    Course_Code_by_Thousands = as.factor(Course_Code_by_Thousands)
   ) %>%
-  ungroup() %>%
+  ungroup() #%>%
   # Remove intermediate columns
-  select(-c(Check_Out_Time, Cum_Arrivals, Cum_Departures))  
+  # select(-c(Check_Out_Time, Cum_Arrivals, Cum_Departures))  
 
 # Basic overview of the data
 glimpse(lc_data)

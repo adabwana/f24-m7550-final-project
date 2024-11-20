@@ -4,6 +4,7 @@ lubridate
 dplyr
 tidyr
 readr
+lunar
 
 # Data exploration and visualization
 ggplot2
