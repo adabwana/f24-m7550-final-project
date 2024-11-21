@@ -3,3 +3,4 @@
 !.gitignore
 !.Rproj
 [0-9]*
+.Rproj.user

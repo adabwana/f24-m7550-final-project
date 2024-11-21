@@ -1,0 +1,14 @@
+---
+title: "Jason's Work"
+author: "Jason Turk"
+date: "2024-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+#work goes here :)
+```
