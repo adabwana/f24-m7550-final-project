@@ -3,9 +3,17 @@ library(here)
 library(readr)
 library(lubridate)
 library(dplyr)
-library(lunar)
+
+# -----------------------------------------------------------------------------
+# READ IN DATA
+# -----------------------------------------------------------------------------
+# here() starting path is root of the project
+data_training <- readr::read_csv(here("data", "LC_train.csv"))
 
 
+# -----------------------------------------------------------------------------
+# ENGINEER FEATURES
+# -----------------------------------------------------------------------------
 lc_engineered <- data_training %>%
   # Convert dates and times to appropriate formats
   mutate(
@@ -38,25 +46,6 @@ lc_engineered <- data_training %>%
       Hour_of_Day < 17 ~ "Afternoon",
       Hour_of_Day < 22 ~ "Evening",
       TRUE ~ "Late Night"
-    ),
-
-    # Moon phases using radian measures (0 to 2π)
-    Moon_Phase = lunar::lunar.phase(Check_In_Date),
-    Moon_4Phases = case_when(
-      Moon_Phase <= pi/4 | Moon_Phase > 7*pi/4 ~ "New",
-      Moon_Phase > pi/4 & Moon_Phase <= 3*pi/4 ~ "Waxing",
-      Moon_Phase > 3*pi/4 & Moon_Phase <= 5*pi/4 ~ "Full",
-      Moon_Phase > 5*pi/4 & Moon_Phase <= 7*pi/4 ~ "Waning"
-    ),
-    Moon_8Phases = case_when(
-      Moon_Phase <= pi/8 | Moon_Phase > 15*pi/8 ~ "New",
-      Moon_Phase > pi/8 & Moon_Phase <= 3*pi/8 ~ "Waxing crescent",
-      Moon_Phase > 3*pi/8 & Moon_Phase <= 5*pi/8 ~ "First quarter",
-      Moon_Phase > 5*pi/8 & Moon_Phase <= 7*pi/8 ~ "Waxing gibbous",
-      Moon_Phase > 7*pi/8 & Moon_Phase <= 9*pi/8 ~ "Full",
-      Moon_Phase > 9*pi/8 & Moon_Phase <= 11*pi/8 ~ "Waning gibbous",
-      Moon_Phase > 11*pi/8 & Moon_Phase <= 13*pi/8 ~ "Last quarter",
-      Moon_Phase > 13*pi/8 & Moon_Phase <= 15*pi/8 ~ "Waning crescent"
     ),
 
     # Course-related features

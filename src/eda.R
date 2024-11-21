@@ -13,9 +13,9 @@ library(DataExplorer)
 
 # Read the data
 # here() starting path is root of the project
-raw_data <- readr::read_csv(here("data", "LC_train.csv"))
+data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 
-lc_data <- raw_data %>%
+lc_data <- data_raw %>%
   # Convert dates and times to appropriate formats
   mutate(
     Check_In_Date = mdy(Check_In_Date),
