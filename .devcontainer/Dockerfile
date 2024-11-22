@@ -1,52 +1,14 @@
-# Base Layer
-FROM clojure:temurin-21-tools-deps-bookworm-slim
-
-# Architecture detection for conditional installations
+# Base builder stage
+FROM clojure:temurin-21-tools-deps-bookworm-slim AS base-builder
 ARG TARGETARCH=amd64
 
-# Common System Dependencies Layer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
-    bash \
-    openssh-client \
-    openssh-server \
-    sudo \
-    libx11-dev \
-    libxi6 \
-    libxtst6 \
-    libxrender1 \
-    libxext6 \
-    libxft2 \
-    x11-apps \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Quarto Layer - Automatic architecture detection
-RUN ARCH=$(dpkg --print-architecture) \
-    && wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.450/quarto-1.3.450-linux-${ARCH}.deb \
-    && dpkg -i quarto-1.3.450-linux-${ARCH}.deb \
-    && rm quarto-1.3.450-linux-${ARCH}.deb \
-    && apt-get update \
-    && apt-get install -f -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Python Layer
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-numpy \
-    python3-pandas \
-    python3-ipykernel \
-    python3-matplotlib \
-    python3-seaborn \
-    python3-scipy \
-    python3-sklearn \
-    python3-statsmodels \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# R Layer
+# R package builder stage
+FROM base-builder AS r-builder
 RUN apt-get update && apt-get install -y --no-install-recommends \
     r-base \
     r-base-dev \
@@ -65,25 +27,67 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libgit2-dev \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -s /usr/lib/R/site-library/littler/examples/install2.r /usr/local/bin/install2.r \
-    && ln -s /usr/lib/R/site-library/littler/examples/installGithub.r /usr/local/bin/installGithub.r
+    && rm -rf /var/lib/apt/lists/*
 
-# Install R packages from requirements file
 COPY /rquirements.txt /tmp/rquirements.txt
 RUN Rscript -e '\
     pkg <- readLines("/tmp/rquirements.txt"); \
     pkg <- pkg[!grepl("^#", pkg) & pkg != ""]; \
     new_pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]; \
     if (length(new_pkg) > 0) install.packages(new_pkg, repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1); \
-    invisible(sapply(pkg, require, character.only=TRUE))' \
-    && rm -rf /tmp/downloaded_packages /tmp/rquirements.txt
+    invisible(sapply(pkg, require, character.only=TRUE))'
 
-# User Setup Layer
+# Final stage
+FROM clojure:temurin-21-tools-deps-bookworm-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    openssh-client \
+    openssh-server \
+    sudo \
+    libx11-dev \
+    libxi6 \
+    libxtst6 \
+    libxrender1 \
+    libxext6 \
+    libxft2 \
+    x11-apps \
+    python3 \
+    python3-pip \
+    python3-numpy \
+    python3-pandas \
+    python3-ipykernel \
+    python3-matplotlib \
+    python3-seaborn \
+    python3-scipy \
+    python3-sklearn \
+    python3-statsmodels \
+    python3-xgboost \
+    r-base \
+    wget \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Quarto after dependencies are installed
+RUN ARCH=$(dpkg --print-architecture) \
+    && wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.450/quarto-1.3.450-linux-${ARCH}.deb \
+    && dpkg -i quarto-1.3.450-linux-${ARCH}.deb \
+    && rm quarto-1.3.450-linux-${ARCH}.deb \
+    && apt-get update \
+    && apt-get install -f -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy from builders
+COPY --from=r-builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
+
+# User Setup
 RUN useradd -ms /bin/bash vscode \
     && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Environment Configuration Layer
+# Environment Configuration
 WORKDIR /workspace/ds-in-clojure
 ENV PATH="/usr/local/bin:/usr/bin:/usr/local/bin/python3:${PATH}"
 ENV DISPLAY=host.docker.internal:0
