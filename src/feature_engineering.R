@@ -109,7 +109,7 @@ lc_engineered <- data_raw %>%
 # -----------------------------------------------------------------------------
 # SAVE ENGINEERED DATA
 # -----------------------------------------------------------------------------
-# readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
+readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
 
 # -----------------------------------------------------------------------------
 # VIEW ENGINEERED DATA
