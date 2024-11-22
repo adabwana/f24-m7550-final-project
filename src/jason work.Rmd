@@ -15,5 +15,13 @@ View(LC_engineered)
 ```
 
 ``` {r}
+#Occupancy check
+LC <- LC_engineered
+#library(stringr)
+#LCord <- LC[str_order(LC$Student_IDs),] ~Useful for checking indices of original data set's first 6 observations
+LC$Occupancy[c(788, 93, 279, 5708, 458, 519)]
+```
+
+``` {r}
 
 ```
