@@ -7,10 +7,8 @@ library(skimr)
 library(DataExplorer)
 
 # -----------------------------------------------------------------------------
-# RAW DATA EXPLORATION
+# READ RAW DATA
 # -----------------------------------------------------------------------------
-
-# Read the data
 # here() starting path is root of the project
 data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 
@@ -26,8 +24,8 @@ lc_data <- data_raw %>%
   # Group by each date
   group_by(Check_In_Date) %>%
   mutate(
-    # Cumulative check-ins
-    Cum_Arrivals = row_number() - 1, 
+    # Cumulative check-ins 
+    Cum_Arrivals = row_number(), # - 1,  MINUS ONE TO START AT 0 OCCUPANCY AS 1st PERSON ARRIVES
     # Cumulative check-outs
     Cum_Departures = sapply(seq_along(Check_In_Time), function(i) {
       sum(!is.na(Check_Out_Time[1:i]) & 

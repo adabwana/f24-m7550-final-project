@@ -3,3 +3,5 @@
 !.gitignore
 !.Rproj
 [0-9]*
+data/LC_engineered.csv
+data/weather_history.csv
