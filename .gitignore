@@ -3,7 +3,7 @@
 !.gitignore
 !.Rproj
 [0-9]*
-data/LC_engineered.csv
+data/LC_engineered*
 data/weather_history.csv
 mlruns/
 
