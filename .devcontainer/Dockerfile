@@ -37,6 +37,7 @@ RUN Rscript -e '\
     if (length(new_pkg) > 0) install.packages(new_pkg, repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1); \
     invisible(sapply(pkg, require, character.only=TRUE))'
 
+
 # Final stage
 FROM clojure:temurin-21-tools-deps-bookworm-slim
 
