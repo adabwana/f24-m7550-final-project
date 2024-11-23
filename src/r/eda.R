@@ -76,3 +76,20 @@ glimpse(engineered_data)
 # Get comprehensive summary statistics
 skim(engineered_data)
 DataExplorer::plot_intro(engineered_data) 
+
+
+
+# -----------------------------------------------------------------------------
+# PART 1 DATA EXPLORATION
+# -----------------------------------------------------------------------------
+
+# Basic visualizations
+# Plot distribution of numeric columns
+DataExplorer::plot_histogram(part_1_data)
+DataExplorer::plot_bar(part_1_data)
+
+# Correlation analysis of numeric columns
+DataExplorer::plot_correlation(part_1_data)
+DataExplorer::plot_prcomp(part_1_data, variance_cap = 0.9, nrow = 2L, ncol = 2L)
+
+glimpse(part_1_data)

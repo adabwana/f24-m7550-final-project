@@ -67,7 +67,7 @@ lc_engineered <- data_raw %>%
 
     # Study session features
     # TODO: NO `CHECK_OUT_TIME` IN TEST SET ... HASH OUT LATER
-    Duration_In_Min = difftime(Check_Out_Time, Check_In_Time, units = "mins"),
+    Duration_In_Min = abs(difftime(Check_Out_Time, Check_In_Time, units = "mins")),
     Session_Length_Category = case_when(
       Duration_In_Min <= 30 ~ "Short",
       Duration_In_Min <= 90 ~ "Medium",
@@ -124,6 +124,7 @@ View(lc_engineered)
 # -----------------------------------------------------------------------------
 
 part_1_data <- engineered_data %>%
+  filter(Duration_In_Min > 0) %>%
 
   mutate(
       # Extract year from Expected_Graduation
@@ -153,9 +154,13 @@ categorical_factors <- c("Gender", "Semester", "Day_of_Week",
 # Convert categorical columns to factors
 part_1_data[categorical_factors] <- lapply(part_1_data[categorical_factors], as.factor)
 
+# take absolute value of Duration_In_Min
+#part_1_data$Duration_In_Min <- abs(part_1_data$Duration_In_Min)
+View(part_1_data)
 
 # show structure of data
 str(part_1_data)
 dim(part_1_data)
 
 readr::write_csv(part_1_data, here("data", "part_1_data.csv"))
+
