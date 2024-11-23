@@ -2,7 +2,6 @@
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from datetime import datetime
 
 # -----------------------------------------------------------------------------
 # READ DATA
@@ -21,7 +20,7 @@ def add_temporal_features(df):
         Is_Weekend=df['Check_In_Date'].dt.dayofweek.isin([5, 6]),
         Week_of_Month=df['Check_In_Date'].dt.day.apply(lambda x: np.ceil(x/7)),
         Month=df['Check_In_Date'].dt.month_name().str[:3],
-        Hour_of_Day=pd.to_datetime(df['Check_In_Time'].astype(str)).dt.hour,
+        Hour_of_Day=pd.to_datetime(df['Check_In_Time'].astype(str), format='%H:%M:%S').dt.hour,
     )
 
 def add_time_period(df):
@@ -57,8 +56,8 @@ def add_performance_indicators(df):
 
 def add_session_features(df):
     """Add study session-related features."""
-    duration = ((pd.to_datetime(df['Check_Out_Time'].astype(str)) - 
-                pd.to_datetime(df['Check_In_Time'].astype(str)))
+    duration = ((pd.to_datetime(df['Check_Out_Time'].astype(str), format='%H:%M:%S') - 
+                pd.to_datetime(df['Check_In_Time'].astype(str), format='%H:%M:%S'))
                .dt.total_seconds() / 60)
     
     return df.assign(
@@ -100,8 +99,9 @@ def add_standing_features(df):
 
 def calculate_occupancy(group):
     """Calculate occupancy for a group of check-ins."""
-    check_in_times = pd.to_datetime(group['Check_In_Time'].astype(str))
-    check_out_times = pd.to_datetime(group['Check_Out_Time'].astype(str))
+    # Specify format for datetime conversion
+    check_in_times = pd.to_datetime(group['Check_In_Time'].astype(str), format='%H:%M:%S')
+    check_out_times = pd.to_datetime(group['Check_Out_Time'].astype(str), format='%H:%M:%S')
     
     arrivals = range(1, len(group) + 1)
     departures = [
@@ -117,15 +117,18 @@ def add_occupancy(df):
     """Add occupancy calculations to the dataframe."""
     df = df.sort_values(['Check_In_Date', 'Check_In_Time'])
     return df.assign(
-        Occupancy=df.groupby('Check_In_Date').apply(calculate_occupancy).explode().values
+        Occupancy=df.groupby('Check_In_Date', group_keys=False)
+                    .apply(calculate_occupancy, include_groups=False)
+                    .explode()
+                    .values
     )
 
 def prepare_dates(df):
     """Convert date and time columns to appropriate formats."""
     return df.assign(
-        Check_In_Date=pd.to_datetime(df['Check_In_Date']),
-        Check_In_Time=pd.to_datetime(df['Check_In_Time']).dt.time,
-        Check_Out_Time=pd.to_datetime(df['Check_Out_Time']).dt.time,
+        Check_In_Date=pd.to_datetime(df['Check_In_Date'], format='%m/%d/%y'),
+        Check_In_Time=pd.to_datetime(df['Check_In_Time'].astype(str), format='%H:%M:%S').dt.time,
+        Check_Out_Time=pd.to_datetime(df['Check_Out_Time'].astype(str), format='%H:%M:%S').dt.time,
     )
 
 def engineer_features(df):
