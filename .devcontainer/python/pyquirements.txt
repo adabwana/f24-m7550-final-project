@@ -1,8 +1,9 @@
 numpy
 pandas
-ipykernel
 matplotlib
 seaborn
 scipy
-sklearn
+scikit-learn
 statsmodels
+mlflow
+ipykernel
