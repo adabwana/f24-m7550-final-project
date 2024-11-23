@@ -117,3 +117,45 @@ readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
 View(lc_engineered)
 
 
+
+
+# -----------------------------------------------------------------------------
+# DATA CLEANING FOR PART 1
+# -----------------------------------------------------------------------------
+
+part_1_data <- engineered_data %>%
+
+  mutate(
+      # Extract year from Expected_Graduation
+      Expected_Graduation_Yr = substr(as.character(Expected_Graduation),
+        nchar(as.character(Expected_Graduation)) - 3, 
+        nchar(as.character(Expected_Graduation))),
+    
+      # Underclassman Indicator
+      Underclassman = if_else(
+        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
+
+  # Drop columns
+  select(
+    -Student_IDs, -Course_Name, -Course_Number, -Check_Out_Time,
+    -Check_In_Date, -Check_In_Time, -Major, -Week_of_Month,
+    -Session_Length_Category, -Occupancy, -Course_Type,
+    -Is_Weekend, -Time_Period, -Class_Standing_Self_Reported,
+    -Class_Standing_BGSU, -Credit_Load_Category, -GPA_Category, 
+    -Class_Standing, -Month, -Course_Code_by_Thousands, -Expected_Graduation,
+    -Degree_Type)
+
+
+# List of categorical columns
+categorical_factors <- c("Gender", "Semester", "Day_of_Week",
+"Course_Level", "Underclassman", "Expected_Graduation_Yr")
+
+# Convert categorical columns to factors
+part_1_data[categorical_factors] <- lapply(part_1_data[categorical_factors], as.factor)
+
+
+# show structure of data
+str(part_1_data)
+dim(part_1_data)
+
+readr::write_csv(part_1_data, here("data", "part_1_data.csv"))
