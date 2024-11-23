@@ -15,6 +15,7 @@ skimr
 # Statistics and modeling
 broom
 caret
+car
 
 # Data import/export
 here

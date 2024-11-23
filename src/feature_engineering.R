@@ -115,3 +115,5 @@ readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
 # VIEW ENGINEERED DATA
 # -----------------------------------------------------------------------------
 View(lc_engineered)
+
+
