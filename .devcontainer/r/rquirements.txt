@@ -20,8 +20,3 @@ car
 # Data import/export
 here
 jsonlite
-
-# better plotting in vscode
-# https://stackoverflow.com/questions/52284345/how-to-show-r-graph-from-visual-studio-code
-httpgd
-languageserver

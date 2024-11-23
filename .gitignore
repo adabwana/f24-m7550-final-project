@@ -3,5 +3,21 @@
 !.gitignore
 !.Rproj
 [0-9]*
-data/LC_engineered.csv
+data/LC_engineered*
 data/weather_history.csv
+mlruns/
+
+# Development environment
+.devcontainer/.r/
+.devcontainer/__pycache__/
+.devcontainer/.ipynb_checkpoints/
+.devcontainer/.clj-kondo/
+.devcontainer/.lsp/
+
+# Language specific
+Rplots.pdf
+*.pyc
+.RData
+.Rhistory
+.cpcache/
+.nrepl-port

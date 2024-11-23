@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  r:
+    build:
+      context: ./.devcontainer/r
+      dockerfile: r.Dockerfile
+    container_name: r-dev
+    volumes:
+      - .:/workspace:cached
+    environment:
+      - R_LIBS_USER=/workspace/.r/library
+      - RENV_PATHS_CACHE=/workspace/.r/cache
+
+  python:
+    build:
+      context: ./.devcontainer/python
+      dockerfile: python.Dockerfile
+    container_name: python-dev
+    volumes:
+      - .:/workspace:cached
+    environment:
+      - PYTHONPATH=/workspace/src/python
+      - JUPYTER_PATH=/workspace/notebooks
+
+  clojure:
+    build:
+      context: ./.devcontainer/clojure
+      dockerfile: clojure.Dockerfile
+    container_name: clojure-dev
+    volumes:
+      - .:/workspace:cached
+    environment:
+      - CLOJURE_DEPS=/workspace/deps.edn 

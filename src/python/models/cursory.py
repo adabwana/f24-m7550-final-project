@@ -17,7 +17,7 @@ def load_and_prepare_data():
     # Assuming 'duration_in_minutes' is our target variable
     # Remove any non-feature columns
     target = 'Duration_In_Min'
-    features_to_drop = ['Check_Out_Time', target]
+    features_to_drop = ['Check_Out_Time', 'Session_Length_Category', target]
     
     X = df.drop(features_to_drop, axis=1)
     y = df[target]
