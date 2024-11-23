@@ -10,7 +10,8 @@
     "vscode": {
       "extensions": [
         "REditorSupport.r",
-        "RDebugger.r-debugger"
+        "RDebugger.r-debugger",
+        "ms-toolsai.datawrangler"
       ]
     }
   },

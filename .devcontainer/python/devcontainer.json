@@ -11,7 +11,8 @@
             "extensions": [
                 "ms-python.python",
                 "ms-toolsai.jupyter",
-                "ms-python.vscode-pylance"
+                "ms-python.vscode-pylance",
+                "ms-toolsai.datawrangler"
             ]
         }
     },
