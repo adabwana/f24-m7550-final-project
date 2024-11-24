@@ -8,13 +8,10 @@ data/weather_history.csv
 mlruns/
 
 # Development environment
-.devcontainer/.r/
 .devcontainer/__pycache__/
-.devcontainer/.ipynb_checkpoints/
-.devcontainer/.clj-kondo/
-.devcontainer/.lsp/
 
 # Language specific
+src/clojure/
 Rplots.pdf
 *.pyc
 .RData

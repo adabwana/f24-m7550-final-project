@@ -10,7 +10,26 @@
         "vscode": {
             "extensions": [
                 "betterthantomorrow.calva",
-                "betterthantomorrow.calva-spritz"
+                // "betterthantomorrow.calva-spritz",
+                "shaunlebron.vscode-parinfer"
+            ],
+            "settings": {
+                "[clojure]": {
+                    // "editor.defaultFormatter": "shaunlebron.vscode-parinfer",
+                    // "parinfer.mode": "smart",
+                    // "editor.autoClosingBrackets": "never",
+                    // "editor.autoClosingOvertype": "never",
+                    // "editor.formatOnPaste": false,
+                    "editor.formatOnType": true
+            },
+                "calva.paredit.defaultKeyMap": "original"
+            },
+            "keybindings": [
+                {
+                  "key": "ctrl+shift+alt+l",
+                  "command": "editor.action.formatDocument",
+                  "when": "editorHasDocumentFormattingProvider && editorTextFocus && !editorReadonly && !inCompositeEditor"
+                }
             ]
         }
     },
