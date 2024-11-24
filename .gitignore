@@ -12,6 +12,7 @@ mlruns/
 
 # Language specific
 src/clojure/
+docs/
 Rplots.pdf
 *.pyc
 .RData

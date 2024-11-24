@@ -26,4 +26,13 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 USER $USERNAME
 
+# Set DISPLAY environment variable (might be needed for some GUI applications)
+ENV DISPLAY=host.docker.internal:0
+
+# Ensure the Java AWT libraries can find the X11 libraries
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
+# Set Java to run in headless mode by default
+ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
+
 WORKDIR /workspace 
