@@ -37,13 +37,13 @@ RUN Rscript -e '\
 # https://stackoverflow.com/questions/52284345/how-to-show-r-graph-from-visual-studio-code
 RUN Rscript -e 'install.packages(c("httpgd", "languageserver"), repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1)'
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    # car package dependencies
-    cmake \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     # car package dependencies
+#     cmake \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN Rscript -e 'install.packages("car", dependencies=TRUE, repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1)'
+# RUN Rscript -e 'install.packages("car", dependencies=TRUE, repos="https://cloud.r-project.org/", Ncpus=parallel::detectCores()-1)'
 
 USER $USERNAME
 
