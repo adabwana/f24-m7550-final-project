@@ -5,10 +5,10 @@
 [0-9]*
 data/LC_engineered*
 data/weather_history.csv
-mlruns/
 
 # Development environment
-.devcontainer/__pycache__/
+*.db
+mlruns/
 
 # Language specific
 src/clojure/

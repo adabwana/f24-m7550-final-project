@@ -21,3 +21,7 @@ RUN pip install --no-cache-dir -r /tmp/pyquirements.txt
 USER $USERNAME
 
 WORKDIR /workspace 
+
+# Configure MLflow
+EXPOSE 5000
+CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000"]

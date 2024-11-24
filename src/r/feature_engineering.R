@@ -19,21 +19,21 @@ prepare_dates <- function(df) {
 
 add_temporal_features <- function(df) {
   df %>% mutate(
-    Day_of_Week = wday(Check_In_Date, label = TRUE),
-    Is_Weekend = Day_of_Week %in% c("Sat", "Sun"),
-    Week_of_Month = ceiling(day(Check_In_Date) / 7),
-    Month = month(Check_In_Date, label = TRUE),
-    Hour_of_Day = hour(Check_In_Time)
+    Check_In_Day = wday(Check_In_Date, label = TRUE),
+    Is_Weekend = Check_In_Day %in% c("Sat", "Sun"),
+    Check_In_Week = ceiling(day(Check_In_Date) / 7),
+    Check_In_Month = month(Check_In_Date, label = TRUE),
+    Check_In_Hour = hour(Check_In_Time)
   )
 }
 
 add_time_category <- function(df) {
   df %>% mutate(
     Time_Category = case_when(
-      Hour_of_Day < 6 ~ "Late Night",
-      Hour_of_Day < 12 ~ "Morning",
-      Hour_of_Day < 17 ~ "Afternoon",
-      Hour_of_Day < 22 ~ "Evening",
+      Check_In_Hour < 6 ~ "Late Night",
+      Check_In_Hour < 12 ~ "Morning",
+      Check_In_Hour < 17 ~ "Afternoon",
+      Check_In_Hour < 22 ~ "Evening",
       TRUE ~ "Late Night"
     )
   )
@@ -452,7 +452,7 @@ engineer_features <- function(df) {
 # -----------------------------------------------------------------------------
 data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 (lc_engineered <- engineer_features(data_raw))
-readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
+# readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
 
 # lc_engineered %>%
 #   filter(Course_Type_Category == "Other") %>%
