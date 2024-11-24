@@ -144,7 +144,7 @@ add_class_standing_bgsu <- function(df) {
 # -----------------------------------------------------------------------------
 # COURSE NAME CATEGORIZATION
 # -----------------------------------------------------------------------------
-add_course_level_from_name <- function(df) {
+add_course_name_category <- function(df) {
   df %>% mutate(
     Course_Name_Category = case_when(
       # Introductory level courses
@@ -195,6 +195,57 @@ add_course_level_from_name <- function(df) {
       # Education/Teaching
       grepl("Education|Teaching|Learning|Childhood|Teacher|Curriculum", 
             Course_Name, ignore.case = TRUE) ~ "Education",
+      
+      # Default case
+      TRUE ~ "Other"
+    )
+  )
+}
+
+# -----------------------------------------------------------------------------
+# COURSE TYPE CATEGORIZATION
+# -----------------------------------------------------------------------------
+add_course_type_category <- function(df) {
+  df %>% mutate(
+    Course_Type_Category = case_when(
+      # STEM Fields
+      Course_Type %in% c("MATH", "STAT", "CS", "ASTR","PHYS", "BIOL", "CHEM", "GEOL", "ECET") ~ "STEM Core",
+      
+      # Engineering and Technology
+      Course_Type %in% c("ENGT", "CONS", "ARCH", "MIS", "TECH") ~ "Engineering & Technology",
+      
+      # Business and Economics
+      Course_Type %in% c("FIN", "ACCT", "ECON", "BA", "MGMT", "MKT", "MBA", "BIZX", "LEGS", "OR") ~ "Business",
+      
+      # Social Sciences
+      Course_Type %in% c("SOC", "PSYC", "POLS", "CRJU", "HDFS", "SOWK", "GERO") ~ "Social Sciences",
+      
+      # Natural and Health Sciences
+      Course_Type %in% c("NURS", "MLS", "EXSC", "FN", "AHTH", "DHS") ~ "Health Sciences",
+      
+      # Humanities and Languages
+      Course_Type %in% c("HIST", "PHIL", "ENG", "GSW", "FREN", "GERM", "SPAN", "LAT", "RUSN", "ITAL", "CLCV") ~ "Humanities",
+      
+      # Arts and Performance
+      Course_Type %in% c("ART", "ID", "MUCT", "MUS", "THFM", "POPC") ~ "Arts",
+      
+      # Education and Teaching
+      Course_Type %in% c("EDTL", "EDFI", "EDIS", "EIEC") ~ "Education",
+      
+      # Environmental Studies
+      Course_Type %in% c("ENVS", "GEOG", "SEES") ~ "Environmental Studies",
+      
+      # Special Programs
+      Course_Type %in% c("HNRS", "UNIV", "ORGD", "RESC") ~ "Special Programs",
+      
+      # Physical Education
+      Course_Type %in% c("PEG", "SM", "HMSL") ~ "Physical Education",
+      
+      # Cultural Studies
+      Course_Type %in% c("ETHN", "COMM", "CDIS") ~ "Cultural & Communication Studies",
+      
+      # No Response/Unknown
+      Course_Type %in% c("No Response", NA) ~ "No Response",
       
       # Default case
       TRUE ~ "Other"
@@ -378,7 +429,8 @@ engineer_features <- function(df) {
     add_temporal_features() %>%
     add_time_category() %>%
     add_course_features() %>%
-    add_course_level_from_name() %>%
+    add_course_name_category() %>%
+    add_course_type_category() %>%
     add_major_category() %>%
     add_gpa_category() %>%
     add_credit_load_category() %>%
@@ -400,11 +452,11 @@ engineer_features <- function(df) {
 # -----------------------------------------------------------------------------
 data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 (lc_engineered <- engineer_features(data_raw))
-# readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
+readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
 
 # lc_engineered %>%
-#   filter(Major_Category == "Other") %>%
-#   select(Major) %>%
+#   filter(Course_Type_Category == "Other") %>%
+#   select(Course_Type) %>%
 #   distinct() %>%
 #   print(n = 150)
 
