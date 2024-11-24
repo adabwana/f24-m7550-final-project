@@ -25,11 +25,27 @@ LC$Occupancy[c(788, 93, 279, 5708, 458, 519)]
 ``` {r}
 #LIBRARIES GO HERE
 library(caret)
+library(gam)
+
+#Note: Run 'Compiled Dataset Cleaning' first to generate 'traindata' and 'testdata'
+```
+
+``` {r}
+#POSSIBLE CENTER/SCALING OF NUMERICAL COVARIATES
+
+TCH <- scale(traindata$Term_Credit_Hours, center = TRUE, scale = TRUE)
+TGPA <- scale(traindata$Term_GPA, center = TRUE, scale = TRUE)
+TCHE <- scale(traindata$Total_Credit_Hours_Earned, center = TRUE, scale = TRUE)
+CGPA <- scale(traindata$Change_in_GPA, center = TRUE, scale = TRUE)
+
+trainscale <- traindata
+trainscale <- cbind(traindata, DIM, TCH, TGPA, TCHE, CGPA)
 ```
 
 
+
 ``` {r}
-#Run 'Compiled Dataset Cleaning' first to generate 'traindata' and 'testdata'
+#LINEAR MODEL
 
 set.seed(7550)
 testInd <- createFolds(traindata$Duration_In_Min, k = 10)
@@ -52,6 +68,8 @@ sqrt(var(CVMSE1))
 
 
 ``` {r}
+#LINEAR MODEL WITH SEQUENTIAL SELECTION
+
 set.seed(7550)
 testInd <- createFolds(traindata$Duration_In_Min, k = 10)
 
@@ -72,7 +90,10 @@ sqrt(var(CVMSE2))
 coef(CV2$finalModel, as.double(CV2$bestTune)) #See which variables were kept in
 ```
 
+
+
 ``` {r}
+#LINEAR MODEL WITH REDUCED PARAMETERS (BASED ON SEQUENTIAL SELECTION)
 set.seed(7550)
 testInd <- createFolds(traindata$Duration_In_Min, k = 10)
 
@@ -96,10 +117,261 @@ summary(CV3)
 
 
 
+``` {r}
+#FORWARD SELECTION
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE4 <- c()
+for (i in 1:10) {
+  CV4 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"), method = "leapForward")
+  fitted4 <- predict(CV4, newdata = traindata[testInd[[i]],])
+  CVMSE4[i] <- sum((fitted4 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE4 <- sum(CVMSE4)/10
+RMSE4 <- sqrt(sum(CVMSE4)/10)
+RMSE4
+sqrt(var(CVMSE4))
+
+coef(CV4$finalModel, as.double(CV4$bestTune)) #See which variables were kept in
+```
 
 
 
+``` {r}
+#BACKWARD SELECTION
 
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE5 <- c()
+for (i in 1:10) {
+  CV5 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"), method = "leapBackward")
+  fitted5 <- predict(CV5, newdata = traindata[testInd[[i]],])
+  CVMSE5[i] <- sum((fitted5 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE5 <- sum(CVMSE5)/10
+RMSE5 <- sqrt(sum(CVMSE5)/10)
+RMSE5
+sqrt(var(CVMSE5))
+
+coef(CV5$finalModel, as.double(CV5$bestTune)) #See which variables were kept in
+```
+
+
+
+``` {r}
+#ELASTIC NET
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVtune6 <- train(Duration_In_Min ~ ., data = traindata,
+                 preProc = c("center", "scale"), method = "glmnet",
+                 tuneGrid = expand.grid(alpha = seq(0,1,by = 0.1),
+                                        lambda = 10^seq(-4,4,by = 0.5)),
+                 trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE6 <- c()
+for (i in 1:10) {
+  CV6 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"),  method = "glmnet",
+               tuneGrid = CVtune6$bestTune)
+  fitted6 <- predict(CV6, newdata = traindata[testInd[[i]],])
+  CVMSE6[i] <- sum((fitted6 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE6 <- sum(CVMSE6)/10
+RMSE6 <- sqrt(sum(CVMSE6)/10)
+RMSE6
+sqrt(var(CVMSE6))
+
+CV6$bestTune #Alpha = 0.1 (very close to ridge), lambda = 0.0316
+```
+
+
+
+``` {r}
+#RIDGE REGRESSION
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVtune7 <- train(Duration_In_Min ~ ., data = traindata,
+                 preProc = c("center", "scale"), method = "glmnet",
+                 tuneGrid = expand.grid(alpha = 0, lambda = 10^seq(-4,4,by = 0.5)),
+                 trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE7 <- c()
+for (i in 1:10) {
+  CV7 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"),  method = "glmnet",
+               tuneGrid = CVtune7$bestTune)
+  fitted7 <- predict(CV5, newdata = traindata[testInd[[i]],])
+  CVMSE7[i] <- sum((fitted7 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE7 <- sum(CVMSE7)/10
+RMSE7 <- sqrt(sum(CVMSE7)/10)
+RMSE7
+sqrt(var(CVMSE7))
+
+CV7$bestTune #Lambda = 0.316
+```
+
+
+
+``` {r}
+#LASSO
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVtune8 <- train(Duration_In_Min ~ ., data = traindata,
+                 preProc = c("center", "scale"), method = "glmnet",
+                 tuneGrid = expand.grid(alpha = 1, lambda = 10^seq(-4,4,by = 0.5)),
+                 trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE8 <- c()
+for (i in 1:10) {
+  CV8 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"),  method = "glmnet",
+               tuneGrid = CVtune8$bestTune)
+  fitted8 <- predict(CV8, newdata = traindata[testInd[[i]],])
+  CVMSE8[i] <- sum((fitted8 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE8 <- sum(CVMSE8)/10
+RMSE8 <- sqrt(sum(CVMSE8)/10)
+RMSE8
+sqrt(var(CVMSE8))
+
+CV8$bestTune #Lambda = 0.316
+```
+
+
+
+``` {r}
+#PCR
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVtune9 <- train(Duration_In_Min ~ ., data = traindata,
+                 preProc = c("center", "scale"), method = "pcr",
+                 tuneLength = 17, trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE9 <- c()
+for (i in 1:10) {
+  CV9 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"),  method = "pcr",
+               tuneGrid = CVtune9$bestTune)
+  fitted9 <- predict(CV9, newdata = traindata[testInd[[i]],])
+  CVMSE9[i] <- sum((fitted9 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE9 <- sum(CVMSE9)/10
+RMSE9 <- sqrt(sum(CVMSE9)/10)
+RMSE9
+sqrt(var(CVMSE9))
+
+CV9$bestTune #All 17 predictors used!
+```
+
+
+
+``` {r}
+#PLS
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVtune10 <- train(Duration_In_Min ~ ., data = traindata,
+                  preProc = c("center", "scale"), method = "pls",
+                  tuneLength = 17, trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE10 <- c()
+for (i in 1:10) {
+  CV10 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+                preProc = c("center", "scale"),  method = "pls",
+                tuneGrid = CVtune10$bestTune)
+  fitted8 <- predict(CV10, newdata = traindata[testInd[[i]],])
+  CVMSE8[i] <- sum((fitted10 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE10 <- sum(CVMSE10)/10
+RMSE10 <- sqrt(sum(CVMSE10)/10)
+RMSE10
+sqrt(var(CVMSE10))
+
+CV10$bestTune #12 predictors used
+```
+
+
+
+``` {r}
+#NATURAL SPLINES (FOR QUANTITATIVE PREDICTORS)
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE11 <- c()
+for (i in 1:10) {
+  CV11 <- gam(Duration_In_Min ~  Semester + Gender + Day_of_Week + Course_Level +
+              Expected_Graduation_Yr + Underclassman + Major_Indicated + MATH +
+              STAT + Exams_Approaching + Afternoon + Evening +
+              ns(Term_Credit_Hours, df = 2) + ns(Term_GPA, df = 2) +
+              ns(Total_Credit_Hours_Earned, df = 2) + ns(Change_in_GPA, df = 2),
+              data = trainscale[-testInd[[i]],])
+  fitted11 <- predict(CV11, newdata = trainscale[testInd[[i]],])
+  CVMSE11[i] <- sum((fitted11 - trainscale$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE11 <- sum(CVMSE11)/10
+RMSE11 <- sqrt(sum(CVMSE11)/10)
+RMSE11
+sqrt(var(CVMSE11))
+```
+
+
+
+``` {r}
+#SMOOTHING SPLINES (FOR QUANTITATIVE PREDICTORS)
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE12 <- c()
+for (i in 1:10) {
+  CV12 <- gam(Duration_In_Min ~  Semester + Gender + Day_of_Week + Course_Level +
+              Expected_Graduation_Yr + Underclassman + Major_Indicated + MATH +
+              STAT + Exams_Approaching + Afternoon + Evening +
+              s(Term_Credit_Hours, df = 2) + s(Term_GPA, df = 2) +
+              s(Total_Credit_Hours_Earned, df = 2) + s(Change_in_GPA, df = 2),
+              data = trainscale[-testInd[[i]],])
+  fitted12 <- predict(CV12, newdata = trainscale[testInd[[i]],])
+  CVMSE12[i] <- sum((fitted12 - trainscale$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE12 <- sum(CVMSE12)/10
+RMSE12 <- sqrt(sum(CVMSE12)/10)
+RMSE12
+sqrt(var(CVMSE12))
+```
 
 
 

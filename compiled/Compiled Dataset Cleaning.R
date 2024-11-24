@@ -311,6 +311,10 @@ traindata <- traindata %>% select(-Hour_of_Day)
 
 traindata$Day_of_Week <- factor(traindata$Day_of_Week, ordered = FALSE)
 
+library(stringr)
+traindata <- traindata %>% mutate(Semester = str_replace(Semester, "Fall 2016", "Fall"))
+traindata <- traindata %>% mutate(Semester = str_replace(Semester, "Spring 2017", "Spring"))
+traindata$Semester <- as.factor(traindata$Semester)
   
 # show structure of data
 #View(traindata)
@@ -349,6 +353,9 @@ testdata <- testdata %>% select(-Hour_of_Day)
 
 testdata$Day_of_Week <- factor(testdata$Day_of_Week, ordered = FALSE)
 
+testdata <- testdata %>% mutate(Semester = str_replace(Semester, "Fall 2017", "Fall"))
+testdata <- testdata %>% mutate(Semester = str_replace(Semester, "Spring 2018", "Spring"))
+testdata$Semester <- as.factor(testdata$Semester)
 
 # show structure of data
 #View(testdata)
@@ -356,3 +363,4 @@ str(testdata)
 dim(testdata)
 
 readr::write_csv(testdata, here("data", "testdata.csv"))
+
