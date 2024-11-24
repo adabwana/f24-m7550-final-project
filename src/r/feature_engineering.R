@@ -355,7 +355,7 @@ add_course_load_features <- function(df) {
       # Mix of course levels
       Course_Level_Mix = n_distinct(Course_Code_by_Thousands),
       # Proportion of advanced courses
-      Advanced_Course_Ratio = mean(Course_Level == "Advanced", na.rm = TRUE)
+      Advanced_Course_Ratio = mean(Course_Level == "Upper Classmen", na.rm = TRUE)
     ) %>%
     ungroup()
 }

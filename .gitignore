@@ -9,6 +9,7 @@ data/weather_history.csv
 # Development environment
 *.db
 mlruns/
+mlartifacts/
 
 # Language specific
 src/clojure/
