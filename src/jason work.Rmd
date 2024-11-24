@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ``` {r}
-LC_engineered <- read.csv("E:/BGSU Fall 2024/MATH7550/Final Project/f24-m7550-final-project/data/LC_engineered.csv")
+LC_engineered <- read.csv("https://raw.githubusercontent.com/adabwana/f24-m7550-final-project/refs/heads/jason-dev/data/LC_engineered.csv?token=GHSAT0AAAAAAC2XQKR2RGQOS7LE6XJ6BB7SZ2CSRLQ")
 View(LC_engineered)
 ```
 
@@ -23,5 +23,86 @@ LC$Occupancy[c(788, 93, 279, 5708, 458, 519)]
 ```
 
 ``` {r}
-
+#LIBRARIES GO HERE
+library(caret)
 ```
+
+
+``` {r}
+#Run 'Compiled Dataset Cleaning' first to generate 'traindata' and 'testdata'
+
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE1 <- c()
+for (i in 1:10) {
+  CV1 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"), method = "lm")
+  fitted1 <- predict(CV1, newdata = traindata[testInd[[i]],])
+  CVMSE1[i] <- sum((fitted1 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE1 <- sum(CVMSE1)/10
+RMSE1 <- sqrt(sum(CVMSE1)/10)
+RMSE1
+sqrt(var(CVMSE1))
+```
+
+
+
+``` {r}
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE2 <- c()
+for (i in 1:10) {
+  CV2 <- train(Duration_In_Min ~ ., data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"), method = "leapSeq")
+  fitted2 <- predict(CV2, newdata = traindata[testInd[[i]],])
+  CVMSE2[i] <- sum((fitted2 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE2 <- sum(CVMSE2)/10
+RMSE2 <- sqrt(sum(CVMSE2)/10)
+RMSE2
+sqrt(var(CVMSE2))
+
+coef(CV2$finalModel, as.double(CV2$bestTune)) #See which variables were kept in
+```
+
+``` {r}
+set.seed(7550)
+testInd <- createFolds(traindata$Duration_In_Min, k = 10)
+
+CVMSE3 <- c()
+for (i in 1:10) {
+  CV3 <- train(Duration_In_Min ~ Day_of_Week + Major_Indicated + MATH
+               + Evening, data = traindata[-testInd[[i]],],
+               preProc = c("center", "scale"), method = "lm")
+  fitted3 <- predict(CV3, newdata = traindata[testInd[[i]],])
+  CVMSE3[i] <- sum((fitted3 - traindata$Duration_In_Min[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE3 <- sum(CVMSE3)/10
+RMSE3 <- sqrt(sum(CVMSE3)/10)
+RMSE3
+sqrt(var(CVMSE3))
+
+summary(CV3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

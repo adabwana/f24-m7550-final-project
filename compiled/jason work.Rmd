@@ -1,0 +1,27 @@
+---
+title: "Jason's Work"
+author: "Jason Turk"
+date: "2024-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+LC_engineered <- read.csv("https://raw.githubusercontent.com/adabwana/f24-m7550-final-project/refs/heads/jason-dev/data/LC_engineered.csv?token=GHSAT0AAAAAAC2XQKR2RGQOS7LE6XJ6BB7SZ2CSRLQ")
+View(LC_engineered)
+```
+
+``` {r}
+#Occupancy check
+LC <- LC_engineered
+#library(stringr)
+#LCord <- LC[str_order(LC$Student_IDs),] ~Useful for checking indices of original data set's first 6 observations
+LC$Occupancy[c(788, 93, 279, 5708, 458, 519)]
+```
+
+``` {r}
+LC_test <- 
+```
