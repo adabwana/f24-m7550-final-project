@@ -230,7 +230,7 @@ part_1_data <- lc_engineered %>%
   select(
     -Student_IDs, -Course_Name, -Course_Number, -Check_In_Date,
     -Check_In_Time, -Check_Out_Time, -Week_of_Month, -Month,
-    -Occupancy, -Cumulative_GPA, -Course_Code_by_Thousands, 
+    -Cumulative_GPA, -Course_Code_by_Thousands, 
     -Time_Period, -Class_Standing_Self_Reported, -Is_Weekend,
     -Credit_Load_Category, -GPA_Category, -Class_Standing,
     -Expected_Graduation, -Degree_Type, -Class_Standing_BGSU)
@@ -244,6 +244,8 @@ categorical_factors <- c("Gender", "Semester", "Day_of_Week",
 # Convert categorical columns to factors
 part_1_data[categorical_factors] <- lapply(part_1_data[categorical_factors], as.factor)
 
+part_3_data <- part_1_data
+part_1_data <- part_1_data %>% select(-Occupancy)
 #View(part_1_data)
 
 
@@ -363,4 +365,50 @@ str(testdata)
 dim(testdata)
 
 readr::write_csv(testdata, here("data", "testdata.csv"))
+
+
+
+
+traindata2 <- part_3_data
+
+Major_Indicated <- ifelse(traindata2$Major %in% c("No Response"), 0, 1)
+Major_Indicated <- as.factor(Major_Indicated)
+traindata2 <- cbind(traindata2, Major_Indicated)
+traindata2 <- traindata2 %>% select(-Major)
+
+MATH <- ifelse(traindata2$Course_Type %in% c("MATH"), 1, 0)
+MATH <- as.factor(MATH)
+STAT <- ifelse(traindata2$Course_Type %in% c("STAT"), 1, 0)
+STAT <- as.factor(STAT)
+traindata2 <- cbind(traindata2, MATH, STAT)
+traindata2 <- traindata2 %>% select(-Course_Type)
+
+Exams_Approaching <- ifelse(traindata2$Semester_Week %in% c(6,7,8,14,15,16,17), 1, 0)
+Exams_Approaching <- as.factor(Exams_Approaching)
+traindata2 <- cbind(traindata2, Exams_Approaching)
+traindata2 <- traindata2 %>% select(-Semester_Week)
+
+Afternoon <- ifelse(traindata2$Hour_of_Day %in% c(12,13,14,15,16), 1, 0)
+Afternoon <- as.factor(Afternoon)
+Evening <- ifelse(traindata2$Hour_of_Day %in% c(17,18,19,20,21), 1, 0)
+Evening <- as.factor(Evening)
+traindata2 <- cbind(traindata2, Afternoon, Evening)
+traindata2 <- traindata2 %>% select(-Hour_of_Day)
+
+traindata2$Day_of_Week <- factor(traindata2$Day_of_Week, ordered = FALSE)
+
+library(stringr)
+traindata2 <- traindata2 %>% mutate(Semester = str_replace(Semester, "Fall 2016", "Fall"))
+traindata2 <- traindata2 %>% mutate(Semester = str_replace(Semester, "Spring 2017", "Spring"))
+traindata2$Semester <- as.factor(traindata2$Semester)
+
+traindata2 <- traindata2 %>% select(-Duration_In_Min)
+
+# show structure of data
+#View(traindata)
+str(traindata2)
+dim(traindata2)
+
+readr::write_csv(traindata2, here("data", "traindata2.csv"))
+
 
