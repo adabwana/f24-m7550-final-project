@@ -7,10 +7,13 @@ import numpy as np
 from sklearn.model_selection import train_test_split, KFold, GridSearchCV, TimeSeriesSplit, RepeatedStratifiedKFold
 from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.metrics import mean_squared_error
-from sklearn.preprocessing import StandardScaler, RobustScaler, SplineTransformer, PolynomialFeatures
+from sklearn.preprocessing import StandardScaler, RobustScaler, SplineTransformer, FunctionTransformer, PolynomialFeatures
 from sklearn.pipeline import Pipeline
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import make_scorer
+from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.decomposition import PCA
+from sklearn.pipeline import FeatureUnion
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -57,29 +60,51 @@ os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/mlruns"
 # MODEL DEFINITIONS
 # =============================================================================
 models = {
-    'Ridge': (Ridge(), {
-        'model__alpha': np.logspace(0, 2, 10),
-    }),
-    'Lasso': (Lasso(), {
-        'model__alpha': np.logspace(-2, 0, 10)
-    }),
-    'ElasticNet': (ElasticNet(), {
-        'model__alpha': np.logspace(-3, -1, 10),
-        'model__l1_ratio': np.linspace(0.1, 0.9, 5)
-    }),
-    'PenalizedSplines': (Pipeline([
-        ('spline', SplineTransformer()),
+    # 'Ridge': (Ridge(), {
+    #     'model__alpha': np.logspace(0, 2, 10),
+    # }),
+    # 'Lasso': (Lasso(), {
+    #     'model__alpha': np.logspace(-2, 0, 10)
+    # }),
+    # 'ElasticNet': (ElasticNet(), {
+    #     'model__alpha': np.logspace(-3, -1, 10),
+    #     'model__l1_ratio': np.linspace(0.1, 0.9, 5)
+    # }),
+    # 'PenalizedSplines': (Pipeline([
+    #     ('spline', SplineTransformer()),
+    #     ('ridge', Ridge())
+    # ]), {
+    #     'model__spline__n_knots': [9, 11, 13, 15],
+    #     'model__spline__degree': [3],
+    #     'model__ridge__alpha': np.logspace(0, 2, 20)
+    # }),
+    # 'KNN': (KNeighborsRegressor(), {
+    #     'model__n_neighbors': np.arange(15, 22, 2), # Creates [15, 17, 19, 21]
+    #     'model__weights': ['uniform', 'distance'],
+    #     # 'model__metric': ['euclidean', 'manhattan']
+    # }),
+    'PenalizedLogNormal': (Pipeline([
+        # ('scaler', RobustScaler()),
+        ('log_transform', FunctionTransformer(
+            func=lambda x: np.log1p(np.clip(x, 1e-10, None)),  # clip to prevent log(0)
+            inverse_func=lambda x: np.expm1(x)
+        )),
         ('ridge', Ridge())
     ]), {
-        'model__spline__n_knots': [9, 11, 13, 15],
-        'model__spline__degree': [3],
-        'model__ridge__alpha': np.logspace(0, 2, 20)
+        'model__ridge__alpha': np.logspace(-10, 2, 1), # np.logspace(0, 2, 20)
+        'select_features__k': [10, 15, 20, 25],
     }),
-    'KNN': (KNeighborsRegressor(), {
-        'model__n_neighbors': np.arange(15, 22, 2), # Creates [15, 17, 19, 21]
-        'model__weights': ['uniform', 'distance'],
-        # 'model__metric': ['euclidean', 'manhattan']
-    })
+    'PenalizedExponential': (Pipeline([
+        # ('scaler', RobustScaler()),
+        ('exp_transform', FunctionTransformer(
+            func=lambda x: np.exp(np.clip(x, None, None)),  # clip to prevent overflow: was np.exp(np.clip(x, -10, 10))
+            inverse_func=lambda x: np.log(np.clip(x, 1e-10, None))  # clip to prevent log(0)
+        )),
+        ('ridge', Ridge())
+    ]), {
+        'model__ridge__alpha': np.logspace(-10, 2, 1), # np.logspace(0, 2, 20)
+        'select_features__k': [10, 15, 20, 25],
+    }),
 }
 
 # =============================================================================
@@ -154,12 +179,18 @@ for name, (model, params) in models.items():
             print(f"\nTuning {name} with {cv_name} cross-validation...")
     
             pipelines = {
-                # 'standardized': Pipeline([
-                #     ('scale', StandardScaler()),
+                # 'pca': Pipeline([
+                #     ('scale', RobustScaler()),
+                #     ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+                #     # ('select_features', SelectKBest(score_func=f_regression, k=20)),
+                #     ('pca', PCA(n_components=0.95)),  # Keep components explaining 95% of variance
                 #     ('model', model)
                 # ]),
-                'robust': Pipeline([
-                    ('scale', RobustScaler()),
+                'feature_select': Pipeline([
+                    ('scale', RobustScaler()), # ('scale', StandardScaler()),
+                    ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+                    ('select_features', SelectKBest(score_func=f_regression, k=20)),
+                    # ('pca', PCA(n_components=0.95)), 
                     ('model', model)
                 ])
             }
