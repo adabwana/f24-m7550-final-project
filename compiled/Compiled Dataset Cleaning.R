@@ -11,8 +11,8 @@ library(dplyr)
 data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 
 LC_train_adj <- data_raw
-LCtrain_adj <- LCtrain_adj[LC_train_adj$Duration_In_Min > 0, ]
-LCtrain_adj <- LCtrain_adj[LC_train_adj$Duration_In_Min <= 300, ]
+LC_train_adj <- LC_train_adj[LC_train_adj$Duration_In_Min > 0, ]
+LC_train_adj <- LC_train_adj[LC_train_adj$Duration_In_Min <= 300, ]
 
 # -----------------------------------------------------------------------------
 # ENGINEER FEATURES
@@ -228,7 +228,7 @@ part_1_data <- lc_engineered %>%
   
   # Drop columns
   select(
-    -Student_IDs, -Course_Name, -Course_Number, -Check_In_Date,
+    -Course_Name, -Course_Number,
     -Check_In_Time, -Check_Out_Time, -Week_of_Month, -Month,
     -Cumulative_GPA, -Course_Code_by_Thousands, 
     -Time_Period, -Class_Standing_Self_Reported, -Is_Weekend,
@@ -265,7 +265,7 @@ part_2_data <- lc_engineered2 %>%
   
   # Drop columns
   select(
-    -Student_IDs, -Course_Name, -Course_Number, -Check_In_Date,
+    -Course_Name, -Course_Number,
     -Check_In_Time, -Week_of_Month, -Cumulative_GPA, -Course_Code_by_Thousands, 
     -Time_Period, -Class_Standing_Self_Reported, -Is_Weekend,
     -Credit_Load_Category, -GPA_Category, -Class_Standing, -Month,
@@ -286,6 +286,23 @@ part_2_data[categorical_factors] <- lapply(part_2_data[categorical_factors], as.
 
 #Additional adjustments
 traindata <- part_1_data
+
+add_visit_features <- function(df) {
+  df %>%
+    group_by(Student_IDs) %>%
+    mutate(
+      # Count visits per student
+      Total_Visits = n(),
+      # Count visits per student per semester
+      #Semester_Visits = n_distinct(Check_In_Date),
+      # Average visits per week
+      #Avg_Weekly_Visits = Semester_Visits / max(Semester_Week)
+    ) %>%
+    ungroup()
+}
+traindata <- add_visit_features(traindata)
+traindata <- traindata %>% select(-Student_IDs, -Check_In_Date)
+
 
 Major_Indicated <- ifelse(traindata$Major %in% c("No Response"), 0, 1)
 Major_Indicated <- as.factor(Major_Indicated)
@@ -329,6 +346,22 @@ readr::write_csv(traindata, here("data", "traindata.csv"))
 
 testdata <- part_2_data
 
+add_visit_features <- function(df) {
+  df %>%
+    group_by(Student_IDs) %>%
+    mutate(
+      # Count visits per student
+      Total_Visits = n(),
+      # Count visits per student per semester
+      #Semester_Visits = n_distinct(Check_In_Date),
+      # Average visits per week
+      #Avg_Weekly_Visits = Semester_Visits / max(Semester_Week)
+    ) %>%
+    ungroup()
+}
+testdata <- add_visit_features(testdata)
+testdata <- testdata %>% select(-Student_IDs, -Check_In_Date)
+
 Major_Indicated <- ifelse(testdata$Major %in% c("No Response"), 0, 1)
 Major_Indicated <- as.factor(Major_Indicated)
 testdata <- cbind(testdata, Major_Indicated)
@@ -370,6 +403,22 @@ readr::write_csv(testdata, here("data", "testdata.csv"))
 
 
 traindata2 <- part_3_data
+
+add_visit_features <- function(df) {
+  df %>%
+    group_by(Student_IDs) %>%
+    mutate(
+      # Count visits per student
+      Total_Visits = n(),
+      # Count visits per student per semester
+      #Semester_Visits = n_distinct(Check_In_Date),
+      # Average visits per week
+      #Avg_Weekly_Visits = Semester_Visits / max(Semester_Week)
+    ) %>%
+    ungroup()
+}
+traindata2 <- add_visit_features(traindata2)
+traindata2 <- traindata2 %>% select(-Student_IDs, -Check_In_Date)
 
 Major_Indicated <- ifelse(traindata2$Major %in% c("No Response"), 0, 1)
 Major_Indicated <- as.factor(Major_Indicated)
