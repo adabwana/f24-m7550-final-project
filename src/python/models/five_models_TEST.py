@@ -38,7 +38,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 # MLFLOW CONFIGURATION
 # =============================================================================
 # Set up MLflow tracking URI and artifact locations
-mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+# mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
 os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/mlruns"
 
 # Add error handling for MLflow connection
@@ -122,76 +123,64 @@ os.makedirs(f'{project_root}/results', exist_ok=True)
 # Test each model and find the best one
 for experiment in experiments:
     model_name = experiment.name.split('/')[-1]
-    print(f"\nTesting {model_name}...")
     
-    try:
-        # Try to load the registered model directly
-        model = mlflow.sklearn.load_model(f"models:/{model_name}/latest")
-        print(f"Successfully loaded registered model {model_name}")
+    # Try each CV method
+    cv_methods = ['kfold', 'rolling', 'expanding']
+    
+    for cv_name in cv_methods:
+        full_model_name = f"{cv_name}_{model_name}"
+        print(f"\nTesting {full_model_name}...")
         
-    except Exception as e1:
-        print(f"Couldn't load registered model: {e1}")
-        print("Trying to find best run...")
-        
-        # Get the best run for this model based on validation RMSE
-        runs = client.search_runs(
-            experiment_ids=[experiment.experiment_id],
-            order_by=["metrics.rmse ASC"]
-        )
-        
-        if not runs:
-            print(f"No runs found for {model_name}")
-            continue
-            
-        best_run = runs[0]
         try:
-            # Try to load model from run
-            model_uri = f"runs:/{best_run.info.run_id}/model"
-            print(f"Loading model from: {model_uri}")
-            model = mlflow.sklearn.load_model(model_uri)
-        except Exception as e2:
-            print(f"Error loading model from run: {e2}")
-            print(f"Skipping {model_name}")
+            # Try to load the registered model with CV prefix
+            model = mlflow.sklearn.load_model(f"models:/{full_model_name}/latest")
+            print(f"Successfully loaded registered model {full_model_name}")
+            
+            # Make predictions and evaluate
+            try:
+                # Make predictions
+                y_pred = model.predict(X_test)
+                
+                # Calculate metrics
+                metrics = calculate_metrics(y_test, y_pred)
+                
+                # Store results
+                result = {
+                    'Model': model_name,
+                    'CV_Method': cv_name,
+                    'MSE': metrics['MSE'],
+                    'RMSE': metrics['RMSE'],
+                    'MAE': metrics['MAE'],
+                    'R2': metrics['R2']
+                }
+                test_results.append(result)
+                
+                print(f"Results for {cv_name}_{model_name}:")
+                for metric_name, metric_value in metrics.items():
+                    print(f"{metric_name}: {metric_value:.4f}")
+                
+                # Check if this is the best model so far
+                if metrics['RMSE'] < best_model_info['rmse']:
+                    best_model_info = {
+                        'model_name': model_name,
+                        'cv_method': cv_name,
+                        'rmse': metrics['RMSE'],
+                        'predictions': y_pred,
+                        'model': model
+                    }
+                
+                # Create and save prediction analysis plots
+                fig = plot_prediction_analysis(y_test, y_pred, f"{cv_name}_{model_name}")
+                plt.savefig(f'{project_root}/results/{cv_name}_{model_name}_prediction_analysis.png')
+                plt.close()
+                
+            except Exception as e:
+                print(f"Error during prediction and evaluation: {e}")
+                continue
+                
+        except Exception as e1:
+            print(f"Couldn't load registered model {full_model_name}: {e1}")
             continue
-    
-    try:
-        # Make predictions
-        y_pred = model.predict(X_test)
-        
-        # Calculate metrics
-        metrics = calculate_metrics(y_test, y_pred)
-        
-        # Store results
-        result = {
-            'Model': model_name,
-            'MSE': metrics['MSE'],
-            'RMSE': metrics['RMSE'],
-            'MAE': metrics['MAE'],
-            'R2': metrics['R2']
-        }
-        test_results.append(result)
-        
-        print(f"Results for {model_name}:")
-        for metric_name, metric_value in metrics.items():
-            print(f"{metric_name}: {metric_value:.4f}")
-        
-        # Check if this is the best model so far
-        if metrics['RMSE'] < best_model_info['rmse']:
-            best_model_info = {
-                'model_name': model_name,
-                'rmse': metrics['RMSE'],
-                'predictions': y_pred,
-                'model': model
-            }
-        
-        # Create and save prediction analysis plots
-        fig = plot_prediction_analysis(y_test, y_pred, model_name)
-        plt.savefig(f'{project_root}/results/{model_name}_prediction_analysis.png')
-        plt.close()
-        
-    except Exception as e:
-        print(f"Error during prediction and evaluation: {e}")
-        continue
 
 if not test_results:
     print("\nNo models were successfully tested!")
@@ -208,16 +197,16 @@ results_df.to_csv(f'{project_root}/results/model_comparison.csv', index=False)
 # Plot comparison of model performances
 plt.figure(figsize=(12, 6))
 for metric in ['RMSE', 'MAE', 'R2']:
-    plt.figure(figsize=(10, 5))
-    sns.barplot(data=results_df, x='Model', y=metric)
-    plt.title(f'{metric} by Model')
+    plt.figure(figsize=(12, 6))
+    sns.barplot(data=results_df, x='Model', y=metric, hue='CV_Method')
+    plt.title(f'{metric} by Model and CV Method')
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.savefig(f'{project_root}/results/{metric}_comparison.png')
     plt.close()
 
-# Print best model details
+# Print best model details with CV method
 if best_model_info['model_name']:
-    print(f"\nBest Model: {best_model_info['model_name']}")
+    print(f"\nBest Model: {best_model_info['cv_method']}_{best_model_info['model_name']}")
     print(f"RMSE: {best_model_info['rmse']:.4f}")
 

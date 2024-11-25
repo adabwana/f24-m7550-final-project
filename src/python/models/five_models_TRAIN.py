@@ -214,7 +214,7 @@ for name, (model, params) in models.items():
                 mlflow.sklearn.log_model(
                     search.best_estimator_,
                     "model",
-                    registered_model_name=name
+                    registered_model_name=f"{cv_name}_{name}"
                 )
 
 # =============================================================================

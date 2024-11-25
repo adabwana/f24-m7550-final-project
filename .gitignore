@@ -11,6 +11,7 @@ data/weather_history.csv
 archive/
 mlruns/
 mlartifacts/
+results/
 
 # Language specific
 src/clojure/
