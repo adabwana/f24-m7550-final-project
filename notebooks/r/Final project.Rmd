@@ -1,6 +1,6 @@
 ---
 title: 'Final project - Math 7550 - Statistical Learning I (Fall 2024)'
-name: 'List of students in your group'
+name: 'Emma Naiyue Liang, Ryan Rankin, Jaryt Salvo, & Jason Turk'
 output:
   pdf_document: default
   html_document: default

@@ -1,0 +1,19 @@
+{
+  "name": "R Development",
+  "dockerComposeFile": [
+    "../../docker-compose.yml",
+    "../docker-compose.dev.yml"
+  ],
+  "service": "r",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "REditorSupport.r",
+        "RDebugger.r-debugger",
+        "ms-toolsai.datawrangler"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
