@@ -1,100 +1,55 @@
 import pandas as pd
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import (
-    StandardScaler, RobustScaler, PowerTransformer,
-    OneHotEncoder
-)
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import RobustScaler, OneHotEncoder
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.decomposition import PCA
 
-# Custom transformer for datetime features
-class DateTimeFeatureTransformer(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
+def prepare_features(df):
+    """Prepare features from the input DataFrame."""
+    # Convert datetime columns
+    datetime_cols = ['Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date']
+    for col in datetime_cols:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col])
     
-    def transform(self, X):
-        X = X.copy()
-        
-        # Convert Check_In_Time to minutes since midnight
-        if 'Check_In_Time' in X.columns:
-            X['Check_In_Time'] = pd.to_datetime(X['Check_In_Time']).dt.hour * 60 + \
-                                pd.to_datetime(X['Check_In_Time']).dt.minute
-        
-        # Convert dates to months until graduation
-        if 'Expected_Graduation_Date' in X.columns and 'Check_In_Date' in X.columns:
-            X['Expected_Graduation_Date'] = pd.to_datetime(X['Expected_Graduation_Date'])
-            X['Check_In_Date'] = pd.to_datetime(X['Check_In_Date'])
-            X['Months_To_Graduation'] = (X['Expected_Graduation_Date'] - X['Check_In_Date']).dt.days / 30
-            
-            # Drop original date columns after extraction
-            X = X.drop(['Expected_Graduation_Date', 'Check_In_Date'], axis=1)
-        
-        return X
-
-# Define column types
-numeric_features = [
-    'Term_Credit_Hours', 'Term_GPA', 'Total_Credit_Hours_Earned', 
-    'Cumulative_GPA', 'Change_in_GPA', 'Total_Visits', 'Semester_Visits', 
-    'Avg_Weekly_Visits', 'Week_Volume', 'Months_Until_Graduation', 
-    'Unique_Courses', 'Course_Level_Mix', 'Advanced_Course_Ratio'
-]
-
-categorical_features = [
-    'Degree_Type', 'Gender', 'Time_Category', 'Course_Level',
-    'Course_Name_Category', 'Course_Type_Category', 'Major_Category',
-    'Has_Multiple_Majors', 'GPA_Category', 'Credit_Load_Category',
-    'Class_Standing_Self_Reported', 'Class_Standing_BGSU',
-    'GPA_Trend_Category'
-]
-
-datetime_features = ['Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date']
-boolean_features = ['Is_Weekend', 'Has_Multiple_Majors']
-
-def create_pipeline(model, include_pca=True, feature_selection=True):
-    """Create a sklearn pipeline with preprocessing, optional PCA and feature selection.
+    # Convert Check_In_Time to minutes since midnight
+    df['Check_In_Time'] = pd.to_datetime(df['Check_In_Time']).dt.hour * 60 + pd.to_datetime(df['Check_In_Time']).dt.minute
     
-    Args:
-        model: The sklearn model to use
-        include_pca: Whether to include PCA dimensionality reduction
-        feature_selection: Whether to include feature selection
-        
-    Returns:
-        A sklearn Pipeline object
-    """
-    # Preprocessing for numerical features
-    numeric_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='median')),
-        ('scaler', RobustScaler()),
-        ('power', PowerTransformer(standardize=True))
-    ])
+    # Define targets and features to drop
+    target = 'Duration_In_Min'
+    target_2 = 'Occupancy'
+    features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expected_Graduation',
+                       'Course_Name', 'Course_Number', 'Course_Type', 'Course_Code_by_Thousands',
+                       'Check_Out_Time', 'Session_Length_Category', target, target_2]
+    
+    # Get feature columns
+    feature_cols = [col for col in df.columns if col not in features_to_drop]
+    
+    # Detect column types
+    numeric_features = df[feature_cols].select_dtypes(include=['int64', 'float64', 'int32', 'float32']).columns.tolist()
+    categorical_features = df[feature_cols].select_dtypes(include=['object', 'category']).columns.tolist()
+    boolean_features = df[feature_cols].select_dtypes(include=['bool']).columns.tolist()
+    datetime_features = df[feature_cols].select_dtypes(include=['datetime64', 'timedelta64']).columns.tolist()
+    
+    # Combine boolean and categorical features
+    categorical_features = categorical_features + boolean_features
+    
+    return numeric_features, categorical_features
 
-    # Preprocessing for categorical features
-    categorical_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
-    ])
-
-    # Boolean features transformer
-    boolean_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='constant', fill_value=False))
-    ])
-
-    # Combine all preprocessing steps
+def create_pipeline(model, numeric_features, categorical_features, include_pca=False, feature_selection=False):
+    """Create a sklearn pipeline with basic preprocessing steps."""
+    
+    # Basic preprocessing
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, numeric_features),
-            ('cat', categorical_transformer, categorical_features),
-            ('bool', boolean_transformer, boolean_features),
-            ('date', DateTimeFeatureTransformer(), datetime_features)
-        ],
-        remainder='passthrough'
+            ('num', RobustScaler(), numeric_features),
+            ('cat', OneHotEncoder(drop='first', sparse_output=False), categorical_features)
+        ]
     )
-
-    # Create the full pipeline
+    
+    # Build pipeline steps
     steps = [('preprocessor', preprocessor)]
     
     if include_pca:
@@ -105,4 +60,5 @@ def create_pipeline(model, include_pca=True, feature_selection=True):
     
     steps.append(('model', model))
     
-    return Pipeline(steps) 
+    return Pipeline(steps)
+

@@ -23,9 +23,9 @@ sys.path.append(project_root)
 # import prepare_data
 from src.python.preprocess import prepare_data
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # DATA PREPARATION
-# -----------------------------------------------------------------------------
+# =============================================================================
 df = pd.read_csv(f'{project_root}/data/LC_engineered.csv')
 
 target = 'Duration_In_Min'
@@ -36,25 +36,52 @@ features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expec
 
 X, y = prepare_data(df, target, features_to_drop)
 
-# -----------------------------------------------------------------------------
+# Define column types
+numeric_features = [
+    'Term_Credit_Hours', 'Term_GPA', 'Total_Credit_Hours_Earned', 
+    'Cumulative_GPA', 'Change_in_GPA', 'Total_Visits', 'Semester_Visits', 
+    'Avg_Weekly_Visits', 'Months_Until_Graduation', 
+    'Unique_Courses', 'Course_Level_Mix', 'Advanced_Course_Ratio',
+    'GPA_Trend'
+]
+
+categorical_features = [
+    'Degree_Type', 'Gender', 'Time_Category', 'Course_Level',
+    'Course_Name_Category', 'Course_Type_Category', 'Major_Category',
+    'Has_Multiple_Majors', 'GPA_Category', 'Credit_Load_Category',
+    'Class_Standing_Self_Reported', 'Class_Standing_BGSU',
+    'GPA_Trend_Category', 'Week_Volume'
+]
+
+datetime_features = [
+    'Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date'
+]
+
+boolean_features = [
+    'Is_Weekend', 'Has_Multiple_Majors'
+]
+
+# =============================================================================
 # MLFLOW CONFIGURATION
-# -----------------------------------------------------------------------------
+# =============================================================================
 sqlite_uri = f"sqlite:///{project_root}/mlflow.db"
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/mlruns"
 mlflow.sklearn.autolog()
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # MODEL DEFINITIONS
-# -----------------------------------------------------------------------------
+# =============================================================================
 models = {
     'Ridge': (Ridge(), {
         # 'model__alpha': np.logspace(-3, 3, 7)
-        'model__alpha': np.logspace(-2, 2, 10)
+        # 'model__alpha': np.logspace(-2, 2, 10)
+        'model__alpha': np.logspace(0, 2, 10),
     }),
     'Lasso': (Lasso(), {
         # 'model__alpha': np.logspace(-3, 3, 7)
-        'model__alpha': np.logspace(-2, 2, 10)
+        # 'model__alpha': np.logspace(-2, 2, 10)
+        'model__alpha': np.logspace(-2, 0, 10)
     }),
     'ElasticNet': (ElasticNet(), {
         # 'model__alpha': np.logspace(-3, 3, 7),
@@ -64,16 +91,16 @@ models = {
     })
 }
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # CROSS VALIDATION SETUP
-# -----------------------------------------------------------------------------
+# =============================================================================
 kfold_stratified_cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=3)
 kfold_cv = KFold(n_splits=5, shuffle=True, random_state=3)
 time_series_cv = TimeSeriesSplit(n_splits=10)
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # MODEL TRAINING AND EVALUATION
-# -----------------------------------------------------------------------------
+# =============================================================================
 mlflow.set_experiment('Regularization')
 results = []
 
@@ -139,9 +166,9 @@ for name, (model, params) in models.items():
                 
                 print(f"Best for {name} ({scale_type}) with {cv_name} CV: RMSE={rmse_score:.4f}, Params={search.best_params_}")
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # RESULTS ANALYSIS
-# -----------------------------------------------------------------------------
+# =============================================================================
 results_df = pd.DataFrame(results)
 print("\nAll Results:")
 print(results_df.sort_values(['cv_method', 'rmse']))

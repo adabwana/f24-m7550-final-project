@@ -44,7 +44,7 @@ def convert_datetime_features(X: pd.DataFrame) -> pd.DataFrame:
                          pd.to_datetime(X['Check_In_Time'], format='%H:%M:%S').dt.minute
     
     # Drop original datetime columns
-    X = X.drop(['Check_In_Date', 'Check_In_Time', 'Semester_Date', 'Expected_Graduation_Date'], axis=1)
+    X = X.drop(['Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date'], axis=1)
     
     return X
 
