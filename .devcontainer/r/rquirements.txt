@@ -6,6 +6,7 @@ tidyr
 readr
 lunar
 openmeteo
+doParallel
 
 # Data exploration and visualization
 ggplot2
@@ -16,6 +17,7 @@ skimr
 broom
 caret
 car
+
 
 # Data import/export
 here

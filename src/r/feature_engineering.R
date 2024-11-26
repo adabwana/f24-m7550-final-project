@@ -146,7 +146,7 @@ part_1_data <- lc_engineered %>%
   add_count(Check_In_Timestamp, name = "Group_Size") %>%
 
   # Create binary Group_Check_In feature
-  mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
+  #mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
 
       add_count(Student_IDs, name = "Total_Visits")  %>%
 
@@ -163,7 +163,7 @@ part_1_data <- lc_engineered %>%
 
 # List of categorical columns
 categorical_factors <- c("Gender", "Semester", "Day_of_Week",
-"Course_Level", "Underclassman", "Expected_Graduation_Yr", "Group_Check_In")
+"Course_Level", "Underclassman", "Expected_Graduation_Yr")
 
 # Convert categorical columns to factors
 part_1_data[categorical_factors] <- lapply(part_1_data[categorical_factors], as.factor)
@@ -199,8 +199,20 @@ part_2_data <- lc_engineered %>%
       # Underclassman Indicator
       Underclassman = if_else(
         Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
+      
+  # Convert Check_In_Time to datetime and round to the nearest minute
+  mutate(
+    Check_In_Timestamp = as_datetime(paste(Check_In_Date, Check_In_Time)),
+    Check_In_Timestamp = floor_date(Check_In_Timestamp, unit = "minute")
+  ) %>%
 
-      add_count(Student_IDs, name = "Total_Visits")  %>%
+  # Count the number of students for each rounded Check_In_Timestamp
+  add_count(Check_In_Timestamp, name = "Group_Size") %>%
+
+  # Create binary Group_Check_In feature
+  mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
+
+  add_count(Student_IDs, name = "Total_Visits")  %>%
 
   # Drop columns
   select(
@@ -211,12 +223,12 @@ part_2_data <- lc_engineered %>%
     -Class_Standing_BGSU, -Credit_Load_Category, -GPA_Category, 
     -Class_Standing, -Month, -Course_Code_by_Thousands, -Expected_Graduation,
     -Degree_Type,
-    -Duration_In_Min)
+    -Duration_In_Min, -Check_In_Timestamp)
 
 
 # List of categorical columns
 categorical_factors <- c("Gender", "Semester", "Day_of_Week",
-"Course_Level", "Underclassman", "Expected_Graduation_Yr")
+"Course_Level", "Underclassman", "Expected_Graduation_Yr", "Group_Check_In")
 
 # Convert categorical columns to factors
 part_2_data[categorical_factors] <- lapply(part_2_data[categorical_factors], as.factor)

@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y git
+
 # Create non-root user
 ARG USERNAME=vscode
 ARG USER_UID=1000
