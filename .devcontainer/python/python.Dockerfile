@@ -20,6 +20,11 @@ RUN pip install --no-cache-dir -r /tmp/pyquirements.txt
 
 USER $USERNAME
 
+# Add NVIDIA GPU support
+# UNCOMMENT IF YOU HAVE A GPU
+# ENV NVIDIA_VISIBLE_DEVICES=all
+# ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 WORKDIR /workspace 
 
 # Configure MLflow

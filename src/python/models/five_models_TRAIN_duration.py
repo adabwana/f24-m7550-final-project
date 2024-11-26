@@ -54,7 +54,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 # =============================================================================
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 # mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
-os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/mlruns"
+os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/.mlruns"
+os.environ["MLFLOW_ARTIFACT_URI"] = f"{project_root}/.mlartifacts"
 
 # =============================================================================
 # CROSS VALIDATION SETUP

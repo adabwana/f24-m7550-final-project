@@ -47,4 +47,9 @@ RUN Rscript -e 'install.packages(c("httpgd", "languageserver"), repos="https://c
 
 USER $USERNAME
 
+# Add NVIDIA GPU support
+# UNCOMMENT IF YOU HAVE A GPU
+# ENV NVIDIA_VISIBLE_DEVICES=all
+# ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 WORKDIR /workspace 
