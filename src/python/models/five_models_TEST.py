@@ -106,7 +106,7 @@ def plot_prediction_analysis(y_true, y_pred, model_name):
 # =============================================================================
 # MODEL TESTING
 # =============================================================================
-experiment_base = "Duration_Prediction"
+experiment_base = "Duration_Pred"
 client = mlflow.tracking.MlflowClient()
 
 # Get all experiments
@@ -123,64 +123,72 @@ os.makedirs(f'{project_root}/results', exist_ok=True)
 # Test each model and find the best one
 for experiment in experiments:
     model_name = experiment.name.split('/')[-1]
+    print(f"\nTesting models for {model_name}...")
     
-    # Try each CV method
+    # Pipeline types we used in training
+    pipeline_types = ['vanilla', 'interact_select', 'pca_lda']
     cv_methods = ['kfold', 'rolling', 'expanding']
     
-    for cv_name in cv_methods:
-        full_model_name = f"{cv_name}_{model_name}"
-        print(f"\nTesting {full_model_name}...")
-        
-        try:
-            # Try to load the registered model with CV prefix
-            model = mlflow.sklearn.load_model(f"models:/{full_model_name}/latest")
-            print(f"Successfully loaded registered model {full_model_name}")
+    experiment_results = []
+    
+    for pipeline_type in pipeline_types:
+        for cv_name in cv_methods:
+            full_model_name = f"{model_name}_{pipeline_type}_{cv_name}"
+            print(f"  Testing {full_model_name}...")
             
-            # Make predictions and evaluate
             try:
-                # Make predictions
+                # Try to load the registered model with new naming convention
+                model = mlflow.sklearn.load_model(f"models:/{full_model_name}/latest")
+                print(f"    Successfully loaded model")
+                
+                # Make predictions and evaluate
+                try:
+                    y_pred = model.predict(X_test)
+                    metrics = calculate_metrics(y_test, y_pred)
+                    
+                    # Store results with pipeline type
+                    result = {
+                        'Model': model_name,
+                        'Pipeline': pipeline_type,
+                        'CV_Method': cv_name,
+                        'MSE': metrics['MSE'],
+                        'RMSE': metrics['RMSE'],
+                        'MAE': metrics['MAE'],
+                        'R2': metrics['R2']
+                    }
+                    experiment_results.append(result)
+                    
+                    print(f"    RMSE: {metrics['RMSE']:.4f}")
+                    
+                except Exception as e:
+                    print(f"    Error during prediction: {e}")
+                    continue
+                    
+            except Exception as e:
+                print(f"    Couldn't load model: {e}")
+                continue
+    
+    # If we have results for this experiment, keep only top 3 based on RMSE
+    if experiment_results:
+        # Sort by RMSE and keep top 3
+        top_3_results = sorted(experiment_results, key=lambda x: x['RMSE'])[:3]
+        test_results.extend(top_3_results)
+        
+        # Create and save plots only for top 3 models
+        for result in top_3_results:
+            full_name = f"{result['Model']}_{result['Pipeline']}_{result['CV_Method']}"
+            try:
+                model = mlflow.sklearn.load_model(f"models:/{full_name}/latest")
                 y_pred = model.predict(X_test)
                 
-                # Calculate metrics
-                metrics = calculate_metrics(y_test, y_pred)
-                
-                # Store results
-                result = {
-                    'Model': model_name,
-                    'CV_Method': cv_name,
-                    'MSE': metrics['MSE'],
-                    'RMSE': metrics['RMSE'],
-                    'MAE': metrics['MAE'],
-                    'R2': metrics['R2']
-                }
-                test_results.append(result)
-                
-                print(f"Results for {cv_name}_{model_name}:")
-                for metric_name, metric_value in metrics.items():
-                    print(f"{metric_name}: {metric_value:.4f}")
-                
-                # Check if this is the best model so far
-                if metrics['RMSE'] < best_model_info['rmse']:
-                    best_model_info = {
-                        'model_name': model_name,
-                        'cv_method': cv_name,
-                        'rmse': metrics['RMSE'],
-                        'predictions': y_pred,
-                        'model': model
-                    }
-                
                 # Create and save prediction analysis plots
-                fig = plot_prediction_analysis(y_test, y_pred, f"{cv_name}_{model_name}")
-                plt.savefig(f'{project_root}/results/{cv_name}_{model_name}_prediction_analysis.png')
+                fig = plot_prediction_analysis(y_test, y_pred, full_name)
+                plt.savefig(f'{project_root}/results/top_3_{full_name}_prediction_analysis.png')
                 plt.close()
                 
             except Exception as e:
-                print(f"Error during prediction and evaluation: {e}")
+                print(f"Error creating plots for {full_name}: {e}")
                 continue
-                
-        except Exception as e1:
-            print(f"Couldn't load registered model {full_model_name}: {e1}")
-            continue
 
 if not test_results:
     print("\nNo models were successfully tested!")
@@ -188,25 +196,34 @@ if not test_results:
 
 # Create results DataFrame
 results_df = pd.DataFrame(test_results)
-print("\nAll Results:")
+print("\nTop 3 Models per Experiment:")
 print(results_df.sort_values('RMSE'))
 
 # Save results to CSV
-results_df.to_csv(f'{project_root}/results/model_comparison.csv', index=False)
+results_df.to_csv(f'{project_root}/results/top_models_comparison.csv', index=False)
 
-# Plot comparison of model performances
+# Plot comparison of model performances (only top 3 per experiment)
 plt.figure(figsize=(12, 6))
 for metric in ['RMSE', 'MAE', 'R2']:
     plt.figure(figsize=(12, 6))
-    sns.barplot(data=results_df, x='Model', y=metric, hue='CV_Method')
-    plt.title(f'{metric} by Model and CV Method')
+    sns.barplot(
+        data=results_df,
+        x='Model',
+        y=metric,
+        hue='Pipeline',
+        palette='Set2'
+    )
+    plt.title(f'{metric} by Model and Pipeline Type (Top 3)')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(f'{project_root}/results/{metric}_comparison.png')
+    plt.savefig(f'{project_root}/results/top_3_{metric}_comparison.png')
     plt.close()
 
-# Print best model details with CV method
-if best_model_info['model_name']:
-    print(f"\nBest Model: {best_model_info['cv_method']}_{best_model_info['model_name']}")
-    print(f"RMSE: {best_model_info['rmse']:.4f}")
+# Print best model details
+best_result = results_df.loc[results_df['RMSE'].idxmin()]
+print(f"\nBest Overall Model:")
+print(f"Model: {best_result['Model']}")
+print(f"Pipeline: {best_result['Pipeline']}")
+print(f"CV Method: {best_result['CV_Method']}")
+print(f"RMSE: {best_result['RMSE']:.4f}")
 
