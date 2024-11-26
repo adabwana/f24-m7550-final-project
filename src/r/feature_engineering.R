@@ -123,7 +123,7 @@ View(lc_engineered)
 # DATA CLEANING FOR PART 1
 # -----------------------------------------------------------------------------
 
-part_1_data <- engineered_data %>%
+part_1_data <- lc_engineered %>%
   filter(Duration_In_Min > 0) %>%
 
   mutate(
@@ -136,6 +136,20 @@ part_1_data <- engineered_data %>%
       Underclassman = if_else(
         Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
 
+  # Convert Check_In_Time to datetime and round to the nearest minute
+  mutate(
+    Check_In_Timestamp = as_datetime(paste(Check_In_Date, Check_In_Time)),
+    Check_In_Timestamp = floor_date(Check_In_Timestamp, unit = "minute")
+  ) %>%
+
+  # Count the number of students for each rounded Check_In_Timestamp
+  add_count(Check_In_Timestamp, name = "Group_Size") %>%
+
+  # Create binary Group_Check_In feature
+  mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
+
+      add_count(Student_IDs, name = "Total_Visits")  %>%
+
   # Drop columns
   select(
     -Student_IDs, -Course_Name, -Course_Number, -Check_Out_Time,
@@ -144,12 +158,12 @@ part_1_data <- engineered_data %>%
     -Is_Weekend, -Time_Period, -Class_Standing_Self_Reported,
     -Class_Standing_BGSU, -Credit_Load_Category, -GPA_Category, 
     -Class_Standing, -Month, -Course_Code_by_Thousands, -Expected_Graduation,
-    -Degree_Type)
+    -Degree_Type, -Check_In_Timestamp)
 
 
 # List of categorical columns
 categorical_factors <- c("Gender", "Semester", "Day_of_Week",
-"Course_Level", "Underclassman", "Expected_Graduation_Yr")
+"Course_Level", "Underclassman", "Expected_Graduation_Yr", "Group_Check_In")
 
 # Convert categorical columns to factors
 part_1_data[categorical_factors] <- lapply(part_1_data[categorical_factors], as.factor)
@@ -163,4 +177,61 @@ str(part_1_data)
 dim(part_1_data)
 
 readr::write_csv(part_1_data, here("data", "part_1_data.csv"))
+
+summary(part_1_data$Group_Check_In)
+
+
+
+
+# -----------------------------------------------------------------------------
+# DATA CLEANING FOR PART 2
+# -----------------------------------------------------------------------------
+
+part_2_data <- lc_engineered %>%
+  filter(Duration_In_Min > 0) %>%
+
+  mutate(
+      # Extract year from Expected_Graduation
+      Expected_Graduation_Yr = substr(as.character(Expected_Graduation),
+        nchar(as.character(Expected_Graduation)) - 3, 
+        nchar(as.character(Expected_Graduation))),
+    
+      # Underclassman Indicator
+      Underclassman = if_else(
+        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
+
+      add_count(Student_IDs, name = "Total_Visits")  %>%
+
+  # Drop columns
+  select(
+    -Student_IDs, -Course_Name, -Course_Number, -Check_Out_Time,
+    -Check_In_Date, -Check_In_Time, -Major, -Week_of_Month,
+    -Session_Length_Category, -Course_Type,
+    -Is_Weekend, -Time_Period, -Class_Standing_Self_Reported,
+    -Class_Standing_BGSU, -Credit_Load_Category, -GPA_Category, 
+    -Class_Standing, -Month, -Course_Code_by_Thousands, -Expected_Graduation,
+    -Degree_Type,
+    -Duration_In_Min)
+
+
+# List of categorical columns
+categorical_factors <- c("Gender", "Semester", "Day_of_Week",
+"Course_Level", "Underclassman", "Expected_Graduation_Yr")
+
+# Convert categorical columns to factors
+part_2_data[categorical_factors] <- lapply(part_2_data[categorical_factors], as.factor)
+
+# take absolute value of Duration_In_Min
+#part_1_data$Duration_In_Min <- abs(part_1_data$Duration_In_Min)
+View(part_2_data)
+
+# show structure of data
+str(part_2_data)
+dim(part_2_data)
+
+readr::write_csv(part_2_data, here("data", "part_2_data.csv"))
+
+
+
+
 
