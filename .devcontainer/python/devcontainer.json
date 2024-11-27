@@ -18,5 +18,7 @@
     },
     // "runArgs": ["--gpus", "all"],
     "remoteUser": "vscode",
-    "postCreateCommand": "mlflow server --host 127.0.0.1 --port 5000"
+    // Use file-based storage (first) OR SQLite DB storage (second)
+    // "postCreateCommand": "mlflow server --host 127.0.0.1 --port 5000 --backend-store-uri file:/workspace/.mlruns --default-artifact-root file:/workspace/.mlartifacts"
+    "postCreateCommand": "mlflow server --host 127.0.0.1 --port 5000 --backend-store-uri sqlite:////workspace/.mlflow.db --default-artifact-root file:/workspace/.mlartifacts"
 }

@@ -15,6 +15,7 @@ from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.decomposition import PCA
 from sklearn.pipeline import FeatureUnion
+from sklearn.base import BaseEstimator, RegressorMixin, clone
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -40,7 +41,7 @@ features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expec
                     'Course_Name', 'Course_Number', 'Course_Type', 'Course_Code_by_Thousands',
                     'Check_Out_Time', 'Session_Length_Category', target, target_2]
 
-X, y = prepare_data(df, target, features_to_drop)
+X, y = prepare_data(df, target_2, features_to_drop)
 
 # Time series train-test split
 X_train, X_test, y_train, y_test = train_test_split(
@@ -53,9 +54,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 # MLFLOW CONFIGURATION
 # =============================================================================
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
-# mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
-os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/.mlruns"
-os.environ["MLFLOW_ARTIFACT_URI"] = f"{project_root}/.mlartifacts"
+# mlflow.set_tracking_uri(f"sqlite:///{project_root}/.mlflow.db")
+# os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/.mlruns"
 
 # =============================================================================
 # CROSS VALIDATION SETUP
@@ -94,57 +94,83 @@ cv_methods = {
 }
 
 # =============================================================================
+# CUSTOM REGRESSOR WRAPPER FOR COUNT PREDICTIONS
+# =============================================================================
+class RoundedRegressor(BaseEstimator, RegressorMixin):
+    """
+    A wrapper for scikit-learn regressors that rounds predictions to the nearest integer.
+    Ensures that all predictions are non-negative integers.
+    """
+    def __init__(self, estimator):
+        self.estimator = estimator
+        
+    def fit(self, X, y=None):
+        self.estimator_ = clone(self.estimator).fit(X, y)
+        return self
+    
+    def predict(self, X):
+        """
+        Predict using the wrapped estimator and round the predictions.
+        
+        Returns:
+            np.ndarray: Rounded non-negative integer predictions.
+        """
+        y_pred = self.estimator_.predict(X)
+        y_pred_rounded = np.round(y_pred).astype(int)
+        y_pred_rounded = np.maximum(y_pred_rounded, 0)  # Ensure non-negative
+        return y_pred_rounded
+
+# =============================================================================
 # MODEL DEFINITIONS
 # =============================================================================
 models = {
-    'Ridge': (Ridge(), {
-        'model__alpha': np.logspace(0, 2, 10),
+    'Ridge': (RoundedRegressor(Ridge()), {
+        'model__estimator__alpha': np.logspace(0, 2, 10),
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'Lasso': (Lasso(), {
-        'model__alpha': np.logspace(-2, 0, 10),
+    'Lasso': (RoundedRegressor(Lasso()), {
+        'model__estimator__alpha': np.logspace(-2, 0, 10),
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'ElasticNet': (ElasticNet(), {
-        'model__alpha': np.logspace(-3, -1, 10),
-        'model__l1_ratio': np.linspace(0.1, 0.9, 5),
+    'ElasticNet': (RoundedRegressor(ElasticNet()), {
+        'model__estimator__alpha': np.logspace(-3, -1, 10),
+        'model__estimator__l1_ratio': np.linspace(0.1, 0.9, 5),
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'PenalizedSplines': (Pipeline([
+    'PenalizedSplines': (RoundedRegressor(Pipeline([
         ('spline', SplineTransformer()),
         ('ridge', Ridge())
-    ]), {
-        'model__spline__n_knots': [9, 11, 13, 15],
-        'model__spline__degree': [3],
-        'model__ridge__alpha': np.logspace(0, 2, 20),
+    ])), {
+        'model__estimator__spline__n_knots': [9, 11, 13, 15],
+        'model__estimator__spline__degree': [3],
+        'model__estimator__ridge__alpha': np.logspace(0, 2, 20),
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'KNN': (KNeighborsRegressor(), {
-        'model__n_neighbors': np.arange(15, 22, 2), # Creates [15, 17, 19, 21]
-        'model__weights': ['uniform', 'distance'],
-        # 'model__metric': ['euclidean', 'manhattan'],
+    'KNN': (RoundedRegressor(KNeighborsRegressor()), {
+        'model__estimator__n_neighbors': np.arange(15, 22, 2),  # Creates [15, 17, 19, 21]
+        'model__estimator__weights': ['uniform', 'distance'],
+        # 'model__estimator__metric': ['euclidean', 'manhattan'],
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'PenalizedLogNormal': (Pipeline([
-        # ('scaler', RobustScaler()),
-        ('log_transform', FunctionTransformer(
-            func=lambda x: np.log1p(np.clip(x, 1e-10, None)),  # clip to prevent log(0)
-            inverse_func=lambda x: np.expm1(x)
+    'PenalizedPoisson': (RoundedRegressor(Pipeline([
+        ('log_link', FunctionTransformer(
+            func=lambda x: np.log(np.clip(x, 1e-10, None)),  # Log link (canonical for Poisson)
+            inverse_func=lambda x: np.exp(np.clip(x, -10, 10))
         )),
         ('ridge', Ridge())
-    ]), {
-        'model__ridge__alpha': np.logspace(0, 2, 20),
+    ])), {
+        'model__estimator__ridge__alpha': np.logspace(0, 2, 20),
         'select_features__k': np.arange(70, 100, 10),
     }),
-    'PenalizedExponential': (Pipeline([
-        # ('scaler', RobustScaler()),
-        ('exp_transform', FunctionTransformer(
-            func=lambda x: np.exp(np.clip(x, -10, 10)),  # clip to prevent overflow: was np.exp(np.clip(x, -10, 10))
-            inverse_func=lambda x: np.log(np.clip(x, 1e-10, None))  # clip to prevent log(0)
+    'PenalizedWeibull': (RoundedRegressor(Pipeline([
+        ('weibull_link', FunctionTransformer(
+            func=lambda x: np.log(-np.log(1 - np.clip(x / (x.max() + 1), 1e-10, 1-1e-10))),
+            inverse_func=lambda x: (1 - np.exp(-np.exp(np.clip(x, -10, 10)))) * (x.max() + 1),
+            check_inverse=False
         )),
         ('ridge', Ridge())
-    ]), {
-        'model__ridge__alpha': np.logspace(0, 2, 20),
+    ])), {
+        'model__estimator__ridge__alpha': np.logspace(0, 2, 20),
         'select_features__k': np.arange(70, 100, 10),
     }),
 }
@@ -152,7 +178,7 @@ models = {
 # =============================================================================
 # MLFLOW EXPERIMENT SETUP
 # =============================================================================
-experiment_base = "Duration_Pred"
+experiment_base = "Occupancy_Pred"
 
 # Create parent experiment if it doesn't exist
 if mlflow.get_experiment_by_name(experiment_base) is None:
@@ -182,7 +208,12 @@ for name, (model, params) in models.items():
         ]),
         'interact_select': Pipeline([
             ('scale', RobustScaler()),
-            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+            ('interactions', PolynomialFeatures(
+                degree=2, 
+                interaction_only=True, 
+                include_bias=False,
+                # n_features_out=1000 # UNHASH IF MEMORY ERROR
+            )),
             ('select_features', SelectKBest(score_func=f_regression, k=100)),
             ('model', model)
         ]),
@@ -192,7 +223,12 @@ for name, (model, params) in models.items():
                 ('pca', PCA(n_components=0.95)),
                 ('lda', LinearDiscriminantAnalysis(n_components=10)),
             ])),
-            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+            ('interactions', PolynomialFeatures(
+                degree=2, 
+                interaction_only=True, 
+                include_bias=False,
+                # n_features_out=1000 # UNHASH IF MEMORY ERROR
+            )),
             ('select_features', SelectKBest(score_func=f_regression, k=100)),
             ('model', model)
         ])
@@ -237,10 +273,14 @@ for name, (model, params) in models.items():
                         n_jobs=-1,
                         verbose=0
                     )
-                    
-                    # Fit the model
-                    search.fit(X_train, y_train)
-                    
+    
+                    try:
+                        # Fit the model
+                        search.fit(X_train, y_train)
+                    except Exception as e:
+                        print(f"    Error during fit: {e}")
+                        continue
+    
                     rmse_score = -search.best_score_
                     best_index = search.best_index_
                     cv_std = search.cv_results_['std_test_score'][best_index]
@@ -275,3 +315,8 @@ for name, (model, params) in models.items():
 results_df = pd.DataFrame(results)
 print("\nAll Results:")
 print(results_df.sort_values(['rmse']))
+
+best_model = search.best_estimator_
+y_pred = best_model.predict(X_test)
+print(f"First 10 Predictions: {y_pred[:10]}")
+print(f"Data Types: {y_pred.dtype}, Unique Values: {np.unique(y_pred)}")

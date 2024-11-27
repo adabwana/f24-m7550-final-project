@@ -81,6 +81,10 @@ glimpse(data_eng)
 skim(data_eng)
 DataExplorer::plot_intro(data_eng) 
 
+# =================================================================================
+# PART A: DURATION IN MINUTES DISTRIBUTION ANALYSIS
+# =================================================================================
+
 descdist(data_eng$Duration_In_Min, boot = 1000)
 
 fitW <- fitdist(data_eng$Duration_In_Min, "weibull")
@@ -89,6 +93,37 @@ fitG <- fitdist(data_eng$Duration_In_Min, "gamma",
                 start = list(scale = 1, shape = 1), lower = c(0, 0))
 fitN <- fitdist(data_eng$Duration_In_Min, "norm")
 fitLn <- fitdist(data_eng$Duration_In_Min, "lnorm")
+
+dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 21,
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) +
+     scale_y_continuous(labels = scales::label_number(scale = 1e3, suffix = "(1/K)", big.mark = ",")) + 
+  theme(legend.position = "none")
+
+cc <- cdfcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+qqc <- qqcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) + 
+  theme(legend.position = "none")
+
+ppc <- ppcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+gridExtra::grid.arrange(dc, cc, qqc, ppc, ncol = 2, nrow = 2, widths = c(1.5, 2))
+
+
+# =================================================================================
+# PART B: OCCUPANCY DISTRIBUTION ANALYSIS
+# =================================================================================
+
+descdist(data_eng$Occupancy, boot = 1000)
+
+fitW <- fitdist(data_eng$Occupancy, "weibull")
+fitE <- fitdist(data_eng$Occupancy, "exp", lower = c(0))
+fitG <- fitdist(data_eng$Occupancy, "gamma", 
+                start = list(scale = 1, shape = 1), lower = c(0, 0))
+fitN <- fitdist(data_eng$Occupancy, "norm")
+fitLn <- fitdist(data_eng$Occupancy, "lnorm")
 
 dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 21,
          legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) +

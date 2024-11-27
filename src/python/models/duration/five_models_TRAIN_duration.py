@@ -40,7 +40,7 @@ features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expec
                     'Course_Name', 'Course_Number', 'Course_Type', 'Course_Code_by_Thousands',
                     'Check_Out_Time', 'Session_Length_Category', target, target_2]
 
-X, y = prepare_data(df, target_2, features_to_drop)
+X, y = prepare_data(df, target, features_to_drop)
 
 # Time series train-test split
 X_train, X_test, y_train, y_test = train_test_split(
@@ -53,8 +53,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 # MLFLOW CONFIGURATION
 # =============================================================================
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
-# mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
-os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/mlruns"
+# mlflow.set_tracking_uri(f"sqlite:///{project_root}/.mlflow.db")
+# os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/.mlruns"
 
 # =============================================================================
 # CROSS VALIDATION SETUP
@@ -138,8 +138,8 @@ models = {
     'PenalizedExponential': (Pipeline([
         # ('scaler', RobustScaler()),
         ('exp_transform', FunctionTransformer(
-            func=lambda x: np.exp(np.clip(x, -10, 10)),  # clip to prevent overflow: was np.exp(np.clip(x, -10, 10))
-            inverse_func=lambda x: np.log(np.clip(x, 1e-10, None))  # clip to prevent log(0)
+            func=lambda x: 1/np.clip(x, 1e-10, None),  # inverse link (canonical for exponential)
+            inverse_func=lambda x: 1/np.clip(x, 1e-10, None)
         )),
         ('ridge', Ridge())
     ]), {
@@ -151,7 +151,7 @@ models = {
 # =============================================================================
 # MLFLOW EXPERIMENT SETUP
 # =============================================================================
-experiment_base = "Occupancy_Pred"
+experiment_base = "Duration_Pred"
 
 # Create parent experiment if it doesn't exist
 if mlflow.get_experiment_by_name(experiment_base) is None:
@@ -181,12 +181,7 @@ for name, (model, params) in models.items():
         ]),
         'interact_select': Pipeline([
             ('scale', RobustScaler()),
-            ('interactions', PolynomialFeatures(
-                degree=2, 
-                interaction_only=True, 
-                include_bias=False,
-                # n_features_out=1000 # UNHASH IF MEMORY ERROR
-            )),
+            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
             ('select_features', SelectKBest(score_func=f_regression, k=100)),
             ('model', model)
         ]),
@@ -196,12 +191,7 @@ for name, (model, params) in models.items():
                 ('pca', PCA(n_components=0.95)),
                 ('lda', LinearDiscriminantAnalysis(n_components=10)),
             ])),
-            ('interactions', PolynomialFeatures(
-                degree=2, 
-                interaction_only=True, 
-                include_bias=False,
-                # n_features_out=1000 # UNHASH IF MEMORY ERROR
-            )),
+            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
             ('select_features', SelectKBest(score_func=f_regression, k=100)),
             ('model', model)
         ])
@@ -247,8 +237,12 @@ for name, (model, params) in models.items():
                         verbose=0
                     )
                     
-                    # Fit the model
-                    search.fit(X_train, y_train)
+                    try:
+                        # Fit the model
+                        search.fit(X_train, y_train)
+                    except Exception as e:
+                        print(f"    Error during fit: {e}")
+                        continue
                     
                     rmse_score = -search.best_score_
                     best_index = search.best_index_
