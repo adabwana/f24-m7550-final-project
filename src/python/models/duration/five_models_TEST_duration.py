@@ -117,8 +117,8 @@ experiments = client.search_experiments(
 test_results = []
 best_model_info = {'rmse': float('inf')}
 
-# Create results directory if it doesn't exist
-os.makedirs(f'{project_root}/results', exist_ok=True)
+# Create results and duration subdirectory if they don't exist
+os.makedirs(f'{project_root}/results/duration', exist_ok=True)
 
 # Test each model and find the best one
 for experiment in experiments:
@@ -183,7 +183,7 @@ for experiment in experiments:
                 
                 # Create and save prediction analysis plots
                 fig = plot_prediction_analysis(y_test, y_pred, full_name)
-                plt.savefig(f'{project_root}/results/top_3_{full_name}_prediction_analysis.png')
+                plt.savefig(f'{project_root}/results/duration/top_3_{full_name}_prediction_analysis.png')
                 plt.close()
                 
             except Exception as e:
@@ -200,7 +200,7 @@ print("\nTop 3 Models per Experiment:")
 print(results_df.sort_values('RMSE'))
 
 # Save results to CSV
-results_df.to_csv(f'{project_root}/results/top_models_comparison.csv', index=False)
+results_df.to_csv(f'{project_root}/results/duration/top_models_comparison.csv', index=False)
 
 # Plot comparison of model performances (only top 3 per experiment)
 plt.figure(figsize=(12, 6))
@@ -216,7 +216,7 @@ for metric in ['RMSE', 'MAE', 'R2']:
     plt.title(f'{metric} by Model and Pipeline Type (Top 3)')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(f'{project_root}/results/top_3_{metric}_comparison.png')
+    plt.savefig(f'{project_root}/results/duration/top_3_{metric}_comparison.png')
     plt.close()
 
 # Print best model details
