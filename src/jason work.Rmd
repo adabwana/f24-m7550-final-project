@@ -679,9 +679,60 @@ sqrt(var(CVMSE12b))
 
 
 ``` {r}
-# POISSON REGRESSION
+# PENALIZED POISSON REGRESSION
+traindata2 <- as.data.frame(traindata2)
+
+set.seed(7550)
+testInd <- createFolds(traindata2$Occupancy, k = 15)
+
+CVtune13b <- train(Occupancy ~ ., data = traindata2[-unlist(testInd[11:15]),],
+                   preProc = c("center", "scale"), method = "glmnet",
+                   family = "poisson", tuneGrid = expand.grid(
+                   alpha = seq(0,1,by = 0.1), lambda = 10^seq(-6,6,by = 0.5)),
+                   trControl=trainControl(method = 'cv',number = 10))
+
+CVMSE13b <- c()
+for (i in 1:5) {
+  CV13b <- train(Occupancy ~ ., data = traindata2[-testInd[[i+10]],],
+               preProc = c("center", "scale"),  method = "glmnet",
+               family = "poisson", tuneGrid = CVtune13b$bestTune)
+  fitted13b <- round(predict(CV13b, newdata = traindata2[testInd[[i+10]],]))
+  CVMSE13b[i] <- sum((fitted13b - traindata2$Occupancy[testInd[[i+10]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE13b <- sum(CVMSE13b)/5
+RMSE13b <- sqrt(sum(CVMSE13b)/5)
+RMSE13b
+sqrt(var(CVMSE13b))
+
+CV13b$bestTune #Alpha = 0, Lambda = 1000000
+
+#Fitted values are all 12; model is doing little with the training data
+```
 
 
+
+``` {r}
+# BASIC POISSON REGRESSION
+
+set.seed(7550)
+testInd <- createFolds(traindata2$Occupancy, k = 10)
+
+CVMSE14b <- c()
+for (i in 1:10) {
+  CV14b <- train(Occupancy ~ ., data = traindata2[-testInd[[i]],],
+               preProc = c("center", "scale"),  method = "glmnet",
+               family = "poisson", tunegrid = expand.grid(alpha = 0, lambda = 0))
+  fitted14b <- predict(CV14b, newdata = traindata2[testInd[[i]],])
+  CVMSE14b[i] <- sum((fitted14b - traindata2$Occupancy[testInd[[i]]])^2)/
+               length(testInd[[i]])
+}
+
+MSE14b <- sum(CVMSE14b)/10
+RMSE14b <- sqrt(sum(CVMSE14b)/10)
+RMSE14b
+sqrt(var(CVMSE14b))
 ```
 
 

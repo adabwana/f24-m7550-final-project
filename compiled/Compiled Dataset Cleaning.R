@@ -10,14 +10,10 @@ library(dplyr)
 # here() starting path is root of the project
 data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 
-LC_train_adj <- data_raw
-LC_train_adj <- LC_train_adj[LC_train_adj$Duration_In_Min > 0, ]
-LC_train_adj <- LC_train_adj[LC_train_adj$Duration_In_Min <= 300, ]
-
 # -----------------------------------------------------------------------------
 # ENGINEER FEATURES
 # -----------------------------------------------------------------------------
-lc_engineered <- LC_train_adj %>%
+lc_engineered <- data_raw %>%
   # Convert dates and times to appropriate formats
   mutate(
     Check_In_Date = mdy(Check_In_Date),
@@ -461,3 +457,10 @@ dim(traindata2)
 readr::write_csv(traindata2, here("data", "traindata2.csv"))
 
 
+
+
+
+#Check: Does it help to train on only the 'regular' duration observations?
+#trainadj <- traindata
+#trainadj <- trainadj[trainadj$Duration_In_Min > 0, ]
+#trainadj <- trainadj[trainadj$Duration_In_Min <= 300, ]
