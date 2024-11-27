@@ -464,3 +464,17 @@ data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 # VIEW ENGINEERED DATA
 # -----------------------------------------------------------------------------
 View(lc_engineered)
+
+
+# -----------------------------------------------------------------------------
+# FEATURE PLOTS
+# -----------------------------------------------------------------------------
+
+lc <- lc_engineered
+
+plot(hour(lc$Check_In_Time), lc$Duration_In_Min, xlab = "Check-in Hour",
+     ylab = "Visit Duration")
+
+LC_train <- data_raw
+colnames(LC_train)
+colnames(lc)
