@@ -1,5 +1,10 @@
 import sys
 import os
+import logging
+import gc
+from typing import Dict, Tuple, Any
+import yaml
+import joblib
 
 import pandas as pd
 import numpy as np
@@ -7,7 +12,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split, KFold, GridSearchCV, TimeSeriesSplit, RepeatedStratifiedKFold
 from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.metrics import mean_squared_error
-from sklearn.preprocessing import StandardScaler, RobustScaler, SplineTransformer, FunctionTransformer, PolynomialFeatures
+from sklearn.preprocessing import StandardScaler, RobustScaler, SplineTransformer, FunctionTransformer, PolynomialFeatures, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import make_scorer
@@ -28,6 +33,13 @@ sys.path.append(project_root)
 
 # import prepare_data
 from src.python.preprocess import prepare_data
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # DATA PREPARATION
@@ -170,23 +182,28 @@ mlflow.sklearn.autolog()
 # =============================================================================
 results = []
 for name, (model, params) in models.items():
+    logger.info(f"\nStarting training for model: {name}")
+    
     # Set the experiment for this model type
     experiment_name = f"{experiment_base}/{name}"
     mlflow.set_experiment(experiment_name)
     
+    # Define scalers to test
+    scalers = [RobustScaler(), StandardScaler(), MinMaxScaler()]
+    
     pipelines = {
         'vanilla': Pipeline([
-            ('scale', RobustScaler()), 
+            ('scaler', 'passthrough'), 
             ('model', model)
         ]),
         'interact_select': Pipeline([
-            ('scale', RobustScaler()),
+            ('scaler', 'passthrough'), 
             ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
             ('select_features', SelectKBest(score_func=f_regression, k=100)),
             ('model', model)
         ]),
         'pca_lda': Pipeline([
-            ('scale', RobustScaler()),
+            ('scaler', 'passthrough'), 
             ('feature_union', FeatureUnion([
                 ('pca', PCA(n_components=0.95)),
                 ('lda', LinearDiscriminantAnalysis(n_components=10)),
@@ -197,80 +214,94 @@ for name, (model, params) in models.items():
         ])
     }
 
-    # Iterate over each pipeline type first
+    # Add scaler parameter to the grid search
     for scale_type, pipeline in pipelines.items():
-        # Outer run for pipeline type
+        # Create parameter grid for this pipeline
+        pipeline_params = {
+            'scaler': scalers,  # Add scalers to the parameter grid
+            **{f'model__{key.split("model__")[1]}': value 
+               for key, value in params.items() 
+               if key.startswith('model__')},
+            **{f'select_features__{key.split("select_features__")[1]}': value 
+               for key, value in params.items() 
+               if key.startswith('select_features__')}
+        }
+
         with mlflow.start_run(run_name=f"{name}_{scale_type}") as pipeline_run:
             mlflow.set_tag('model', name)
             mlflow.set_tag('pipeline_type', scale_type)
-            print(f"\nTuning {name} with {scale_type} pipeline...")
+            logger.info(f"Tuning {name} with {scale_type} pipeline...")
 
-            # Filter parameters to only include those valid for this pipeline
-            valid_params = {}
-            for param_name, param_value in params.items():
-                try:
-                    pipeline.get_params()[param_name]
-                    valid_params[param_name] = param_value
-                except KeyError:
-                    continue
+            # Filter valid parameters
+            valid_params = {
+                param_name: param_value 
+                for param_name, param_value in pipeline_params.items() 
+                if param_name in pipeline.get_params()
+            }
 
-            # Then iterate over CV methods
             for cv_name, cv in cv_methods.items():
-                # Nested run for CV method
                 with mlflow.start_run(run_name=f"{name}_{scale_type}_{cv_name}", nested=True) as cv_run:
                     mlflow.set_tag('cv_method', cv_name)
-                    print(f"  Using {cv_name} cross-validation...")
+                    logger.info(f"Using {cv_name} cross-validation...")
 
-                    # Define RMSE scorer
                     rmse_scorer = make_scorer(
                         lambda y_true, y_pred: np.sqrt(mean_squared_error(y_true, y_pred)),
                         greater_is_better=False
                     )
 
-                    # Grid Search with only valid parameters
                     search = GridSearchCV(
                         pipeline, 
                         valid_params,
                         scoring=rmse_scorer,
                         cv=cv,
                         n_jobs=-1,
-                        verbose=0
+                        verbose=0,
+                        error_score='raise',
+                        # return_train_score=True
                     )
                     
                     try:
-                        # Fit the model
-                        search.fit(X_train, y_train)
+                        with joblib.parallel_backend('loky'):
+                            search.fit(X_train, y_train)
+                        
+                        rmse_score = -search.best_score_
+                        best_index = search.best_index_
+                        cv_std = search.cv_results_['std_test_score'][best_index]
+
+                        # Store results
+                        results.append({
+                            'model': name,
+                            'pipeline_type': scale_type,
+                            'cv_method': cv_name,
+                            'rmse': rmse_score,
+                            'rmse_std': cv_std,
+                            'best_params': search.best_params_
+                        })                
+
+                        # Log metrics and parameters
+                        mlflow.log_metric(f"rmse_{cv_name}", rmse_score)
+                        mlflow.log_metric(f"rmse_std_{cv_name}", cv_std)
+                        for param_name, param_value in search.best_params_.items():
+                            mlflow.log_param(f"{cv_name}_{param_name}", param_value)
+                        
+                        logger.info(f"RMSE={rmse_score:.4f} (±{cv_std:.4f})")
+                        logger.info(f"Best parameters: {search.best_params_}")
+
+                        # Save the model
+                        mlflow.sklearn.log_model(
+                            search.best_estimator_,
+                            "model",
+                            registered_model_name=f"{name}_{scale_type}_{cv_name}"
+                        )
+                        
                     except Exception as e:
-                        print(f"    Error during fit: {e}")
+                        logger.error(f"Error during {name} fitting: {str(e)}")
+                        mlflow.log_param("error", str(e))
                         continue
                     
-                    rmse_score = -search.best_score_
-                    best_index = search.best_index_
-                    cv_std = search.cv_results_['std_test_score'][best_index]
-
-                    # Store results
-                    results.append({
-                        'model': name,
-                        'pipeline_type': scale_type,
-                        'cv_method': cv_name,
-                        'rmse': rmse_score,
-                        'rmse_std': cv_std,
-                        'best_params': search.best_params_
-                    })                
-
-                    # Log metrics to MLflow
-                    mlflow.log_metric(f"rmse_{cv_name}", rmse_score)
-                    for param_name, param_value in search.best_params_.items():
-                        mlflow.log_param(f"{cv_name}_{param_name}", param_value)
-                    
-                    print(f"    RMSE={rmse_score:.4f}, Params={search.best_params_}")
-
-                    # Save the best model
-                    mlflow.sklearn.log_model(
-                        search.best_estimator_,
-                        "model",
-                        registered_model_name=f"{name}_{scale_type}_{cv_name}"
-                    )
+                    finally:
+                        # Clean up memory
+                        gc.collect()
 
 # =============================================================================
 # RESULTS ANALYSIS
@@ -278,3 +309,52 @@ for name, (model, params) in models.items():
 results_df = pd.DataFrame(results)
 print("\nAll Results:")
 print(results_df.sort_values(['rmse']))
+
+def plot_model_comparison(results_df: pd.DataFrame) -> plt.Figure:
+    """Create a comparison plot of model performances."""
+    plt.figure(figsize=(12, 6))
+    sns.boxplot(x='model', y='rmse', hue='cv_method', data=results_df)
+    plt.xticks(rotation=45)
+    plt.title('Model Performance Comparison')
+    plt.tight_layout()
+    return plt.gcf()
+
+def evaluate_model_on_test(
+    model: Any,
+    X_test: pd.DataFrame,
+    y_test: pd.Series
+) -> float:
+    """Evaluate a model on the test set."""
+    test_pred = model.predict(X_test)
+    return np.sqrt(mean_squared_error(y_test, test_pred))
+
+# Create and log comparison plot
+results_df = pd.DataFrame(results)
+fig = plot_model_comparison(results_df)
+mlflow.log_figure(fig, "model_comparison.png")
+
+# Perform final evaluation on test set
+logger.info("\nPerforming final evaluation on test set...")
+final_results = []
+for result in results:
+    model_name = f"{result['model']}_{result['pipeline_type']}_{result['cv_method']}"
+    try:
+        model = mlflow.sklearn.load_model(f"models:/{model_name}/latest")
+        test_rmse = evaluate_model_on_test(model, X_test, y_test)
+        
+        final_results.append({
+            'model': model_name,
+            'train_rmse': result['rmse'],
+            'test_rmse': test_rmse,
+            'rmse_difference': test_rmse - result['rmse']
+        })
+    except Exception as e:
+        logger.error(f"Error evaluating {model_name} on test set: {str(e)}")
+
+final_df = pd.DataFrame(final_results)
+logger.info("\nFinal Test Results:")
+logger.info("\n" + final_df.sort_values(['test_rmse']).to_string())
+
+# Save final results
+final_df.to_csv(f'{project_root}/src/python/models/duration/model_evaluation_results.csv', index=False)
+logger.info("\nResults saved to duration/model_evaluation_results.csv")

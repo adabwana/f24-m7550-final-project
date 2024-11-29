@@ -450,6 +450,9 @@ engineer_features <- function(df) {
 # -----------------------------------------------------------------------------
 # MAIN EXECUTION
 # -----------------------------------------------------------------------------
+# Create directories if they don't exist
+dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
+
 data_raw <- readr::read_csv(here("data", "raw", "LC_train.csv"))
 lc_engineered <- engineer_features(data_raw)
 readr::write_csv(lc_engineered, here("data", "processed", "train_engineered.csv"))

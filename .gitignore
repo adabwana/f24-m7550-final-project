@@ -1,10 +1,9 @@
+# Yes, but not
 .*
 !.devcontainer/
 !.gitignore
-!.Rproj
-[0-9]*
-data/LC_engineered*
-data/weather_history.csv
+data/
+!data/raw/
 
 # Development environment
 *.db
