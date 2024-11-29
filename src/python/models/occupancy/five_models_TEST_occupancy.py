@@ -17,7 +17,7 @@ from src.python.preprocess import prepare_data
 # =============================================================================
 # DATA PREPARATION
 # =============================================================================
-df = pd.read_csv(f'{project_root}/data/LC_engineered.csv')
+df = pd.read_csv(f'{project_root}/data/processed/train_engineered.csv')
 
 target = 'Duration_In_Min'
 target_2 = 'Occupancy'

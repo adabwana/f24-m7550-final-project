@@ -450,9 +450,9 @@ engineer_features <- function(df) {
 # -----------------------------------------------------------------------------
 # MAIN EXECUTION
 # -----------------------------------------------------------------------------
-data_raw <- readr::read_csv(here("data", "LC_train.csv"))
+data_raw <- readr::read_csv(here("data", "raw", "LC_train.csv"))
 lc_engineered <- engineer_features(data_raw)
-readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
+readr::write_csv(lc_engineered, here("data", "processed", "train_engineered.csv"))
 
 # lc_engineered %>%
 #   filter(Course_Type_Category == "Other") %>%
