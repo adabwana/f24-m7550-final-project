@@ -1,5 +1,4 @@
 import sys
-import os
 import gc
 import joblib
 import pandas as pd
@@ -8,24 +7,17 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.preprocessing import RobustScaler, StandardScaler, MinMaxScaler
 import mlflow
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy import stats
 
 # Local imports
-# Setup
 project_root = '/workspace'
 sys.path.append(project_root)
 
-from src.python.models.duration.utils.logging_config import setup_logger
-from src.python.models.duration.utils.mlflow_utils import setup_mlflow_experiments, log_training_results
-from src.python.models.duration.utils.evaluation_utils import plot_model_comparison, evaluate_model_on_test
-from src.python.models.duration.model_definitions.models import get_model_definitions
-from src.python.models.duration.model_definitions.pipelines import get_pipeline_definitions
-from src.python.models.duration.model_definitions.cross_validation import get_cv_methods
-from src.python.models.duration.utils.visualization_utils import calculate_metrics, plot_prediction_analysis, save_visualization_results
-
-from src.python.preprocess import prepare_data
+from src.python.utils.logging_config import setup_logger
+from src.python.utils.mlflow_utils import setup_mlflow_experiments
+from src.python.models.algorithms_occupancy import get_model_definitions
+from src.python.models.pipelines import get_pipeline_definitions
+from src.python.models.cross_validation import get_cv_methods
+from src.python.utils.preprocess import prepare_data
 
 logger = setup_logger()
 
@@ -39,21 +31,21 @@ def load_and_prepare_data(project_root: str):
                        'Course_Name', 'Course_Number', 'Course_Type', 'Course_Code_by_Thousands',
                        'Check_Out_Time', 'Session_Length_Category', target, target_2]
     
-    X, y = prepare_data(df, target, features_to_drop)
+    X, y = prepare_data(df, target_2, features_to_drop)
     return train_test_split(X, y, test_size=0.2, shuffle=False)
 
 def train_models(X_train, y_train, X_test, y_test):
     """Main training function."""
     # Setup MLflow
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    experiment_base = "Duration_Pred"
+    experiment_base = "Occupancy_Pred"
     
     # Get definitions
     models = get_model_definitions()
     pipelines = get_pipeline_definitions()
     cv_methods = get_cv_methods(len(X_train))
     scalers = [RobustScaler(), StandardScaler(), MinMaxScaler()]
-    
+
     # Setup experiments
     setup_mlflow_experiments(experiment_base, models.keys())
     mlflow.sklearn.autolog()
@@ -152,7 +144,7 @@ def train_single_model(name, scale_type, cv_name, pipeline, params, cv, X_train,
     }]
 
 def evaluate_final_models(results, X_test, y_test):
-    """Simple evaluation of models on test set without visualization."""
+    """Simple evaluation of models on test set."""
     final_results = []
     
     for result in results:
@@ -184,16 +176,16 @@ def main():
     
     # Save basic results
     results_df = pd.DataFrame(results)
-    results_df.to_csv(f'{project_root}/results/duration/training_results.csv', index=False)
+    results_df.to_csv(f'{project_root}/results/occupancy/training_results.csv', index=False)
     print("\nTraining Results:")
     print(results_df.sort_values(['rmse']))
     
     # Basic evaluation on test set
     final_results = evaluate_final_models(results, X_test, y_test)
     final_df = pd.DataFrame(final_results)
-    final_df.to_csv(f'{project_root}/results/duration/test_evaluation.csv', index=False)
+    final_df.to_csv(f'{project_root}/results/occupancy/test_evaluation.csv', index=False)
     
-    logger.info("\nResults saved to results/duration/")
+    logger.info("\nResults saved to results/occupancy/")
 
 if __name__ == "__main__":
     main()

@@ -14,11 +14,11 @@ def get_model_definitions():
             'model__alpha': np.logspace(-2, 0, 10),
             'select_features__k': np.arange(10, 55, 5),
         }),
-        'ElasticNet': (ElasticNet(), {
-            'model__alpha': np.logspace(-3, -1, 10),
-            'model__l1_ratio': np.linspace(0.1, 0.9, 5),
-            'select_features__k': np.arange(10, 55, 5),
-        }),
+        # 'ElasticNet': (ElasticNet(), {
+        #     'model__alpha': np.logspace(-3, -1, 10),
+        #     'model__l1_ratio': np.linspace(0.1, 0.9, 5),
+        #     'select_features__k': np.arange(10, 55, 5),
+        # }),
         'PenalizedSplines': (Pipeline([
             ('spline', SplineTransformer()),
             ('ridge', Ridge())

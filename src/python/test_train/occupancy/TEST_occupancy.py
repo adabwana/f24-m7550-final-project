@@ -1,22 +1,16 @@
 import sys
 import os
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import mlflow
 import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy import stats
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 
-# Get the absolute path to the project root directory
+# Local imports
 project_root = '/workspace'
 sys.path.append(project_root)
 
-from src.python.preprocess import prepare_data
-from src.python.models.duration.utils.visualization_utils import calculate_metrics, plot_prediction_analysis, save_visualization_results, plot_feature_importance_biplot
+from src.python.utils.preprocess import prepare_data
+from src.python.utils.visualization_utils import calculate_metrics, plot_prediction_analysis, save_visualization_results, plot_feature_importance_biplot
 
 # =============================================================================
 # DATA PREPARATION
@@ -29,13 +23,12 @@ features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expec
                     'Course_Name', 'Course_Number', 'Course_Type', 'Course_Code_by_Thousands',
                     'Check_Out_Time', 'Session_Length_Category', target, target_2]
 
-X, y = prepare_data(df, target, features_to_drop)
+X, y = prepare_data(df, target_2, features_to_drop)
 
 # Time series train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
-    random_state=3,
     shuffle=False  # Maintains chronological order
 )
 
@@ -44,10 +37,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # =============================================================================
 # Set up MLflow tracking URI and artifact locations
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
-# mlflow.set_tracking_uri(f"sqlite:///{project_root}/mlflow.db")
-# os.environ["MLFLOW_TRACKING_DIR"] = f"{project_root}/.mlruns"
 
-# Add error handling for MLflow connection
 def check_mlflow_connection():
     try:
         client = mlflow.tracking.MlflowClient()
@@ -67,7 +57,7 @@ if not check_mlflow_connection():
 # =============================================================================
 # MODEL TESTING
 # =============================================================================
-experiment_base = "Duration_Pred"
+experiment_base = "Occupancy_Pred"
 client = mlflow.tracking.MlflowClient()
 
 # Get all experiments
@@ -78,8 +68,8 @@ experiments = client.search_experiments(
 test_results = []
 best_model_info = {'rmse': float('inf')}
 
-# Create results and duration subdirectory if they don't exist
-os.makedirs(f'{project_root}/results/duration', exist_ok=True)
+# Create results and occupancy subdirectory if they don't exist
+os.makedirs(f'{project_root}/results/occupancy', exist_ok=True)
 
 # In the testing loop, store the best model's predictions
 best_model_predictions = None
@@ -124,7 +114,7 @@ for experiment in experiments:
                     
                     # Create prediction analysis plots
                     fig = plot_prediction_analysis(y_test, y_pred, full_model_name)
-                    plt.savefig(f'{project_root}/results/duration/prediction_analysis_{full_model_name}.png')
+                    plt.savefig(f'{project_root}/results/occupancy/prediction_analysis_{full_model_name}.png')
                     plt.close()
                     
                     # Create feature importance biplot for the best model
@@ -137,7 +127,7 @@ for experiment in experiments:
                             y_test, 
                             y_pred, 
                             X_test.columns,  # feature names
-                            f'{project_root}/results/duration'
+                            f'{project_root}/results/occupancy'
                         )
                     
                 except Exception as e:
@@ -165,3 +155,4 @@ print(results_df.sort_values('RMSE'))
 
 # Use visualization_utils functions to save results and create plots
 save_visualization_results(results_df, project_root)
+
