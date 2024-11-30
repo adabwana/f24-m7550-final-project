@@ -9,68 +9,62 @@ features_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major', 'Expec
                     'Check_Out_Time', 'Session_Length_Category', target, target_2]
 
 def get_feature_target_split(df: pd.DataFrame, target: str, features_to_drop: list) -> Tuple[pd.DataFrame, pd.Series]:
-    """Split dataframe into features and target.
+    """Split dataframe into features and target."""
+    X = df.copy()
     
-    Args:
-        df: Input DataFrame containing all features and target
-        target: Name of target column
-        features_to_drop: List of features to exclude
-        
-    Returns:
-        Tuple containing features DataFrame (X) and target Series (y)
-    """
-    X = df.drop(features_to_drop, axis=1)
-    y = df[target]
+    # Filter features_to_drop to only include columns that exist
+    missing_columns = [col for col in features_to_drop if col not in X.columns]
+    existing_columns = [col for col in features_to_drop if col in X.columns]
+    
+    if missing_columns:
+        print("\nWarning: The following columns were not found in the dataset:")
+        for col in missing_columns:
+            print(f"- {col}")
+    
+    # Drop existing columns
+    if existing_columns:
+        X = X.drop(columns=existing_columns, axis=1)
+    
+    # Get target if it exists
+    y = df[target] if target in df.columns else None
+    
     return X, y
 
 def convert_datetime_features(X: pd.DataFrame) -> pd.DataFrame:
-    """Convert date and time columns to appropriate formats and extract numerical features.
+    """Convert date and time columns to appropriate formats."""
+    X = X.copy()
     
-    Args:
-        X: Input DataFrame containing datetime features
+    try:
+        # Convert dates to datetime objects if columns exist
+        datetime_columns = ['Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date']
+        existing_dates = [col for col in datetime_columns if col in X.columns]
         
-    Returns:
-        DataFrame with processed datetime features
-    """
-    # Convert dates to datetime objects
-    X = X.assign(
-        Check_In_Date=pd.to_datetime(X['Check_In_Date'], format='%Y-%m-%d'),
-        Semester_Date=pd.to_datetime(X['Semester_Date'], format='%Y-%m-%d'),
-        Expected_Graduation_Date=pd.to_datetime(X['Expected_Graduation_Date'], format='%Y-%m-%d')
-    )
+        if existing_dates:
+            for col in existing_dates:
+                X[col] = pd.to_datetime(X[col], format='%Y-%m-%d')
         
-    # Convert time to total minutes
-    X['Check_In_Time'] = pd.to_datetime(X['Check_In_Time'], format='%H:%M:%S').dt.hour * 60 + \
-                         pd.to_datetime(X['Check_In_Time'], format='%H:%M:%S').dt.minute
-    
-    # Drop original datetime columns
-    X = X.drop(['Check_In_Date', 'Semester_Date', 'Expected_Graduation_Date'], axis=1)
+        # Convert time to total minutes if column exists
+        if 'Check_In_Time' in X.columns:
+            X['Check_In_Time'] = pd.to_datetime(X['Check_In_Time'], format='%H:%M:%S').dt.hour * 60 + \
+                                pd.to_datetime(X['Check_In_Time'], format='%H:%M:%S').dt.minute
+        
+        # Drop processed datetime columns
+        X = X.drop(columns=existing_dates, axis=1, errors='ignore')
+        
+    except Exception as e:
+        print(f"\nWarning: Error processing datetime features: {str(e)}")
     
     return X
 
 def dummy(X: pd.DataFrame) -> pd.DataFrame:
-    """Convert categorical variables to dummies.
-    
-    Args:
-        X: Input DataFrame containing categorical features
-        
-    Returns:
-        DataFrame with dummy variables
-    """
-    X_dummy = pd.get_dummies(X, drop_first=True)
-    return X_dummy
+    """Convert categorical variables to dummies."""
+    categorical_columns = X.select_dtypes(include=['object']).columns
+    if not categorical_columns.empty:
+        X = pd.get_dummies(X, columns=categorical_columns, drop_first=True)
+    return X
 
 def prepare_data(df: pd.DataFrame, target: str, features_to_drop: list) -> Tuple[pd.DataFrame, pd.Series]:
-    """Pipeline to prepare data for modeling.
-    
-    Args:
-        df: Raw input DataFrame
-        target: Name of target column
-        features_to_drop: List of features to exclude
-        
-    Returns:
-        Tuple containing processed features DataFrame (X) and target Series (y)
-    """
+    """Pipeline to prepare data for modeling."""
     # Step 1: Split features and target
     X, y = get_feature_target_split(df, target, features_to_drop)
     

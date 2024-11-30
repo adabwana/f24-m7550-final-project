@@ -12,6 +12,8 @@ mlruns/
 mlartifacts/
 results/
 
+models/final/
+
 # Language specific
 src/clojure/
 docs/
