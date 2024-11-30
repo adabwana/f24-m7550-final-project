@@ -29,6 +29,7 @@
 \usepackage{multicol}
 \usepackage{hyperref}
 \usepackage{beamerappendixnote}
+\usepackage{animate}
 
 \title{Predicting Learning Commons Usage:\\Duration and Occupancy}
 \subtitle{A Statistical Learning Approach}
@@ -313,13 +314,20 @@
     \end{center}
 
     \begin{alertblock}{Engineering Approach}
-        Comprehensive feature set designed to capture:
-        \begin{itemize}
-        \item Temporal patterns
-        \item Academic context
-        \item Student behavior
-        \item Group dynamics
-        \end{itemize}
+        \vspace{-0.2cm}
+        \begin{columns}
+            \column{0.48\textwidth}
+            \begin{itemize}
+            \item Temporal patterns
+            \item Academic context
+            \end{itemize}
+            
+            \column{0.48\textwidth}
+            \begin{itemize}
+            \item Student behavior
+            \item Group dynamics
+            \end{itemize}
+        \end{columns}
     \end{alertblock}
 \end{frame}
 
@@ -327,37 +335,11 @@
 
 \begin{frame}
 \frametitle{Model Training Overview}
-    \begin{columns}
-        \column{0.6\textwidth}
-        \textbf{Data Preparation}:
-            \begin{itemize}
-            \item 80-20 train-test split
-            \item Feature selection
-            \item Multiple scaling approaches
-            \end{itemize}
-            
-        \column{0.4\textwidth}
-        \begin{alertblock}{MLflow Integration}
-            \begin{itemize}
-            \item Experiment tracking
-            \item Model versioning
-            \item Parameter logging
-            \end{itemize}
-        \end{alertblock}
-    \end{columns}
-
-    % Add the data flow diagram
-    \includegraphics[width=0.9\textwidth]{images/modeling/data_flow.pdf}
-\end{frame}
-
-\begin{frame}
-\frametitle{Cross-Validation Strategy}
-    % Add the model building diagram
     \includegraphics[width=\textwidth]{images/modeling/model_building.pdf}
     
     \begin{alertblock}{Key Points}
         \begin{itemize}
-        \item K-Fold CV per model/pipeline combination
+        \item CV per model/pipeline combination
         \item 80\% Training, 20\% Holdout
         \item Aggregate metrics across folds
         \end{itemize}
@@ -366,59 +348,46 @@
 
 \begin{frame}
 \frametitle{Training Pipeline}
-    \textbf{Model Selection Process}:
-        \begin{itemize}
-        \item Separate pipelines for Duration and Occupancy
-        \item Grid search for hyperparameter optimization
-        \item Cross-validation strategies
-        \item Parallel processing with joblib
-        \end{itemize}
-    
-    \textbf{Performance Tracking}:
-        \begin{itemize}
-        \item RMSE as primary metric
-        \item Cross-validation standard deviation
-        \item R² score for interpretability
-        \item Model-specific parameters
-        \end{itemize}
+    \vspace{-0.2cm}
+    \includegraphics[width=\textwidth, height=0.9\textheight]{images/modeling/data_flow.pdf}
+    \vspace{-0.5cm}
+\end{frame}
 
-    \begin{block}{Feature Handling}
-        \begin{itemize}
-        \item Duration: Excluded Check\_Out\_Time
-        \item Occupancy: Excluded Duration and Check\_Out\_Time
-        \item Automated feature selection
-        \end{itemize}
-    \end{block}
+\begin{frame}
+\frametitle{Time-based Cross-validation}
+    \animategraphics[width=\textwidth,autoplay,loop,step=5]{}{images/modeling/gifs/extracted_frames/expanding_window_frame_}{00}{95}
 \end{frame}
 
 \begin{frame}
 \frametitle{Model Evaluation Strategy}
     \begin{columns}
         \column{0.48\textwidth}
-        \textbf{Training Phase}:
+        \textbf{Training/Validation Phase}:
             \begin{itemize}
             \item Grid search CV
-            \item Multiple scaling methods
+            \item Consistent metrics across models
             \item Error analysis
-            \item Model persistence
+            \item Experiment tracking with MLflow
             \end{itemize}
             
         \column{0.48\textwidth}
         \textbf{Testing Phase}:
             \begin{itemize}
-            \item Hold-out validation
-            \item RMSE calculation
-            \item R² scoring
-            \item Results logging
+            \item Hold-out scoring
+                \begin{itemize}
+                \item RMSE
+                \item MAE
+                \item R²
+                \end{itemize}
+            \item Model diagnostic plots
             \end{itemize}
     \end{columns}
 
-    \begin{alertblock}{Evaluation Process}
+    \begin{alertblock}{MLflow Integration}
         \begin{itemize}
-        \item Consistent metrics across models
-        \item Separate evaluation for Duration and Occupancy
-        \item Results saved to CSV files
-        \item Automated error handling
+        \item Experiment tracking
+        \item Parameter logging
+        \item Model versioning
         \end{itemize}
     \end{alertblock}
 \end{frame}

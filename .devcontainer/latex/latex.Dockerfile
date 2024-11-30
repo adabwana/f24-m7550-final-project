@@ -10,8 +10,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-fonts-extra \
     texlive-xetex \
     latexmk \
+    imagemagick \
+    ghostscript \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure ImageMagick to allow PDF and PNG operations
+RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
+    # sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/rights="none" pattern="PNG"/rights="read|write" pattern="PNG"/' /etc/ImageMagick-6/policy.xml; \
+    fi
 
 # Create non-root user
 ARG USERNAME=vscode

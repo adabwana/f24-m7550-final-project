@@ -22,4 +22,23 @@ Rplots.pdf
 .cpcache/
 .nrepl-port
 
+# LaTeX
 *long*
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.nav
+*.snm
+*.vrb
+*.synctex.gz
+*.synctex.gz(busy)
+
+*.pdf
+!data_flow.pdf
+!model_building.pdf
+*.png
