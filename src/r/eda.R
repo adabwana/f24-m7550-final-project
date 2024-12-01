@@ -10,6 +10,8 @@ library(fitdistrplus)
 library(ggplot2)
 library(gridExtra)
 
+theme_set(theme_bw())
+
 # -----------------------------------------------------------------------------
 # READ RAW DATA
 # -----------------------------------------------------------------------------
@@ -94,7 +96,7 @@ fitG <- fitdist(data_eng$Duration_In_Min, "gamma",
 fitN <- fitdist(data_eng$Duration_In_Min, "norm")
 fitLn <- fitdist(data_eng$Duration_In_Min, "lnorm")
 
-dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 21,
+dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 30,
          legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) +
      scale_y_continuous(labels = scales::label_number(scale = 1e3, suffix = "(1/K)", big.mark = ",")) + 
   theme(legend.position = "none")
@@ -109,8 +111,20 @@ qqc <- qqcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
 ppc <- ppcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
          legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
 
-gridExtra::grid.arrange(dc, cc, qqc, ppc, ncol = 2, nrow = 2, widths = c(1.5, 2))
+# Create directories recursively if they don't exist
+dir.create(here("presentation", "images", "eda"), recursive = TRUE, showWarnings = FALSE)
 
+# For Duration Analysis
+grid_title <- grid::textGrob("Duration Distribution Analysis", gp = grid::gpar(fontsize = 14))
+g1 <- gridExtra::grid.arrange(
+  dc, cc, qqc, ppc, 
+  ncol = 2, nrow = 2, 
+  widths = c(1.5, 2),
+  top = grid_title
+)
+
+# Save Duration Distribution plot
+ggsave(here("presentation", "images", "eda", "duration_distribution.jpg"), g1, width = 12, height = 8, dpi = 300)
 
 # =================================================================================
 # PART B: OCCUPANCY DISTRIBUTION ANALYSIS
@@ -140,4 +154,14 @@ qqc <- qqcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
 ppc <- ppcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
          legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
 
-gridExtra::grid.arrange(dc, cc, qqc, ppc, ncol = 2, nrow = 2, widths = c(1.5, 2))
+# For Occupancy Analysis
+grid_title <- grid::textGrob("Occupancy Distribution Analysis", gp = grid::gpar(fontsize = 14))
+g2 <- gridExtra::grid.arrange(
+  dc, cc, qqc, ppc, 
+  ncol = 2, nrow = 2, 
+  widths = c(1.5, 2),
+  top = grid_title
+)
+
+# Save Occupancy Distribution plot
+ggsave(here("presentation", "images", "eda", "occupancy_distribution.jpg"), g2, width = 12, height = 8, dpi = 300)

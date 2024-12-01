@@ -38,7 +38,7 @@ Rplots.pdf
 *.snm
 *.vrb
 *.synctex.gz
-*.synctex.gz(busy)
+*(busy)
 
 *.pdf
 !data_flow.pdf

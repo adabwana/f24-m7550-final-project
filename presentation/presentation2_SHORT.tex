@@ -209,26 +209,30 @@
 
 \begin{frame}
 \frametitle{Temporal Features}
-    \textbf{Date \& Time Features}:
-        \begin{itemize}
-        \item Day of week (Check\_In\_Day)
-        \item Weekend flag (Is\_Weekend)
-        \item Week of semester (Check\_In\_Week)
-        \item Month (Check\_In\_Month)
-        \item Hour of day (Check\_In\_Hour)
-        \item Time categories (Morning/Afternoon/Evening/Late Night)
-        \end{itemize}
-    
-    \textbf{Academic Timeline}:
-        \begin{itemize}
-        \item Semester dates
-        \item Expected graduation dates
-        \item Months until graduation
-        \item Week volume categories (High/Low)
-        \end{itemize}
+    \begin{columns}[T]
+        \column{0.5\textwidth}
+        \textbf{Date \& Time Features}:
+            \begin{itemize}
+            \item Day of week
+            \item Weekend flag
+            \item Week of semester
+            \item Month
+            \item Hour of day
+            \item Time categories (Morning/Afternoon/Evening)
+            \end{itemize}
+            
+        \column{0.48\textwidth}
+        \textbf{Academic Timeline}:
+            \begin{itemize}
+            \item Semester dates
+            \item Expected graduation dates
+            \item Months until graduation
+            \item Week volume categories (Low/High)
+            \end{itemize}
+    \end{columns}
 
     \begin{alertblock}{Key Insight}
-        Temporal patterns strongly influence both duration and occupancy
+        Temporal patterns \textit{could} influence either duration or occupancy.
     \end{alertblock}
 \end{frame}
 
@@ -255,40 +259,51 @@
     \end{columns}
 
     \begin{block}{Course Load Features}
-        \begin{itemize}
-        \item Unique courses per semester
-        \item Course level mix
-        \item Advanced course ratio
-        \item Multiple majors flag
-        \end{itemize}
+        \begin{columns}[T]
+            \column{0.5\textwidth}
+            \begin{itemize}
+            \item Unique courses per semester
+            \item Course level mix
+            \end{itemize}
+            
+            \column{0.48\textwidth}
+            \begin{itemize}
+            \item Advanced course ratio
+            \item Multiple majors flag
+            \end{itemize}
+        \end{columns}
     \end{block}
 \end{frame}
 
 \begin{frame}
 \frametitle{Visit \& Group Features}
-    \textbf{Visit Patterns}:
-        \begin{itemize}
-        \item Total visits per student
-        \item Semester visits
-        \item Average weekly visits
-        \item Session length categories
-        \end{itemize}
-    
-    \textbf{Group Dynamics}:
-        \begin{itemize}
-        \item Group size
-        \item Group check-in flag
-        \item Group size categories
+    \begin{columns} %[T]
+        \column{0.48\textwidth}
+        \textbf{Visit Patterns}:
             \begin{itemize}
-            \item Individual
-            \item Small Group (2-3)
-            \item Medium Group (4-6)
-            \item Large Group (7+)
+            \item Total visits per student
+            \item Semester visits
+            \item Average weekly visits
+            \item Session length categories
             \end{itemize}
-        \end{itemize}
+            
+        \column{0.48\textwidth}
+        \textbf{Group Dynamics}:
+            \begin{itemize}
+            \item Group size
+            \item Group check-in flag
+            \item Group size categories
+                \begin{itemize}
+                \item Individual
+                \item Small Group (2-3)
+                \item Medium Group (4-6)
+                \item Large Group (7+)
+                \end{itemize}
+            \end{itemize}
+    \end{columns}
 
     \begin{alertblock}{Feature Engineering Pipeline}
-        Robust error handling and column validation for each transformation
+        Robust error handling and column validation for each transformation across both \texttt{LC\_train} and \texttt{LC\_test} datasets.
     \end{alertblock}
 \end{frame}
 
@@ -334,61 +349,92 @@
 \section{Model Building}
 
 \begin{frame}
+\frametitle{Training Pipeline}
+    \noindent\centering
+    \hspace{-0.6cm}
+    \includegraphics[width=1.1\textwidth, height=0.9\textheight,
+        % keepaspectratio,    % Maintains aspect ratio
+        interpolate=false,  % Prevents blurry interpolation
+        draft=false]{images/modeling/data_flow.pdf}
+\end{frame}
+    
+\begin{frame}
 \frametitle{Model Training Overview}
     \includegraphics[width=\textwidth]{images/modeling/model_building.pdf}
     
     \begin{alertblock}{Key Points}
-        \begin{itemize}
-        \item CV per model/pipeline combination
-        \item 80\% Training, 20\% Holdout
-        \item Aggregate metrics across folds
-        \end{itemize}
+        \begin{columns}[T,onlytextwidth]
+            \column{0.5\textwidth}
+            \begin{itemize}
+            \item Model pipeline combines:
+                \begin{itemize}
+                \item Multiple model types
+                \item Feature engineering steps
+                \item Cross-validation strategies
+                \end{itemize}
+            \end{itemize}
+            
+            \column{0.5\textwidth}
+            \begin{itemize}
+            \item Training approach:
+                \begin{itemize}
+                \item 80/20 train-holdout split
+                \item CV metrics: RMSE \& R²
+                \item Best model via avg performance
+                \end{itemize}
+            \end{itemize}
+        \end{columns}
     \end{alertblock}
 \end{frame}
 
 \begin{frame}
-\frametitle{Training Pipeline}
-    \vspace{-0.2cm}
-    \includegraphics[width=\textwidth, height=0.9\textheight]{images/modeling/data_flow.pdf}
-    \vspace{-0.5cm}
-\end{frame}
-
-\begin{frame}
-\frametitle{Time-based Cross-validation}
-    \animategraphics[width=\textwidth,autoplay,loop,step=5]{}{images/modeling/gifs/extracted_frames/expanding_window_frame_}{00}{95}
-\end{frame}
-
-\begin{frame}
 \frametitle{Model Evaluation Strategy}
-    \begin{columns}
+    \begin{columns} % [T] aligns columns at the top
         \column{0.48\textwidth}
-        \textbf{Training/Validation Phase}:
+        \textbf{Training \& Validation}:
             \begin{itemize}
-            \item Grid search CV
-            \item Consistent metrics across models
-            \item Error analysis
-            \item Experiment tracking with MLflow
+            \item Cross-validation strategy
+                \begin{itemize}
+                \item Time-based splits
+                \item Grid search optimization
+                \end{itemize}
+            \item Performance monitoring
+                \begin{itemize}
+                \item Consistent metrics
+                \item Error analysis
+                \end{itemize}
             \end{itemize}
             
         \column{0.48\textwidth}
-        \textbf{Testing Phase}:
+        \textbf{Testing \& Deployment}:
             \begin{itemize}
-            \item Hold-out scoring
+            \item Hold-out evaluation
                 \begin{itemize}
-                \item RMSE
-                \item MAE
-                \item R²
+                \item RMSE \& MAE metrics
+                \item R² assessment
+                \item Diagnostic plots
                 \end{itemize}
-            \item Model diagnostic plots
+            \item Model monitoring
+                \begin{itemize}
+                \item Performance tracking
+                \end{itemize}
             \end{itemize}
     \end{columns}
 
-    \begin{alertblock}{MLflow Integration}
-        \begin{itemize}
-        \item Experiment tracking
-        \item Parameter logging
-        \item Model versioning
-        \end{itemize}
+    \begin{alertblock}{MLflow Pipeline Integration}
+        \begin{columns}[T]
+            \column{0.48\textwidth}
+            \begin{itemize}
+            \item Experiment tracking
+            \item Automated logging
+            \end{itemize}
+            
+            \column{0.48\textwidth}
+            \begin{itemize}
+            \item Parameter logging
+            \item Model versioning
+            \end{itemize}
+        \end{columns}
     \end{alertblock}
 \end{frame}
 
@@ -404,7 +450,7 @@
     \midrule
     Cross-validation & Time-based split with multiple methods \\
     \midrule
-    Hyperparameters & Grid search with parallel processing \\
+    Hyperparameters & Grid search with parallel processing (\texttt{joblib}) \\
     \midrule
     Error Metrics & RMSE (primary), R² (secondary) \\
     \midrule
@@ -426,29 +472,192 @@
 \section{Evaluation}
 
 \begin{frame}
-\frametitle{Performance Metrics}
+\frametitle{Duration: Performance on Holdout Set}
     \begin{columns}
         \column{0.5\textwidth}
-        \textbf{Key Metrics}:
-            \begin{itemize}
-            \item Accuracy: 85\%
-            \item Precision: 82\%
-            \item Recall: 88\%
-            \item F1 Score: 85\%
-            \end{itemize}
+        \begin{center}
+        \small
+        \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r}
+        \toprule
+        \textbf{CV Method} & \textbf{RMSE} & \textbf{R²} \\
+        \midrule
+        expanding & 60.41 & 0.029 \\
+        rolling & 60.45 & 0.028 \\
+        kfold & 60.51 & 0.026 \\
+        \bottomrule
+        \end{tabular}
+        \end{center}
             
-        \textbf{Model Robustness}:
-            \begin{itemize}
-            \item Cross-validation results
-            \item Learning curves
-            \item Error analysis
-            \end{itemize}
-                
         \column{0.5\textwidth}
-        % Add confusion matrix or ROC curve
-        % \includegraphics[width=\textwidth]{path/to/confusion_matrix.png}
+        \begin{center}
+        \small
+        \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r}
+        \toprule
+        \textbf{Pipeline} & \textbf{RMSE} & \textbf{R²} \\
+        \midrule
+        vanilla & 60.20 & 0.035 \\
+        interact\_select & 60.55 & 0.024 \\
+        pca\_lda & 60.61 & 0.022 \\
+        \bottomrule
+        \end{tabular}
+        \end{center}
     \end{columns}
+
+    \vspace{0.2cm}
+    \begin{center}
+    \small
+    \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r r r}
+    \toprule
+    \textbf{Model} & \textbf{RMSE} & \textbf{(std)} & \textbf{R²} & \textbf{(std)} \\
+    \midrule
+    PenalizedSplines & 60.03 & $\pm$ 0.63 & 0.041 & $\pm$ 0.020 \\
+    Ridge & 60.39 & $\pm$ 0.17 & 0.030 & $\pm$ 0.005 \\
+    PenalizedLogNormal & 60.49 & $\pm$ 0.15 & 0.026 & $\pm$ 0.005 \\
+    Lasso & 60.50 & $\pm$ 0.28 & 0.026 & $\pm$ 0.009 \\
+    KNN & 60.85 & $\pm$ 0.54 & 0.014 & $\pm$ 0.018 \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    
+    \vspace{-0.2cm}
+    \begin{alertblock}{Key Insight}
+        Above tables are aggregates. PenalizedSplines with vanilla features and KFold CV achieved best performance on holdout set.
+    \end{alertblock}
 \end{frame}
+
+\begin{frame}
+\frametitle{Duration: Best Model Diagnostics}
+    \begin{center}
+        \noindent\centering
+        \vspace{-0.7cm}
+        \includegraphics[width=1.0\textwidth, height=0.95\textheight,
+            % keepaspectratio,    % Maintains aspect ratio
+            interpolate=false,  % Prevents blurry interpolation
+            draft=false]{images/evaluation/Duration_PenalizedSplines_vanilla_kfold.jpg}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Occupancy: Performance on Holdout Set}
+        \begin{columns}
+            \column{0.5\textwidth}
+            \begin{center}
+            \small
+            \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r}
+            \toprule
+            \textbf{CV Method} & \textbf{RMSE} & \textbf{R²} \\
+            \midrule
+            expanding & 4.32 & 0.000 \\
+            rolling & 4.34 & -0.021 \\
+            kfold & 4.59 & -0.156 \\
+            \bottomrule
+            \end{tabular}
+            \end{center}
+                
+            \column{0.5\textwidth}
+            \begin{center}
+            \small
+            \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r}
+            \toprule
+            \textbf{Pipeline} & \textbf{RMSE} & \textbf{R²} \\
+            \midrule
+            vanilla & 4.04 & 0.138 \\
+            interact\_select & 4.45 & -0.052 \\
+            pca\_lda & 4.76 & -0.263 \\
+            \bottomrule
+            \end{tabular}
+            \end{center}
+        \end{columns}
+    
+        \vspace{0.2cm}
+        \begin{center}
+        \small
+        \begin{tabular}{>{\columncolor{bgsubrown!20}}l r r r r}
+        \toprule
+        \textbf{Model} & \textbf{RMSE} & \textbf{(std)} & \textbf{R²} & \textbf{(std)} \\
+        \midrule
+        PenalizedSplines & 4.00 & $\pm$ 0.50 & 0.150 & $\pm$ 0.231 \\
+        PenalizedWeibull & 4.04 & $\pm$ 0.14 & 0.141 & $\pm$ 0.059 \\
+        Lasso & 4.17 & $\pm$ 0.24 & 0.084 & $\pm$ 0.103 \\
+        PenalizedPoisson & 4.17 & $\pm$ 0.24 & 0.082 & $\pm$ 0.110 \\
+        Ridge & 4.61 & $\pm$ 0.62 & -0.136 & $\pm$ 0.311 \\
+        KNN & 5.51 & $\pm$ 1.29 & -0.675 & $\pm$ 0.829 \\
+        \bottomrule
+        \end{tabular}
+        \end{center}
+        
+        \vspace{-0.2cm}
+        \begin{alertblock}{Key Insight}
+            Also aggregates. Vanilla \textit{rolling} PenalizedSplines proved best.
+        \end{alertblock}
+    \end{frame}
+
+\begin{frame}
+\frametitle{Occupancy: Best Model Diagnostics}
+    \begin{center}
+        \noindent\centering
+        \vspace{-0.7cm}
+        \includegraphics[width=1.0\textwidth, height=0.95\textheight,
+            % keepaspectratio,    % Maintains aspect ratio
+            interpolate=false,  % Prevents blurry interpolation
+            draft=false]{images/evaluation/Occupancy_PenalizedSplines_vanilla_rolling.jpg}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Best Model Configurations}
+        \begin{columns}[T]
+            \column{0.48\textwidth}
+            \textbf{Duration Prediction}:
+            \vspace{-0.5cm}
+            \begin{center}
+            \small
+            \begin{tabular}{>{\columncolor{bgsubrown!20}}l l}
+            \toprule
+            \textbf{Component} & \textbf{Value} \\
+            \midrule
+            Model & PenalizedSplines \\
+            Pipeline & vanilla \\
+            CV Method & kfold \\
+            RMSE & 59.47 \\
+            R² & 0.059 \\
+            \midrule
+            Ridge $\alpha$ & 14.38 \\
+            Spline degree & 3 \\
+            Spline knots & 15 \\
+            Scaler & RobustScaler \\
+            \bottomrule
+            \end{tabular}
+            \end{center}
+                
+            \column{0.48\textwidth}
+            \textbf{Occupancy Prediction}:
+            \vspace{-0.5cm}
+            \begin{center}
+            \small
+            \begin{tabular}{>{\columncolor{bgsubrown!20}}l l}
+            \toprule
+            \textbf{Component} & \textbf{Value} \\
+            \midrule
+            Model & PenalizedSplines \\
+            Pipeline & vanilla \\
+            CV Method & rolling \\
+            RMSE & 3.64 \\
+            R² & 0.303 \\
+            \midrule
+            Ridge $\alpha$ & 29.76 \\
+            Spline degree & 3 \\
+            Spline knots & 15 \\
+            Scaler & RobustScaler \\
+            \bottomrule
+            \end{tabular}
+            \end{center}
+        \end{columns}
+    
+        \begin{alertblock}{Key Insight}
+            Both tasks achieved best results with PenalizedSplines and vanilla features, though with different CV methods \& regularization.
+        \end{alertblock}
+    \end{frame}
 
 \section{Conclusion}
 
