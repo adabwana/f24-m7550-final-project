@@ -31,4 +31,14 @@ services:
     volumes:
       - .:/workspace:cached
     environment:
-      - CLOJURE_DEPS=/workspace/deps.edn 
+      - CLOJURE_DEPS=/workspace/deps.edn
+
+  latex:
+    build:
+      context: ./.devcontainer/latex
+      dockerfile: latex.Dockerfile
+    container_name: latex-dev
+    volumes:
+      - .:/workspace:cached
+    environment:
+      - TEXMFHOME=/workspace/.texmf

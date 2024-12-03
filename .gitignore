@@ -1,6 +1,4 @@
+# Yes, but not
 .*
 !.devcontainer/
 !.gitignore
-!.Rproj
-[0-9]*
-.Rproj.user

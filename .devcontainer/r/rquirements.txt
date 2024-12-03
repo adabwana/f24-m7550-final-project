@@ -1,16 +1,19 @@
 # Data manipulation and tidyverse ecosystem
-tidyverse
+# tidyverse
+# tidyr
 lubridate
 dplyr
-tidyr
 readr
-lunar
-openmeteo
+
+# Weather and moon
+# lunar
+# openmeteo
 
 # Data exploration and visualization
 ggplot2
 DataExplorer
 skimr
+fitdistrplus
 
 # Statistics and modeling
 broom

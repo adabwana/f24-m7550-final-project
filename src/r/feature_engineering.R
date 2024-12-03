@@ -509,6 +509,18 @@ engineer_features <- function(df) {
 # -----------------------------------------------------------------------------
 # Create directories if they don't exist
 dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
+<<<<<<< HEAD
+=======
+
+data_raw_train <- readr::read_csv(here("data", "raw", "LC_train.csv"))
+data_raw_test <- readr::read_csv(here("data", "raw", "LC_test.csv"))
+
+lc_engineered_train <- engineer_features(data_raw_train)
+lc_engineered_test <- engineer_features(data_raw_test)
+
+readr::write_csv(lc_engineered_train, here("data", "processed", "train_engineered.csv"))
+readr::write_csv(lc_engineered_test, here("data", "processed", "test_engineered.csv"))
+>>>>>>> origin
 
 data_raw_train <- readr::read_csv(here("data","LC_train.csv"))
 data_raw_test <- readr::read_csv(here("data","LC_test.csv"))
@@ -522,6 +534,7 @@ readr::write_csv(lc_engineered_test, here("data", "processed", "test_engineered.
 # -----------------------------------------------------------------------------
 # VIEW ENGINEERED DATA
 # -----------------------------------------------------------------------------
+<<<<<<< HEAD
 
 #View(lc_engineered_train)
 
@@ -536,4 +549,7 @@ plot(hour(lc$Check_In_Time), lc$Duration_In_Min, xlab = "Check-in Hour",
 LC_train <- data_raw
 colnames(LC_train)
 colnames(lc)
+=======
+# View(lc_engineered)
+>>>>>>> origin
 

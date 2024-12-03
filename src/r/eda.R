@@ -6,6 +6,12 @@ library(dplyr)
 library(skimr)  
 library(DataExplorer)
 
+library(fitdistrplus)
+library(ggplot2)
+library(gridExtra)
+
+theme_set(theme_bw())
+
 # -----------------------------------------------------------------------------
 # READ RAW DATA
 # -----------------------------------------------------------------------------
@@ -66,13 +72,96 @@ DataExplorer::plot_prcomp(lc_data, variance_cap = 0.9, nrow = 2L, ncol = 2L)
 # -----------------------------------------------------------------------------
 
 # Read the engineered data
-engineered_data <- readr::read_csv(here("data", "LC_engineered.csv"))
+data_eng <- readr::read_csv(here("data", "LC_engineered.csv"))
 
-View(engineered_data)
+View(data_eng)
 
 # Basic overview of the data
-glimpse(engineered_data)
+glimpse(data_eng)
 
 # Get comprehensive summary statistics
-skim(engineered_data)
-DataExplorer::plot_intro(engineered_data) 
+skim(data_eng)
+DataExplorer::plot_intro(data_eng) 
+
+# =================================================================================
+# PART A: DURATION IN MINUTES DISTRIBUTION ANALYSIS
+# =================================================================================
+
+descdist(data_eng$Duration_In_Min, boot = 1000)
+
+fitW <- fitdist(data_eng$Duration_In_Min, "weibull")
+fitE <- fitdist(data_eng$Duration_In_Min, "exp", lower = c(0))
+fitG <- fitdist(data_eng$Duration_In_Min, "gamma", 
+                start = list(scale = 1, shape = 1), lower = c(0, 0))
+fitN <- fitdist(data_eng$Duration_In_Min, "norm")
+fitLn <- fitdist(data_eng$Duration_In_Min, "lnorm")
+
+dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 30,
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) +
+     scale_y_continuous(labels = scales::label_number(scale = 1e3, suffix = "(1/K)", big.mark = ",")) + 
+  theme(legend.position = "none")
+
+cc <- cdfcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+qqc <- qqcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) + 
+  theme(legend.position = "none")
+
+ppc <- ppcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+# Create directories recursively if they don't exist
+dir.create(here("presentation", "images", "eda"), recursive = TRUE, showWarnings = FALSE)
+
+# For Duration Analysis
+grid_title <- grid::textGrob("Duration Distribution Analysis", gp = grid::gpar(fontsize = 14))
+g1 <- gridExtra::grid.arrange(
+  dc, cc, qqc, ppc, 
+  ncol = 2, nrow = 2, 
+  widths = c(1.5, 2),
+  top = grid_title
+)
+
+# Save Duration Distribution plot
+ggsave(here("presentation", "images", "eda", "duration_distribution.jpg"), g1, width = 12, height = 8, dpi = 300)
+
+# =================================================================================
+# PART B: OCCUPANCY DISTRIBUTION ANALYSIS
+# =================================================================================
+
+descdist(data_eng$Occupancy, boot = 1000)
+
+fitW <- fitdist(data_eng$Occupancy, "weibull")
+fitE <- fitdist(data_eng$Occupancy, "exp", lower = c(0))
+fitG <- fitdist(data_eng$Occupancy, "gamma", 
+                start = list(scale = 1, shape = 1), lower = c(0, 0))
+fitN <- fitdist(data_eng$Occupancy, "norm")
+fitLn <- fitdist(data_eng$Occupancy, "lnorm")
+
+dc <- denscomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot", breaks = 21,
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) +
+     scale_y_continuous(labels = scales::label_number(scale = 1e3, suffix = "(1/K)", big.mark = ",")) + 
+  theme(legend.position = "none")
+
+cc <- cdfcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+qqc <- qqcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal")) + 
+  theme(legend.position = "none")
+
+ppc <- ppcomp(list(fitW, fitE, fitG, fitN, fitLn), plotstyle = "ggplot",
+         legendtext = c("Weibull", "Exp", "Gamma", "Normal", "Log Normal"))
+
+# For Occupancy Analysis
+grid_title <- grid::textGrob("Occupancy Distribution Analysis", gp = grid::gpar(fontsize = 14))
+g2 <- gridExtra::grid.arrange(
+  dc, cc, qqc, ppc, 
+  ncol = 2, nrow = 2, 
+  widths = c(1.5, 2),
+  top = grid_title
+)
+
+# Save Occupancy Distribution plot
+ggsave(here("presentation", "images", "eda", "occupancy_distribution.jpg"), g2, width = 12, height = 8, dpi = 300)

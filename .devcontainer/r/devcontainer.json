@@ -15,5 +15,6 @@
       ]
     }
   },
+  // "runArgs": ["--gpus", "all"],
   "remoteUser": "vscode"
 }

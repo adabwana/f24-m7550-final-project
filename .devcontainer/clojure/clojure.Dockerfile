@@ -35,4 +35,9 @@ ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 # Set Java to run in headless mode by default
 ENV JAVA_TOOL_OPTIONS="-Djava.awt.headless=true"
 
+# Add NVIDIA GPU support
+# UNCOMMENT IF YOU HAVE A GPU
+# ENV NVIDIA_VISIBLE_DEVICES=all
+# ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 WORKDIR /workspace 
