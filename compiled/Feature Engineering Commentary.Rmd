@@ -404,7 +404,7 @@ add_gpa_trend <- function(df) {
 }
 ```
 
-**We can further check how many unique courses a student is taking in a given semester, the number of different course levels (based on the 'Course Code by Thousands' variable) they are taking in a given semester, and the mean number of courses which are considered 'Upper Classmen' (4000-level), creating one new feature for each. We can further make an indicator of the sign of the 'Change in GPA' variable in case the actual numeric information in that variable is of less importance than just the direction the students' GPA is trending in the semester in which they visit.**
+**We can further check how many unique courses a student is taking in a given semester, the number of different course levels (based on the 'Course Code by Thousands' variable) they are taking in a given semester, and the proportion of courses which are considered 'Upper Classmen' (4000-level), creating one new feature for each. We can further make an indicator of the sign of the 'Change in GPA' variable in case the actual numeric information in that variable is of less importance than just the direction the students' GPA is trending in the semester in which they visit.**
 
 ``` {r}
 ensure_duration <- function(df) {
@@ -536,3 +536,5 @@ lc_engineered_test <- engineer_features(data_raw_test)
 ``` {r}
 colnames(lc_engineered_train)
 ```
+
+**Above is the final set of predictors we will use for model building.**
