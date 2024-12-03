@@ -12,8 +12,7 @@ library(purrr)
 prepare_dates <- function(df) {
   df %>% mutate(
     Check_In_Date = mdy(Check_In_Date),
-    Check_In_Time = hms::as_hms(Check_In_Time),
-    Check_Out_Time = hms::as_hms(Check_Out_Time)
+    Check_In_Time = hms::as_hms(Check_In_Time)
   )
 }
 
@@ -30,10 +29,10 @@ add_temporal_features <- function(df) {
 add_time_category <- function(df) {
   df %>% mutate(
     Time_Category = case_when(
-      Check_In_Hour < 6 ~ "Late Night",
-      Check_In_Hour < 12 ~ "Morning",
-      Check_In_Hour < 17 ~ "Afternoon",
-      Check_In_Hour < 22 ~ "Evening",
+      hour(Check_In_Time) < 6 ~ "Late Night",
+      hour(Check_In_Time) < 12 ~ "Morning",
+      hour(Check_In_Time) < 17 ~ "Afternoon",
+      hour(Check_In_Time) < 22 ~ "Evening",
       TRUE ~ "Late Night"
     )
   )
@@ -364,12 +363,6 @@ add_gpa_trend <- function(df) {
   df %>% mutate(
     # Calculate GPA trend (1 for positive, -1 for negative, 0 for no change)
     GPA_Trend = sign(Change_in_GPA),
-    # Add categorical version
-    GPA_Trend_Category = case_when(
-      Change_in_GPA > 0 ~ "Improving",
-      Change_in_GPA < 0 ~ "Declining",
-      TRUE ~ "Stable"
-    )
   )
 }
 
@@ -420,56 +413,121 @@ calculate_occupancy <- function(df) {
 }
 
 # -----------------------------------------------------------------------------
+# GROUP SIZE FEATURES
+# -----------------------------------------------------------------------------
+add_group_features <- function(df) {
+  df %>%
+    mutate(
+      Check_In_Timestamp = ymd_hms(paste(Check_In_Date, Check_In_Time))
+    ) %>%
+    add_count(Check_In_Timestamp, name = "Group_Size") %>%
+    mutate(
+      Group_Check_In = Group_Size > 1,
+      Group_Size_Category = case_when(
+        Group_Size == 1 ~ "Individual",
+        Group_Size <= 3 ~ "Small Group",
+        Group_Size <= 6 ~ "Medium Group",
+        TRUE ~ "Large Group"
+      )
+    ) %>%
+    select(-Check_In_Timestamp)
+}
+
+# -----------------------------------------------------------------------------
 # PIPELINE
 # -----------------------------------------------------------------------------
+# Create a safe wrapper function
+safely_mutate <- function(df, mutation_fn, required_cols) {
+  # Check if all required columns exist
+  missing_cols <- setdiff(required_cols, names(df))
+  
+  if (length(missing_cols) > 0) {
+    warning(sprintf("Skipping mutation: Missing columns: %s", 
+                   paste(missing_cols, collapse = ", ")))
+    return(df)
+  }
+  
+  tryCatch({
+    mutation_fn(df)
+  }, error = function(e) {
+    warning(sprintf("Error in mutation: %s", e$message))
+    return(df)
+  })
+}
+
+# Modify the engineer_features function
 engineer_features <- function(df) {
   df %>%
-    prepare_dates() %>%
-    add_date_features() %>%
-    add_temporal_features() %>%
-    add_time_category() %>%
-    add_course_features() %>%
-    add_course_name_category() %>%
-    add_course_type_category() %>%
-    add_major_category() %>%
-    add_gpa_category() %>%
-    add_credit_load_category() %>%
-    add_class_standing_category() %>%
-    add_class_standing_bgsu() %>%
-    ensure_duration() %>%
-    add_session_length_category() %>%
-    add_visit_features() %>%
-    add_week_volume_category() %>%
-    add_graduation_features() %>%
-    add_course_load_features() %>%
-    add_gpa_trend() %>%
-    calculate_occupancy() %>%
+    safely_mutate(prepare_dates, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(add_date_features, 
+                 c("Semester", "Expected_Graduation")) %>%
+    safely_mutate(add_temporal_features, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(add_time_category, 
+                 c("Check_In_Hour")) %>%
+    safely_mutate(add_course_features, 
+                 c("Course_Code_by_Thousands")) %>%
+    safely_mutate(add_course_name_category, 
+                 c("Course_Name")) %>%
+    safely_mutate(add_course_type_category, 
+                 c("Course_Type")) %>%
+    safely_mutate(add_major_category, 
+                 c("Major")) %>%
+    safely_mutate(add_gpa_category, 
+                 c("Cumulative_GPA")) %>%
+    safely_mutate(add_credit_load_category, 
+                 c("Term_Credit_Hours")) %>%
+    safely_mutate(add_class_standing_category, 
+                 c("Class_Standing")) %>%
+    safely_mutate(add_class_standing_bgsu, 
+                 c("Total_Credit_Hours_Earned")) %>%
+    safely_mutate(ensure_duration, 
+                 c("Check_In_Time")) %>%
+    safely_mutate(add_session_length_category, 
+                 c("Duration_In_Min")) %>%
+    safely_mutate(add_visit_features, 
+                 c("Student_IDs", "Check_In_Date", "Semester_Week")) %>%
+    safely_mutate(add_week_volume_category, 
+                 c("Semester_Week")) %>%
+    safely_mutate(add_graduation_features, 
+                 c("Expected_Graduation_Date", "Semester_Date")) %>%
+    safely_mutate(add_course_load_features, 
+                 c("Student_IDs", "Semester", "Course_Number", 
+                   "Course_Code_by_Thousands", "Course_Level")) %>%
+    safely_mutate(add_gpa_trend, 
+                 c("Change_in_GPA")) %>%
+    safely_mutate(add_group_features, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(calculate_occupancy, 
+                 c("Check_In_Date", "Check_In_Time", "Check_Out_Time")) %>%
     ungroup()
 }
 
 # -----------------------------------------------------------------------------
 # MAIN EXECUTION
 # -----------------------------------------------------------------------------
-data_raw <- readr::read_csv(here("data", "LC_train.csv"))
-(lc_engineered <- engineer_features(data_raw))
-# readr::write_csv(lc_engineered, here("data", "LC_engineered.csv"))
+# Create directories if they don't exist
+dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
 
-# lc_engineered %>%
-#   filter(Course_Type_Category == "Other") %>%
-#   select(Course_Type) %>%
-#   distinct() %>%
-#   print(n = 150)
+data_raw_train <- readr::read_csv(here("data","LC_train.csv"))
+data_raw_test <- readr::read_csv(here("data","LC_test.csv"))
+
+lc_engineered_train <- engineer_features(data_raw_train)
+lc_engineered_test <- engineer_features(data_raw_test)
+
+readr::write_csv(lc_engineered_train, here("data", "processed", "train_engineered.csv"))
+readr::write_csv(lc_engineered_test, here("data", "processed", "test_engineered.csv"))
 
 # -----------------------------------------------------------------------------
 # VIEW ENGINEERED DATA
 # -----------------------------------------------------------------------------
-View(lc_engineered)
 
+#View(lc_engineered_train)
 
 # -----------------------------------------------------------------------------
 # FEATURE DISCUSSION
 # -----------------------------------------------------------------------------
-
 lc <- lc_engineered
 
 plot(hour(lc$Check_In_Time), lc$Duration_In_Min, xlab = "Check-in Hour",
@@ -478,3 +536,4 @@ plot(hour(lc$Check_In_Time), lc$Duration_In_Min, xlab = "Check-in Hour",
 LC_train <- data_raw
 colnames(LC_train)
 colnames(lc)
+

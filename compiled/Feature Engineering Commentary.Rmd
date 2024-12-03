@@ -1,0 +1,538 @@
+---
+title: "Feature Engineering Commentary"
+author: "Jason Turk"
+date: "2024-12-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+library(here)
+library(readr)
+library(dplyr)
+library(lubridate)
+library(hms)
+library(purrr)
+```
+
+
+``` {r}
+dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
+
+data_raw_train <- readr::read_csv(here("data","LC_train.csv"))
+data_raw_test <- readr::read_csv(here("data","LC_test.csv"))
+```
+
+``` {r}
+colnames(data_raw_train)
+```
+
+``` {r}
+prepare_dates <- function(df) {
+  df %>% mutate(
+    Check_In_Date = mdy(Check_In_Date),
+    Check_In_Time = hms::as_hms(Check_In_Time)
+  )
+}
+
+add_temporal_features <- function(df) {
+  df %>% mutate(
+    Check_In_Day = wday(Check_In_Date, label = TRUE),
+    Is_Weekend = Check_In_Day %in% c("Sat", "Sun"),
+    Check_In_Week = ceiling(day(Check_In_Date) / 7),
+    Check_In_Month = month(Check_In_Date, label = TRUE),
+    Check_In_Hour = hour(Check_In_Time)
+  )
+}
+
+add_time_category <- function(df) {
+  df %>% mutate(
+    Time_Category = case_when(
+      hour(Check_In_Time) < 6 ~ "Late Night",
+      hour(Check_In_Time) < 12 ~ "Morning",
+      hour(Check_In_Time) < 17 ~ "Afternoon",
+      hour(Check_In_Time) < 22 ~ "Evening",
+      TRUE ~ "Late Night"
+    )
+  )
+}
+
+convert_semester_to_date <- function(semester_str) {
+  # Extract year and semester
+  parts <- strsplit(semester_str, " ")[[1]]
+  year <- parts[length(parts)]
+  semester <- parts[1]
+  
+  # Map semesters to months
+  month <- case_when(
+    semester == "Fall" ~ "08",
+    semester == "Spring" ~ "01",
+    semester == "Summer" ~ "06",
+    semester == "Winter" ~ "12",
+    TRUE ~ NA_character_
+  )
+  
+  # Combine into date
+  paste0(month, "/", "01", "/", year)
+}
+
+add_date_features <- function(df) {
+  df %>%
+    mutate(
+      # Convert semester to date
+      Semester_Date = mdy(purrr::map(Semester, convert_semester_to_date)),
+      # Convert expected graduation to date
+      Expected_Graduation_Date = mdy(purrr::map(Expected_Graduation, convert_semester_to_date)),
+    )
+}
+
+add_graduation_features <- function(df) {
+  df %>% mutate(
+    # Calculate months until graduation
+    Months_Until_Graduation = as.numeric(
+      difftime(Expected_Graduation_Date, Semester_Date, units = "days") / 30.44 # average days per month
+    )
+  )
+}
+
+plot(hour(data_raw_train$Check_In_Time), data_raw_train$Duration_In_Min, xlab = "Check-in Hour",ylab = "Visit Duration")
+```
+
+**First, we need to extract information from the temporal features of the dataset using 'lubridate'. By extracting this information we can engineer new features that are appropriate for model fitting. The check-in day of week, weekend indicator (Sunday only), check-in month, and check-in hour are some such features that can be readily constructed from the check-in dates and times. Because of the non-linear behavior of the check-in hour as it relates to visit duration, it is also reasonable to create a categorical 'Time Category' variable with levels 'morning' (6am - 12pm), 'afternoon' (12pm - 5pm), and 'evening' (5pm - 11pm).**
+
+**The 'Expected Graduation' variable is a bit level-heavy as it stands. Our method to potentially improve upon this predictor is to convert it to a numeric 'Months Until Graduation' variable.**
+
+``` {r}
+add_course_features <- function(df) {
+  df %>% mutate(
+    Course_Level = case_when(
+      Course_Code_by_Thousands <= 100 ~ "Special",
+      Course_Code_by_Thousands <= 3000 ~ "Lower Classmen",
+      Course_Code_by_Thousands <= 4000 ~ "Upper Classmen",
+      TRUE ~ "Graduate"
+    )
+  )
+}
+
+add_gpa_category <- function(df) {
+  df %>% mutate(
+    GPA_Category = case_when(
+      Cumulative_GPA >= 3.5 ~ "Excellent",
+      Cumulative_GPA >= 3.0 ~ "Good",
+      Cumulative_GPA >= 2.0 ~ "Satisfactory",
+      TRUE ~ "Needs Improvement"
+    )
+  )
+}
+
+add_credit_load_category <- function(df) {
+  df %>% mutate(
+    # Credit load features
+    Credit_Load_Category = case_when(
+      Term_Credit_Hours <= 6 ~ "Part Time",
+      Term_Credit_Hours <= 12 ~ "Half Time",
+      Term_Credit_Hours <= 18 ~ "Full Time",
+      TRUE ~ "Overload"
+    ),
+  )
+}
+
+add_class_standing_category <- function(df) {
+  df %>% mutate(
+    # Renaming column and values for Class_Standing
+    Class_Standing_Self_Reported = case_when(
+      Class_Standing == "Freshman" ~ "First Year",
+      Class_Standing == "Sophomore" ~ "Second Year",
+      Class_Standing == "Junior" ~ "Third Year",
+      Class_Standing == "Senior" ~ "Fourth Year",
+      TRUE ~ Class_Standing
+    ),
+  )
+}
+
+add_class_standing_bgsu <- function(df) {
+  df %>% mutate(
+    # Class_standing by BGSU's definition
+    # https://www.bgsu.edu/academic-advising/student-resources/academic-standing.html
+    Class_Standing_BGSU = case_when(
+      Total_Credit_Hours_Earned < 30 ~ "Freshman",
+      Total_Credit_Hours_Earned < 60 ~ "Sophomore",
+      Total_Credit_Hours_Earned < 90 ~ "Junior",
+      Total_Credit_Hours_Earned <= 120 ~ "Senior",
+      TRUE ~ "Extended"
+    ),
+  )
+}
+```
+
+**The 'Course Code by Thousands' variable contains some ambiguities that make it a bit level-heavy when treated as a categorical variable, so we have categorized it into a 'Course Level' variable ("Special", "Lower classmen", "Upper classmen", and "Graduate"). We have further categorized Cumulative_GPA to create a 'GPA Category' variable (< 2.0, 2.0-3.0, 3.0-3.5, and 3.5-4.0), and 'Term Credit Hours' to 'Credit Load Category' ("Part Time", "Half Time", "Full Time", and "Overload").**
+
+**The excess of 'Seniors' present in the dataset appears to be because many of the students have obtained extraneous credits to acquire senior status but have not met the requirements to graduate in some form. To help reduce the volume of seniors we categorized those with 90-120 credit hours as 'Senior' and those with over 120 credit hours as 'Extended' (still seniors by definition but already above the necessary credits). The original Class Standing variable was recoded as 'Class Standing Self Reported' with labels "First Year" through "Fourth Year" (plus "Graduate" and "Other") so that if there is any meaningful information in the original Class Standing variable it could be captured by our model.**
+
+``` {r}
+add_course_name_category <- function(df) {
+  df %>% mutate(
+    Course_Name_Category = case_when(
+      # Introductory level courses
+      grepl("Algebra|Basic|Elementary|Intro|Introduction|Fundamental|General|Principles|Orientation", 
+            Course_Name, ignore.case = TRUE) ~ "Introductory",
+      
+      # Intermediate level courses
+      grepl("Intermediate|II$|II |2|Applied", 
+            Course_Name, ignore.case = TRUE) ~ "Intermediate",
+      
+      # Advanced level courses
+      grepl("Advanced|III|3|Analysis|Senior|Graduate|Dissertation|Research|Capstone", Course_Name, ignore.case = TRUE) ~ "Advanced",
+      
+      # Business related courses
+      grepl("Business|Finance|Accounting|Economics|Marketing|Management", 
+            Course_Name, ignore.case = TRUE) ~ "Business",
+      
+      # Laboratory/Practical courses
+      grepl("Laboratory|Lab", Course_Name, ignore.case = TRUE) ~ "Laboratory",
+      
+      # Seminar/Workshop courses
+      grepl("Seminar|Workshop", Course_Name, ignore.case = TRUE) ~ "Seminar",
+      
+      # Independent/Special courses
+      grepl("Independent|Special", Course_Name, ignore.case = TRUE) ~ "Independent Study",
+      
+      # Mathematics and Statistics
+      grepl("Mathematics|Calculus|Statistics|Probability|Geometry|Discrete", 
+            Course_Name, ignore.case = TRUE) ~ "Mathematics",
+      
+      # Computer Science
+      grepl("Computer|Programming|Data|Software|Network|Database|Algorithm", 
+            Course_Name, ignore.case = TRUE) ~ "Computer Science",
+      
+      # Natural Sciences
+      grepl("Physics|Chemistry|Biology|Astronomy|Earth|Environment|Science", 
+            Course_Name, ignore.case = TRUE) ~ "Natural Sciences",
+      
+      # Social Sciences
+      grepl("Psychology|Sociology|Anthropology|Social|Cultural|Society", 
+            Course_Name, ignore.case = TRUE) ~ "Social Sciences",
+      
+      # Humanities
+      grepl("History|Philosophy|Ethics|Literature|Culture|Language|Art", 
+            Course_Name, ignore.case = TRUE) ~ "Humanities",
+      
+      # Education/Teaching
+      grepl("Education|Teaching|Learning|Childhood|Teacher|Curriculum", 
+            Course_Name, ignore.case = TRUE) ~ "Education",
+      
+      # Default case
+      TRUE ~ "Other"
+    )
+  )
+}
+```
+
+**The 'Course Name' variable is completely unusable in its current state and needs some kind of categorization to be effective. While there are many possible approaches to doing so, ours is a bit more flexible in that we create 14 different possible levels using keywords present in the course names (for example, a class with 'Culture', 'Language', or 'Ethics' (among other things) in its name would be listed as 'Humanities'. Though a variable with this many levels may suffer in some types of model fitting, it allows us to be more flexible if desired; regularization and variable selection can be utilized in the model building process if needed.**
+
+``` {r}
+add_course_type_category <- function(df) {
+  df %>% mutate(
+    Course_Type_Category = case_when(
+      # STEM Fields
+      Course_Type %in% c("MATH", "STAT", "CS", "ASTR","PHYS", "BIOL", "CHEM", "GEOL", "ECET") ~ "STEM Core",
+      
+      # Engineering and Technology
+      Course_Type %in% c("ENGT", "CONS", "ARCH", "MIS", "TECH") ~ "Engineering & Technology",
+      
+      # Business and Economics
+      Course_Type %in% c("FIN", "ACCT", "ECON", "BA", "MGMT", "MKT", "MBA", "BIZX", "LEGS", "OR") ~ "Business",
+      
+      # Social Sciences
+      Course_Type %in% c("SOC", "PSYC", "POLS", "CRJU", "HDFS", "SOWK", "GERO") ~ "Social Sciences",
+      
+      # Natural and Health Sciences
+      Course_Type %in% c("NURS", "MLS", "EXSC", "FN", "AHTH", "DHS") ~ "Health Sciences",
+      
+      # Humanities and Languages
+      Course_Type %in% c("HIST", "PHIL", "ENG", "GSW", "FREN", "GERM", "SPAN", "LAT", "RUSN", "ITAL", "CLCV") ~ "Humanities",
+      
+      # Arts and Performance
+      Course_Type %in% c("ART", "ID", "MUCT", "MUS", "THFM", "POPC") ~ "Arts",
+      
+      # Education and Teaching
+      Course_Type %in% c("EDTL", "EDFI", "EDIS", "EIEC") ~ "Education",
+      
+      # Environmental Studies
+      Course_Type %in% c("ENVS", "GEOG", "SEES") ~ "Environmental Studies",
+      
+      # Special Programs
+      Course_Type %in% c("HNRS", "UNIV", "ORGD", "RESC") ~ "Special Programs",
+      
+      # Physical Education
+      Course_Type %in% c("PEG", "SM", "HMSL") ~ "Physical Education",
+      
+      # Cultural Studies
+      Course_Type %in% c("ETHN", "COMM", "CDIS") ~ "Cultural & Communication Studies",
+      
+      # No Response/Unknown
+      Course_Type %in% c("No Response", NA) ~ "No Response",
+      
+      # Default case
+      TRUE ~ "Other"
+    )
+  )
+}
+```
+
+**The 'Course Type' variable is also unusable in its current state and needs a reduction in levels; some natural categorizations (14 total) for this variable are business courses, education courses, and STEM courses. "No Response" is given to those individuals who did not report a specific course as the reason for their visit to the Learning Commons.**
+
+``` {r}
+add_major_category <- function(df) {
+  df %>% mutate(
+    Major_Category = case_when(
+      # Business and Management
+      grepl("MBA|BSBA|Business|Marketing|Finance|Account|Economics|Management|Supply Chain|Analytics", 
+            Major, ignore.case = TRUE) ~ "Business",
+      
+      # Computer Science and Technology
+      grepl("Computer|Software|Data|Information Systems|Technology|Engineering|Electronics", 
+            Major, ignore.case = TRUE) ~ "Computing & Technology",
+      
+      # Natural Sciences
+      grepl("Biology|Chemistry|Physics|Science|Environmental|Geology|Forensic|Neuroscience", 
+            Major, ignore.case = TRUE) ~ "Natural Sciences",
+      
+      # Health Sciences
+      grepl("Nursing|Health|Medical|Nutrition|Dietetics|Physical Therapy|Physician|Laboratory", 
+            Major, ignore.case = TRUE) ~ "Health Sciences",
+      
+      # Social Sciences
+      grepl("Psychology|Sociology|Criminal Justice|Political|Economics|Social Work|Anthropology", 
+            Major, ignore.case = TRUE) ~ "Social Sciences",
+      
+      # Education
+      grepl("Education|Teaching|Early Childhood|BSED|Intervention Specialist", 
+            Major, ignore.case = TRUE) ~ "Education",
+      
+      # Arts and Humanities
+      grepl("Art|Music|Philosophy|History|English|Language|Communication|Media|Journalism|Film|Theatre", 
+            Major, ignore.case = TRUE) ~ "Arts & Humanities",
+      
+      # Mathematics and Statistics
+      grepl("Math|Statistics|Actuarial", 
+            Major, ignore.case = TRUE) ~ "Mathematics",
+      
+      # Pre-Professional Programs
+      grepl("Pre-|PRELAW|PREMED|PREVET", 
+            Major, ignore.case = TRUE) ~ "Pre-Professional",
+      
+      # Undecided/General Studies
+      grepl("Undecided|Liberal Studies|General|Deciding|UND|Individual|BLS", 
+            Major, ignore.case = TRUE) ~ "General Studies",
+      
+      # Special Programs
+      grepl("Minor|Certificate|GCERT|Non-Degree", 
+            Major, ignore.case = TRUE) ~ "Special Programs",
+      
+      # No Response/Unknown
+      grepl("No Response|NA", Major, ignore.case = TRUE) ~ "No Response",
+      
+      # Default case
+      TRUE ~ "Other"
+    ),
+    
+    # Add a flag for double majors
+    Has_Multiple_Majors = grepl(",", Major)
+  )
+}
+```
+
+**Lastly, another complex variable that needs to be category-reduced is the 'Major' variable. Using a similar approach as in 'Course Name', we create categories by recognizing similar keywords among the major names and placing them into larger groups. Some examples include 'Mathematics' (which includes math majors, statistics majors, and actuarial science majors), 'Business', and 'Social Sciences'. An 'Other' case is left as a catchall for those majors that do not fall into any of the broader categories. We are also able to create a 'Multiple Majors' indicator variable by checking if the 'Major' variable is a comma-separated list.**
+
+``` {r}
+add_visit_features <- function(df) {
+  df %>%
+    group_by(Student_IDs) %>%
+    mutate(
+      # Count visits per student
+      Total_Visits = n(),
+      # Count visits per student per semester
+      Semester_Visits = n_distinct(Check_In_Date),
+      # Average visits per week
+      Avg_Weekly_Visits = Semester_Visits / max(Semester_Week)
+    ) %>%
+    ungroup()
+}
+
+add_week_volume_category <- function(df) {
+  df %>%
+    mutate(
+      Week_Volume = case_when(
+        Semester_Week %in% c(4:8, 10:13, 15:16) ~ "High Volume",
+        Semester_Week %in% c(1:3, 9, 14, 17) ~ "Low Volume",
+        TRUE ~ "Other"
+      )
+    )
+}
+
+SW <- hist(data_raw_train$Semester_Week, plot = F, breaks = seq(0,18))
+SW$breaks <- SW$breaks + diff(SW$breaks)[1]/2
+plot(SW,  main = "LC Visits per Semester Week", xlab = "Semester Week", ylab = "Number of Visits")
+```
+
+**Using the student ID index, we can also track how many total visits a student makes to the Learning Commons, as well as their Semester Visits and Average Weekly Visits. Based on 'Semester Week' visit frequency we can classify some weeks as 'High Volume' and others as 'Low Volume' as the volume of visits in a given week may influence how long someone stays at the Learning Commons; weeks 1-3, 9, 14, and 17 are treated as 'Low Volume' (by inspection) and the rest are treated as 'High Volume'.**
+
+``` {r}
+add_course_load_features <- function(df) {
+  df %>%
+    group_by(Student_IDs, Semester) %>%
+    mutate(
+      # Number of unique courses
+      Unique_Courses = n_distinct(Course_Number),
+      # Mix of course levels
+      Course_Level_Mix = n_distinct(Course_Code_by_Thousands),
+      # Proportion of advanced courses
+      Advanced_Course_Ratio = mean(Course_Level == "Upper Classmen", na.rm = TRUE)
+    ) %>%
+    ungroup()
+}
+
+add_gpa_trend <- function(df) {
+  df %>% mutate(
+    # Calculate GPA trend (1 for positive, -1 for negative, 0 for no change)
+    GPA_Trend = sign(Change_in_GPA),
+  )
+}
+```
+
+**We can further check how many unique courses a student is taking in a given semester, the number of different course levels (based on the 'Course Code by Thousands' variable) they are taking in a given semester, and the mean number of courses which are considered 'Upper Classmen' (4000-level), creating one new feature for each. We can further make an indicator of the sign of the 'Change in GPA' variable in case the actual numeric information in that variable is of less importance than just the direction the students' GPA is trending in the semester in which they visit.**
+
+``` {r}
+ensure_duration <- function(df) {
+  # Calculate duration in minutes
+  df %>%
+    mutate(
+      Duration_In_Min = as.numeric(difftime(
+        Check_Out_Time,
+        Check_In_Time,
+        units = "mins"
+      )),
+      # Filter out negative durations
+      Duration_In_Min = if_else(Duration_In_Min < 0, NA_real_, Duration_In_Min),
+    ) %>%
+    filter(!is.na(Duration_In_Min))
+}
+
+calculate_occupancy <- function(df) {
+  df %>%
+    arrange(Check_In_Date, Check_In_Time) %>%
+    group_by(Check_In_Date) %>%
+    mutate(
+      Cum_Arrivals = row_number(),
+      Cum_Departures = sapply(seq_along(Check_In_Time), function(i) {
+        sum(!is.na(Check_Out_Time[1:i]) & 
+            Check_Out_Time[1:i] <= Check_In_Time[i])
+      }),
+      Occupancy = Cum_Arrivals - Cum_Departures
+    ) %>%
+    select(-c(Cum_Arrivals, Cum_Departures))
+}
+```
+
+**Here we ran a checksum to make sure that Duration_in_Min was computed correctly based on the check-in and check-out times for each visit (and did not have any negative values), and created the 'Occupancy' variable needed for part (b).**
+
+``` {r}
+add_group_features <- function(df) {
+  df %>%
+    mutate(
+      Check_In_Timestamp = ymd_hms(paste(Check_In_Date, Check_In_Time))
+    ) %>%
+    add_count(Check_In_Timestamp, name = "Group_Size") %>%
+    mutate(
+      Group_Check_In = Group_Size > 1,
+      Group_Size_Category = case_when(
+        Group_Size == 1 ~ "Individual",
+        Group_Size <= 3 ~ "Small Group",
+        Group_Size <= 6 ~ "Medium Group",
+        TRUE ~ "Large Group"
+      )
+    ) %>%
+    select(-Check_In_Timestamp)
+```
+
+**One final set of additions is to identify clusters of check-in times and indicate whether or not a visit was done with a group (multiple check-ins at the same minute). This may be incidental but could be useful in case many group visits are with friends. The exact group size as well as two categorical variables (one an indicator of whether or not a visit was a group visit and the other with the added distinction between 'small' and 'large' groups, where 4 or more is considered 'large') were created.**
+
+``` {r}
+safely_mutate <- function(df, mutation_fn, required_cols) {
+  # Check if all required columns exist
+  missing_cols <- setdiff(required_cols, names(df))
+  
+  if (length(missing_cols) > 0) {
+    warning(sprintf("Skipping mutation: Missing columns: %s", 
+                   paste(missing_cols, collapse = ", ")))
+    return(df)
+  }
+  
+  tryCatch({
+    mutation_fn(df)
+  }, error = function(e) {
+    warning(sprintf("Error in mutation: %s", e$message))
+    return(df)
+  })
+}
+
+# Modify the engineer_features function
+engineer_features <- function(df) {
+  df %>%
+    safely_mutate(prepare_dates, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(add_date_features, 
+                 c("Semester", "Expected_Graduation")) %>%
+    safely_mutate(add_temporal_features, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(add_time_category, 
+                 c("Check_In_Hour")) %>%
+    safely_mutate(add_course_features, 
+                 c("Course_Code_by_Thousands")) %>%
+    safely_mutate(add_course_name_category, 
+                 c("Course_Name")) %>%
+    safely_mutate(add_course_type_category, 
+                 c("Course_Type")) %>%
+    safely_mutate(add_major_category, 
+                 c("Major")) %>%
+    safely_mutate(add_gpa_category, 
+                 c("Cumulative_GPA")) %>%
+    safely_mutate(add_credit_load_category, 
+                 c("Term_Credit_Hours")) %>%
+    safely_mutate(add_class_standing_category, 
+                 c("Class_Standing")) %>%
+    safely_mutate(add_class_standing_bgsu, 
+                 c("Total_Credit_Hours_Earned")) %>%
+    safely_mutate(ensure_duration, 
+                 c("Check_In_Time")) %>%
+    safely_mutate(add_session_length_category, 
+                 c("Duration_In_Min")) %>%
+    safely_mutate(add_visit_features, 
+                 c("Student_IDs", "Check_In_Date", "Semester_Week")) %>%
+    safely_mutate(add_week_volume_category, 
+                 c("Semester_Week")) %>%
+    safely_mutate(add_graduation_features, 
+                 c("Expected_Graduation_Date", "Semester_Date")) %>%
+    safely_mutate(add_course_load_features, 
+                 c("Student_IDs", "Semester", "Course_Number", 
+                   "Course_Code_by_Thousands", "Course_Level")) %>%
+    safely_mutate(add_gpa_trend, 
+                 c("Change_in_GPA")) %>%
+    safely_mutate(add_group_features, 
+                 c("Check_In_Date", "Check_In_Time")) %>%
+    safely_mutate(calculate_occupancy, 
+                 c("Check_In_Date", "Check_In_Time", "Check_Out_Time")) %>%
+    ungroup()
+}
+
+lc_engineered_train <- engineer_features(data_raw_train)
+lc_engineered_test <- engineer_features(data_raw_test)
+```
+
+``` {r}
+colnames(lc_engineered_train)
+```
