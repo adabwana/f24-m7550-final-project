@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" style="font-family: Arial, sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" width="770" height="450" style="font-family: Arial, sans-serif;">
   <!-- Title -->
   <text x="350" y="25" font-size="20" font-weight="bold" text-anchor="middle">Model Training Pipeline</text>
   
   <!-- LC_TRAIN Container -->
-  <rect x="20" y="40" width="760" height="400" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5,5" />
+  <rect x="20" y="40" width="740" height="400" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="5,5" />
   <text x="35" y="60" font-size="16" font-weight="bold">LC_TRAIN Dataset</text>
   
   <!-- Model Definitions -->
@@ -13,9 +13,9 @@
   <text x="50" y="135" font-size="11">2. Lasso (alpha)</text>
   <text x="50" y="150" font-size="11">3. PenalizedSplines (knots, alpha)</text>
   <text x="50" y="165" font-size="11">4. KNN (n_neighbors)</text>
-  <text x="50" y="180" font-size="11">5. PenalizedLogNormal (alpha)</text>
-  <text x="50" y="195" font-size="11">6. PenalizedPoisson (alpha, Duration)</text>
-  <text x="50" y="210" font-size="11">7. PenalizedWeibull (alpha, Duration)</text>
+  <text x="50" y="180" font-size="11">5. PenalizedLogNormal (alpha, DUR)</text>
+  <text x="50" y="195" font-size="11">6. PenalizedPoisson (alpha, OCC)</text>
+  <text x="50" y="210" font-size="11">7. PenalizedWeibull (alpha, OCC)</text>
   
   <!-- Pipeline Definitions -->
   <rect x="290" y="80" width="200" height="135" fill="#e8f5e9" stroke="#000" />
@@ -35,7 +35,7 @@
   <text x="560" y="135" font-size="11">   - kfold (random)</text>
   <text x="560" y="150" font-size="11">   - rolling (time)</text>
   <text x="560" y="165" font-size="11">   - expanding (time)</text>
-  <text x="550" y="180" font-size="11">2. Metric: RMSE/MAE/R²</text>
+  <text x="550" y="180" font-size="11">2. Metric: RMSE/R²</text>
   
   <!-- Model Selection -->
   <rect x="290" y="240" width="200" height="80" fill="#ede7f6" stroke="#000" />

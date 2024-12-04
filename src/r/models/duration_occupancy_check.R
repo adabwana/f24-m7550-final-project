@@ -255,6 +255,9 @@ main <- function() {
   ))
 }
 
+# Assuming you have two data frames: original_data and predicted_data
+# Both should have columns: Duration_In_Min and Occupancy
+
 # Only run main if this script is being run directly
 if (sys.nframe() == 0) {
   main()

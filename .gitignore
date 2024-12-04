@@ -43,4 +43,5 @@ Rplots.pdf
 *.pdf
 !data_flow.pdf
 !model_building.pdf
+!Presentation.pdf
 *.png

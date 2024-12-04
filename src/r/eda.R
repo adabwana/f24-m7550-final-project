@@ -9,6 +9,8 @@ library(DataExplorer)
 library(fitdistrplus)
 library(ggplot2)
 library(gridExtra)
+library(GGally)
+
 
 theme_set(theme_bw())
 
@@ -16,7 +18,7 @@ theme_set(theme_bw())
 # READ RAW DATA
 # -----------------------------------------------------------------------------
 # here() starting path is root of the project
-data_raw <- readr::read_csv(here("data", "LC_train.csv"))
+data_raw <- readr::read_csv(here("data", "raw", "LC_train.csv"))
 
 lc_data <- data_raw %>%
   # Convert dates and times to appropriate formats
@@ -72,7 +74,7 @@ DataExplorer::plot_prcomp(lc_data, variance_cap = 0.9, nrow = 2L, ncol = 2L)
 # -----------------------------------------------------------------------------
 
 # Read the engineered data
-data_eng <- readr::read_csv(here("data", "LC_engineered.csv"))
+data_eng <- readr::read_csv(here("data", "processed", "train_engineered.csv"))
 
 View(data_eng)
 
@@ -165,3 +167,93 @@ g2 <- gridExtra::grid.arrange(
 
 # Save Occupancy Distribution plot
 ggsave(here("presentation", "images", "eda", "occupancy_distribution.jpg"), g2, width = 12, height = 8, dpi = 300)
+
+
+# =================================================================================
+# PART C: CORRELATION ANALYSIS
+# =================================================================================
+raw_colnames <- colnames(data_raw)
+
+data_pairs_numeric <- data_eng %>%
+  dplyr::select(all_of(raw_colnames), Session_Length_Category, Occupancy) %>%
+  dplyr::select(where(is.numeric), Session_Length_Category) %>%
+  # Calculate quartiles and upper fence for Duration_In_Min
+  dplyr::mutate(
+    Q1 = quantile(Duration_In_Min, 0.25),
+    Q2 = quantile(Duration_In_Min, 0.5),
+    Q3 = quantile(Duration_In_Min, 0.75),
+    IQR = Q3 - Q2,
+    Upper_Fence = Q3 + 1.5 * IQR,
+    Way_Out = Q3 + 3 * IQR,
+    Fugedaboudit = Q3 + 7 * IQR,
+    Session_Length_Category = case_when(
+      Duration_In_Min <= Q3 ~ "Short",
+      Duration_In_Min <= Way_Out ~ "Medium",
+      Duration_In_Min <= Fugedaboudit ~ "Long",
+      TRUE ~ "Extended"
+    )
+  ) %>%
+  # Remove the helper columns
+  dplyr::select(-Q1, -Q2, -Q3, -IQR, -Upper_Fence, -Way_Out, -Fugedaboudit) %>%
+  # Reorder final columns
+  dplyr::select(-Duration_In_Min, -Occupancy, -Session_Length_Category, 
+                Duration_In_Min, Occupancy, Session_Length_Category)
+
+# Let's check the distribution
+print("Distribution of Session Length Categories:")
+print(table(data_pairs_numeric$Session_Length_Category))
+
+# And verify some statistics
+print("Summary of Duration by Category:")
+print(tapply(data_pairs_numeric$Duration_In_Min, 
+            data_pairs_numeric$Session_Length_Category, 
+            summary))
+
+quantile(data_pairs_numeric$Duration_In_Min, 0.25)
+quantile(data_pairs_numeric$Duration_In_Min, 0.75)
+data_pairs_numeric %>%
+  ggpairs(aes(color = Session_Length_Category, alpha = 0.5),
+          columns = 1:(ncol(.) - 1),  # All columns except Session_Length_Category
+          progress = FALSE) +
+  theme_bw() +
+  theme(axis.text = element_text(size = 8),
+        strip.text = element_text(size = 8))
+
+data_pairs_categorical <- data_eng %>%
+  dplyr::select(all_of(raw_colnames), Session_Length_Category, Occupancy) %>%
+  dplyr::select(where(is.character), Duration_In_Min, Occupancy) %>%
+  # Calculate quartiles and upper fence for Duration_In_Min
+  dplyr::mutate(
+    Q1 = quantile(Duration_In_Min, 0.25),
+    Q2 = quantile(Duration_In_Min, 0.5),
+    Q3 = quantile(Duration_In_Min, 0.75),
+    IQR = Q3 - Q2,
+    Upper_Fence = Q3 + 1.5 * IQR,
+    Way_Out = Q3 + 3 * IQR,
+    Fugedaboudit = Q3 + 7 * IQR,
+    Session_Length_Category = case_when(
+      Duration_In_Min <= Q3 ~ "Short",
+      Duration_In_Min <= Way_Out ~ "Medium",
+      Duration_In_Min <= Fugedaboudit ~ "Long",
+      TRUE ~ "Extended"
+    )
+  ) %>%
+  # Remove the helper columns
+  dplyr::select(-Q1, -Q2, -Q3, -IQR, -Upper_Fence, -Way_Out, -Fugedaboudit) %>%
+  # Reorder final columns
+  dplyr::select(-Duration_In_Min, -Occupancy, -Session_Length_Category, 
+                Duration_In_Min, Occupancy, Session_Length_Category)
+
+data_pairs_categorical2 <- data_pairs_categorical %>%
+  dplyr::select(where(~n_distinct(.) <= 10), Duration_In_Min, Occupancy)
+
+# Verify the results
+data_pairs_categorical %>%
+  summarise(across(everything(), n_distinct)) %>%
+  glimpse()
+
+ggpairs(data_pairs_categorical2, aes(color = Session_Length_Category, alpha = 0.5),
+        progress = FALSE) +
+  theme_bw() +
+  theme(axis.text = element_text(size = 8),
+        strip.text = element_text(size = 8))
