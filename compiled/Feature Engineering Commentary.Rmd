@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r}
+``` {r, warning = F}
 library(here)
 library(readr)
 library(dplyr)
@@ -22,8 +22,8 @@ library(purrr)
 ``` {r}
 dir.create(here("data", "processed"), recursive = TRUE, showWarnings = FALSE)
 
-data_raw_train <- readr::read_csv(here("data","LC_train.csv"))
-data_raw_test <- readr::read_csv(here("data","LC_test.csv"))
+data_raw_train <- readr::read_csv(here("data", "raw", "LC_train.csv"))
+data_raw_test <- readr::read_csv(here("data", "raw", "LC_test.csv"))
 ```
 
 ``` {r}
