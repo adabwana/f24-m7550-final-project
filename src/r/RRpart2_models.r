@@ -60,12 +60,26 @@ trControl <- trainControl(
 mlr <- lm(Occupancy ~ ., data = training.data)
 summary(mlr)
 
+mlr2 <- lm(Occupancy ~ . -Expected_Graduation_Yr -Change_in_GPA -Term_Credit_Hours 
+                        -Semester_Week -Gender -Total_Credit_Hours_Earned -Term_GPA 
+                        -Cumulative_GPA -Underclassman -Total_Visits,
+                        data = training.data)
+summary(mlr2)
+
+anova(mlr, mlr2)
+
 # Predictions
 mlr_pred <- predict(mlr, newdata = test.data)
+mlr2_pred <- predict(mlr2, newdata = test.data)
 
 # RMSE
 rmse_mlr <- sqrt(mean((test.data$Occupancy - mlr_pred)^2))
 rmse_mlr
+
+rmse_mlr2 <- sqrt(mean((test.data$Occupancy - mlr2_pred)^2))
+rmse_mlr2
+
+
 
 
 
@@ -204,7 +218,7 @@ modelKNN <- train(Occupancy ~ .,
                   data=training.data,
                   method='knn',
                   preProc=c('center','scale'),
-                  tuneGrid=data.frame(k = seq(2, 50, by = 1)), 
+                  tuneGrid=data.frame(k = seq(2, 50, by = 2)), 
                   trControl=trControl,
                   metric='RMSE')
 

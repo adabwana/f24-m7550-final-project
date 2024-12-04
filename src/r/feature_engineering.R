@@ -13,17 +13,17 @@ data_raw <- readr::read_csv(here("data", "LC_train.csv"))
 # -----------------------------------------------------------------------------
 # ENGINEER FEATURES
 # -----------------------------------------------------------------------------
-lc_engineered <- data_raw %>%
+lc_engineered <- data_raw |>
   # Convert dates and times to appropriate formats
   mutate(
     Check_In_Date = mdy(Check_In_Date),
     Check_In_Time = hms::as_hms(Check_In_Time),
     Check_Out_Time = hms::as_hms(Check_Out_Time)
-  ) %>%
+  ) |>
   # Sort in ascending order
-  arrange(Check_In_Date, Check_In_Time) %>%
+  arrange(Check_In_Date, Check_In_Time) |>
   # Group by each date
-  group_by(Check_In_Date) %>%
+  group_by(Check_In_Date) |>
   mutate(
     # Existing features
     Cum_Arrivals = row_number(), # - 1, # MINUS ONE TO START AT 0 OCCUPANCY AS 1st PERSON ARRIVES
@@ -101,8 +101,8 @@ lc_engineered <- data_raw %>%
       Total_Credit_Hours_Earned <= 120 ~ "Senior",
       TRUE ~ "Extended"
     ),
-  ) %>%
-  ungroup() %>%
+  ) |>
+  ungroup() |>
   # Remove intermediate columns
   select(-c(Cum_Arrivals, Cum_Departures)) # Check_Out_Time, Class_Standing
 
@@ -123,8 +123,8 @@ View(lc_engineered)
 # DATA CLEANING FOR PART 1
 # -----------------------------------------------------------------------------
 
-part_1_data <- lc_engineered %>%
-  filter(Duration_In_Min > 0) %>%
+part_1_data <- lc_engineered |>
+  filter(Duration_In_Min > 0) |>
 
   mutate(
       # Extract year from Expected_Graduation
@@ -134,21 +134,21 @@ part_1_data <- lc_engineered %>%
     
       # Underclassman Indicator
       Underclassman = if_else(
-        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
+        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) |>
 
   # Convert Check_In_Time to datetime and round to the nearest minute
   mutate(
     Check_In_Timestamp = as_datetime(paste(Check_In_Date, Check_In_Time)),
     Check_In_Timestamp = floor_date(Check_In_Timestamp, unit = "minute")
-  ) %>%
+  ) |>
 
   # Count the number of students for each rounded Check_In_Timestamp
-  add_count(Check_In_Timestamp, name = "Group_Size") %>%
+  add_count(Check_In_Timestamp, name = "Group_Size") |>
 
   # Create binary Group_Check_In feature
-  #mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
+  #mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) |>
 
-      add_count(Student_IDs, name = "Total_Visits")  %>%
+      add_count(Student_IDs, name = "Total_Visits")  |>
 
   # Drop columns
   select(
@@ -178,7 +178,7 @@ dim(part_1_data)
 
 readr::write_csv(part_1_data, here("data", "part_1_data.csv"))
 
-summary(part_1_data$Group_Check_In)
+
 
 
 
@@ -187,8 +187,8 @@ summary(part_1_data$Group_Check_In)
 # DATA CLEANING FOR PART 2
 # -----------------------------------------------------------------------------
 
-part_2_data <- lc_engineered %>%
-  filter(Duration_In_Min > 0) %>%
+part_2_data <- lc_engineered |>
+  filter(Duration_In_Min > 0) |>
 
   mutate(
       # Extract year from Expected_Graduation
@@ -198,21 +198,21 @@ part_2_data <- lc_engineered %>%
     
       # Underclassman Indicator
       Underclassman = if_else(
-        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) %>%
+        Class_Standing %in% c("Freshman", "Sophomore"), 1, 0)) |>
       
   # Convert Check_In_Time to datetime and round to the nearest minute
   mutate(
     Check_In_Timestamp = as_datetime(paste(Check_In_Date, Check_In_Time)),
     Check_In_Timestamp = floor_date(Check_In_Timestamp, unit = "minute")
-  ) %>%
+  ) |>
 
   # Count the number of students for each rounded Check_In_Timestamp
-  add_count(Check_In_Timestamp, name = "Group_Size") %>%
+  add_count(Check_In_Timestamp, name = "Group_Size") |>
 
   # Create binary Group_Check_In feature
-  mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) %>%
+  #mutate(Group_Check_In = if_else(Group_Size > 1, 1, 0)) |>
 
-  add_count(Student_IDs, name = "Total_Visits")  %>%
+  add_count(Student_IDs, name = "Total_Visits")  |>
 
   # Drop columns
   select(
@@ -228,7 +228,7 @@ part_2_data <- lc_engineered %>%
 
 # List of categorical columns
 categorical_factors <- c("Gender", "Semester", "Day_of_Week",
-"Course_Level", "Underclassman", "Expected_Graduation_Yr", "Group_Check_In")
+"Course_Level", "Underclassman", "Expected_Graduation_Yr")
 
 # Convert categorical columns to factors
 part_2_data[categorical_factors] <- lapply(part_2_data[categorical_factors], as.factor)
