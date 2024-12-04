@@ -457,6 +457,7 @@ add_group_features <- function(df) {
       )
     ) %>%
     select(-Check_In_Timestamp)
+}
 ```
 
 **One final set of additions is to identify clusters of check-in times and indicate whether or not a visit was done with a group (multiple check-ins at the same minute). This may be incidental but could be useful in case many group visits are with friends. The exact group size as well as two categorical variables (one an indicator of whether or not a visit was a group visit and the other with the added distinction between 'small' and 'large' groups, where 4 or more is considered 'large') were created.**
@@ -509,8 +510,6 @@ engineer_features <- function(df) {
                  c("Total_Credit_Hours_Earned")) %>%
     safely_mutate(ensure_duration, 
                  c("Check_In_Time")) %>%
-    safely_mutate(add_session_length_category, 
-                 c("Duration_In_Min")) %>%
     safely_mutate(add_visit_features, 
                  c("Student_IDs", "Check_In_Date", "Semester_Week")) %>%
     safely_mutate(add_week_volume_category, 
