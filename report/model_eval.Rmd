@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 ***
@@ -16,20 +16,31 @@ knitr::opts_chunk$set(echo = TRUE)
 </div>
 
 
-### **Duration Prediction**
+### **Duration**
 
 ```{r, echo=FALSE}
 library(knitr)
+library(kableExtra)
 
 duration_best_model <- data.frame(
   Component = c(
     "Model", "Pipeline","CV Method","RMSE",
-    "R^2","Ridge Alpha","Spline Degree","Spline Knots","Scaler"),
+    "$R^2$","Ridge $\\lambda$","Spline Degree","Spline Knots","Scaler"),
   Value = c(
     "Penalized Splines","vanilla","kfold",59.47,0.059,14.38,3,15,"Robust Scaler")
 )
 
-kable(duration_best_model)
+kable(duration_best_model) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#E6E6E6") %>%
+  column_spec(1, bold = TRUE) %>%
+  add_header_above(c("Duration Model Configuration" = 2)
+  )
 ```
 
 For predicting the 'Duration' target variable, we selected a Penalized Cubic Spline model with 15 knots. Details of the model are summarized in the table above. Notably, this model did not benefit from incorporating interactions between predictors or applying feature compression techniques during pipeline testing. Additionally, a temporal cross-validation approach yielded no significant improvement over the random KFold method. After extensive tuning of the Ridge penalty hyperparameter, the optimal results were achieved with a lambda value of 14.38.
@@ -40,24 +51,35 @@ Although this model achieved the lowest RMSE among all tested models, the low $R
 
 
 
-### **Occupancy Prediction**
+### **Occupancy**
 ```{r, echo=FALSE}
-library(knitr)
+
 
 occupancy_best_model <- data.frame(
   Component = c(
     "Model", "Pipeline","CV Method","RMSE",
-    "R^2","Ridge Alpha","Spline Degree","Spline Knots","Scaler"),
+    "$R^2$","Ridge $\\lambda$","Spline Degree","Spline Knots","Scaler"),
   Value = c(
     "Penalized Splines","vanilla","rolling",3.64,0.303,29.76,3,15,"Robust Scaler")
 )
 
-kable(occupancy_best_model)
+kable(occupancy_best_model) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#E6E6E6") %>%
+  column_spec(1, bold = TRUE) %>%
+  add_header_above(c("Occupancy Model Configuration" = 2)
+  )
+
 
 ```
 
 
-For predicting the 'Occupancy' response variable, we again selected a Penalized Cubic Spline model with 15 knots (see the model summary in the table above). However, unlike the 'Duration' model, we observed that the rolling cross-validation method provided better results in this case. Through extensive tuning, the optimal Ridge penalty hyperparameter was determined to be 29.76. While the $R^2$ value of 0.303 is relatively low, it represents a significant improvement compared to the 'Duration' model, accounting for more variability in this target response variable.
+For predicting the 'Occupancy' response variable, we again selected a Penalized Cubic Spline model with 15 knots (see the model summary in the table above). However, unlike the 'Duration' model, we observed that the rolling cross-validation method provided better results in this case. Through extensive tuning, the optimal Ridge penalty hyperparameter $\lambda$ was determined to be 29.76. While the $R^2$ value of 0.303 is relatively low, it represents a significant improvement compared to the 'Duration' model, accounting for more variability in this target response variable.
 
 
 
@@ -69,7 +91,7 @@ For predicting the 'Occupancy' response variable, we again selected a Penalized 
 ***
 
 <div style="text-align: center;">
-# **Duration: Best Model Diagnostics**
+# **Duration Model Diagnostics**
 </div>
 
 Below are diagnostic plots that visually evaluate the performance of the model in predicting the 'Duration' response variable. As noted earlier, the model struggles to explain the variance in the response. These plots compare actual and predicted values and provide insights into the residuals.
@@ -77,7 +99,7 @@ Below are diagnostic plots that visually evaluate the performance of the model i
 In the first scatter plot, the model's predictions are cap-off just under roughly 150, leading to a horizontal cluster of points. This consistent underestimation of larger responses is further reflected in the residual histogram, which has an extended left tail, and the residual QQ plot, where many negative residuals deviate significantly below the normal reference line. Additionally, the residual plot reveals non-constant variance and a distinct pattern, indicating that the model fails to capture the true underlying structure of the data.
 
 
-```{r, echo=FALSE, fig.align='center', out.width="100%"}
+```{r, echo=FALSE, fig.align='center', out.width="100%", out.extra='style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;"' }
 knitr::include_graphics("Duration_PenalizedSplines_vanilla_kfold.jpg")
 
 ```
@@ -87,7 +109,7 @@ knitr::include_graphics("Duration_PenalizedSplines_vanilla_kfold.jpg")
 ***
 
 <div style="text-align: center;">
-# **Occupancy: Best Model Diagnostics**
+# **Occupancy Model Diagnostics**
 </div>
 
 To evaluate the performance of our model for part b, we used the same diagnostic visualizations as in part a. In this case, the scatter plots exhibit a distinct grid-like pattern due to the integer nature of both the response variable and the model's predictions. Areas where multiple points share the same value appear as darker shades of blue in the scatter plots.
@@ -95,7 +117,7 @@ To evaluate the performance of our model for part b, we used the same diagnostic
 Consistent with the improved $R^2$ observed for this model, the diagnostic plots reflect a better overall fit compared to part a. Although a slight pattern is still visible in the residual plot, it is evident that this model aligns more closely with the underlying data for this problem.
 
 
-```{r, echo=FALSE, fig.align='center', out.width="100%"}
+```{r, echo=FALSE, fig.align='center', out.width="100%", out.extra='style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;"'}
 knitr::include_graphics("Occupancy_PenalizedSplines_vanilla_rolling.jpg")
 
 ```
@@ -114,17 +136,18 @@ To further evaluate the predictive performance of our models, we overlaid the di
 
 This challenge likely contributes to the relatively high RMSE for our 'Duration' model. Large errors on these extreme values significantly inflate the RMSE, as it averages the squared differences across all predictions.
 
-```{r, echo=FALSE, fig.align='center', out.width="100%"}
+```{r, echo=FALSE, fig.align='center', out.width="100%", out.extra='style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;"'}
 knitr::include_graphics("distribution_comparisons.jpg")
 
 ```
 
 
 
-#### *WRITE SOMETHING HERE ABOUT IMPUTED VERSION*
+To explore another way of comparing our models, we recalculated the 'Occupancy' response by combining the provided 'Check-In' times with our *predicted* 'Duration' values for each record. Using these recalculated durations, we estimated 'Check-Out' times and derived new occupancy counts. While these recalculated occupancy values are not the ground truth, this approach allowed us to integrate predictions from both models in the project. By overlaying the recalculated ('Imputed') occupancy with the predicted occupancy ('P-Splines'), we visually assessed how the two interact and compared their distributions.
 
 
-```{r, echo=FALSE, fig.align='center', out.width="100%"}
+
+```{r, echo=FALSE, fig.align='center', out.width="100%", out.extra='style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;"'}
 knitr::include_graphics("occupancy_comparison_histogram.jpg")
 
 ```
@@ -149,3 +172,5 @@ In both cases—predicting 'Duration' and 'Occupancy'—our Penalized Cubic Spli
 For this project, we were restricted to using only the features provided in the dataset. However, we believe that incorporating external variables could significantly enhance model performance. For example, since the dataset includes timestamps for each check-in and check-out, we could engineer features such as weather conditions at the time of each record. Information about whether it was raining or snowing, for instance, could be a valuable predictor for estimating how many students were likely to visit the Learning Commons.
 
 Additionally, we were limited to working with the models introduced in class. While many of these methods offer some flexibility in handling non-linear relationships, we believe other approaches, such as tree-based models or neural networks, could better capture the non-linear patterns observed in the data. Furthermore, given the apparent dependence of the target variables on temporal factors, exploring time series models could provide an intriguing avenue for improving predictions.
+
+***
