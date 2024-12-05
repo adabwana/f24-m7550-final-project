@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>M7550: Final Project - Feature Engineering</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../notebooks/report/models_overview.html" rel="next">
+<link href="../../index.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../notebooks/report/feature_engineering.html"><span class="chapter-title">Feature Engineering</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">M7550: Final Project</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Predicting Learning Commons Usage: Duration and Occupancy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/feature_engineering.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Feature Engineering</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/models_overview.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/model_training.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Training</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/model_testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Testing</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/eval_framework.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluation Framework</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/eval.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluation</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#temporal-feature-engineering" id="toc-temporal-feature-engineering" class="nav-link active" data-scroll-target="#temporal-feature-engineering">Temporal Feature Engineering</a></li>
+  <li><a href="#course-related-features" id="toc-course-related-features" class="nav-link" data-scroll-target="#course-related-features">Course-Related Features</a></li>
+  <li><a href="#student-classification-features" id="toc-student-classification-features" class="nav-link" data-scroll-target="#student-classification-features">Student Classification Features</a></li>
+  <li><a href="#course-name-and-type-features" id="toc-course-name-and-type-features" class="nav-link" data-scroll-target="#course-name-and-type-features">Course Name and Type Features</a></li>
+  <li><a href="#major-categories" id="toc-major-categories" class="nav-link" data-scroll-target="#major-categories">Major Categories</a></li>
+  <li><a href="#visit-pattern-features" id="toc-visit-pattern-features" class="nav-link" data-scroll-target="#visit-pattern-features">Visit Pattern Features</a></li>
+  <li><a href="#course-load-and-performance-features" id="toc-course-load-and-performance-features" class="nav-link" data-scroll-target="#course-load-and-performance-features">Course Load and Performance Features</a></li>
+  <li><a href="#data-quality-and-group-dynamics" id="toc-data-quality-and-group-dynamics" class="nav-link" data-scroll-target="#data-quality-and-group-dynamics">Data Quality and Group Dynamics</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Feature Engineering</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>The complete feature engineering implementation can be found in our <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/r/feature_engineering.R">source code</a>.</p>
+<section id="temporal-feature-engineering" class="level2">
+<h2 class="anchored" data-anchor-id="temporal-feature-engineering">Temporal Feature Engineering</h2>
+<p>Our feature engineering process began with <strong><em>temporal data extraction</em></strong> using the ‘lubridate’ package. The timestamp data provided several readily constructible features:</p>
+<ul>
+<li>Day of week</li>
+<li>Weekend indicator (Sunday-specific)</li>
+<li>Check-in month</li>
+<li>Check-in hour</li>
+</ul>
+<p>Analysis of visit patterns revealed a <strong><em>non-linear relationship</em></strong> between check-in hour and visit duration. This observation prompted the creation of a more nuanced ‘Time Category’ variable with distinct periods:</p>
+<ul>
+<li>Morning (6am - 12pm)</li>
+<li>Afternoon (12pm - 5pm)</li>
+<li>Evening (5pm - 11pm)</li>
+<li>Late Night (11pm - 6am)</li>
+</ul>
+<p>The ‘Expected Graduation’ variable presented a <strong><em>dimensionality challenge</em></strong> due to its categorical semester format. We addressed this by converting it to a numeric <strong><em>‘Months Until Graduation’</em></strong> metric, effectively reducing complexity while maintaining predictive potential.</p>
+</section>
+<section id="course-related-features" class="level2">
+<h2 class="anchored" data-anchor-id="course-related-features">Course-Related Features</h2>
+<p>The ‘Course Code by Thousands’ variable exhibited significant ambiguity when treated categorically. Our analysis indicated the need for a more structured approach, leading to the following <strong><em>classification systems</em></strong>:</p>
+<ol type="1">
+<li>Course Level Categories:
+<ul>
+<li>Special (≤ 100)</li>
+<li>Lower Classmen (≤ 3000)</li>
+<li>Upper Classmen (≤ 4000)</li>
+<li>Graduate (&gt; 4000)</li>
+</ul></li>
+<li>GPA Categories:
+<ul>
+<li>Excellent (≥ 3.5)</li>
+<li>Good (≥ 3.0)</li>
+<li>Satisfactory (≥ 2.0)</li>
+<li>Needs Improvement (&lt; 2.0)</li>
+</ul></li>
+<li>Credit Load Categories:
+<ul>
+<li>Part Time (≤ 6)</li>
+<li>Half Time (≤ 12)</li>
+<li>Full Time (≤ 18)</li>
+<li>Overload (&gt; 18)</li>
+</ul></li>
+</ol>
+</section>
+<section id="student-classification-features" class="level2">
+<h2 class="anchored" data-anchor-id="student-classification-features">Student Classification Features</h2>
+<p>The dataset exhibited an <strong><em>unexpected concentration</em></strong> of ‘Senior’ classifications in our initial analysis. Further investigation revealed this stemmed from students accumulating excess credits for senior status without fulfilling graduation requirements. To address this imbalance while preserving useful information, we implemented a <strong><em>dual classification approach</em></strong>.</p>
+<ol type="1">
+<li>Class Standing (Self-Reported):
+<ul>
+<li>First Year (Freshman)</li>
+<li>Second Year (Sophomore)</li>
+<li>Third Year (Junior)</li>
+<li>Fourth Year (Senior)</li>
+<li>Graduate</li>
+<li>Other</li>
+</ul></li>
+<li>BGSU Standing (Credit-Based):
+<ul>
+<li>Freshman (&lt; 30 credits)</li>
+<li>Sophomore (&lt; 60 credits)</li>
+<li>Junior (&lt; 90 credits)</li>
+<li>Senior (≤ 120 credits)</li>
+<li>Extended (&gt; 120 credits)</li>
+</ul></li>
+</ol>
+<p>The original Class Standing variable, while potentially containing valuable self-reported insights, required recoding. We preserved this information as <strong><em>‘Class Standing Self Reported’</em></strong> with progression labels from “First Year” through “Fourth Year”, along with “Graduate” and “Other” designations. Complementing this, we developed a more <strong><em>objective BGSU Standing metric</em></strong> based on credit hours. This dual approach preserves potentially valuable self-reported information while introducing a more objective credit-based metric.</p>
+</section>
+<section id="course-name-and-type-features" class="level2">
+<h2 class="anchored" data-anchor-id="course-name-and-type-features">Course Name and Type Features</h2>
+<p>The Course Name variable presented <strong><em>immediate challenges</em></strong> for model fitting in its raw form. While various approaches existed for handling this <strong><em>high-cardinality variable</em></strong>, we opted for a <strong><em>flexible keyword-based system</em></strong>. This approach identifies key terms within course names - for instance, classifying courses containing ‘Culture’, ‘Language’, or ‘Ethics’ under ‘Humanities’. Though this resulted in 14 distinct categories, it provides flexibility for subsequent modeling decisions through <strong><em>regularization or variable selection</em></strong>.</p>
+<ul>
+<li>Introductory</li>
+<li>Intermediate</li>
+<li>Advanced</li>
+<li>Business</li>
+<li>Laboratory</li>
+<li>Mathematics</li>
+<li>Computer Science</li>
+<li>Natural Sciences</li>
+<li>Social Sciences</li>
+<li>Humanities</li>
+<li>Education</li>
+</ul>
+<p>Similarly, the Course Type variable required <strong><em>substantial level reduction</em></strong>. We consolidated the original categories into <strong><em>natural academic groupings</em></strong> such as business courses, education courses, and STEM courses. For visits lacking course specifications, we designated a “No Response” category rather than discarding these observations.</p>
+<ul>
+<li><strong><em>STEM Core</em></strong></li>
+<li><strong><em>Engineering &amp; Technology</em></strong></li>
+<li><strong><em>Business</em></strong></li>
+<li><strong><em>Social Sciences</em></strong></li>
+<li><strong><em>Health Sciences</em></strong></li>
+<li><strong><em>Humanities</em></strong></li>
+</ul>
+<p>For visits without a specified course association, we introduced a “<strong><em>No Response</em></strong>” category to maintain data completeness.</p>
+</section>
+<section id="major-categories" class="level2">
+<h2 class="anchored" data-anchor-id="major-categories">Major Categories</h2>
+<p>The Major variable demanded a similar <strong><em>keyword-based reduction strategy</em></strong> as Course Name. Through analysis of major descriptions, we identified <strong><em>recurring terms</em></strong> that allowed for logical grouping. For example, the ‘Mathematics’ category encompasses mathematics, statistics, and actuarial science majors. Our final categorization includes:</p>
+<ul>
+<li>Mathematics (including statistics and actuarial science)</li>
+<li>Business</li>
+<li>Computing &amp; Technology</li>
+<li>Natural Sciences</li>
+<li>Health Sciences</li>
+<li>Social Sciences</li>
+<li>Education</li>
+<li>Arts &amp; Humanities</li>
+<li>Pre-Professional</li>
+<li>General Studies</li>
+</ul>
+<p>We maintained an ‘Other’ category for majors that defied clear classification. The data structure also revealed an opportunity to identify students pursuing <strong><em>multiple degrees</em></strong> - we created this indicator by detecting comma-separated entries in the Major field.</p>
+</section>
+<section id="visit-pattern-features" class="level2">
+<h2 class="anchored" data-anchor-id="visit-pattern-features">Visit Pattern Features</h2>
+<p>Student ID analysis enabled the construction of several <strong><em>usage metrics</em></strong>. Beyond simple visit counts, we examined <strong><em>temporal patterns</em></strong> at multiple scales:</p>
+<ul>
+<li><strong><em>Total visits per student</em></strong></li>
+<li><strong><em>Visits per semester</em></strong></li>
+<li><strong><em>Average weekly visits</em></strong></li>
+<li><strong><em>Week volume categories</em></strong></li>
+</ul>
+<p>Examination of visit frequency throughout the semester revealed <strong><em>clear patterns</em></strong>. Weeks 1-3, 9, 14, and 17 consistently showed lower activity levels, while the remaining weeks demonstrated higher traffic. This distinction proved valuable, as visit volume may influence individual visit duration. We encoded this insight through a <strong><em>binary ‘Volume’ indicator</em></strong> for each week.</p>
+</section>
+<section id="course-load-and-performance-features" class="level2">
+<h2 class="anchored" data-anchor-id="course-load-and-performance-features">Course Load and Performance Features</h2>
+<p>For each student-semester combination, we developed metrics to capture <strong><em>academic context</em></strong>. We tracked the number of unique courses and examined the distribution of course levels based on the ‘Course Code by Thousands’ variable. Particular attention was paid to <strong><em>upper-division coursework</em></strong>, creating a specific metric for the proportion of 4000-level courses. Additionally, we implemented a <strong><em>GPA trend indicator</em></strong> that focuses on directional changes rather than absolute values, recognizing that the direction of GPA movement might be more informative than the magnitude.</p>
+<ul>
+<li>Count of unique courses</li>
+<li>Distribution of course levels</li>
+<li><strong><em>Proportion of upper-division courses</em></strong> (4000-level)</li>
+<li><strong><em>GPA trend indicator</em></strong> (focusing on directional changes rather than absolute values)</li>
+</ul>
+</section>
+<section id="data-quality-and-group-dynamics" class="level2">
+<h2 class="anchored" data-anchor-id="data-quality-and-group-dynamics">Data Quality and Group Dynamics</h2>
+<p>Our preprocessing included <strong><em>essential validation steps</em></strong>. We verified <strong><em>Duration_in_Min calculations</em></strong> through comparison of check-in and check-out times, ensuring no negative values existed in the data. The <strong><em>Occupancy variable</em></strong> received similar scrutiny during its construction.</p>
+<ul>
+<li>Duration verification through check-in/check-out time comparison</li>
+<li>Accurate occupancy calculations</li>
+<li>Identification of group visits through timestamp clustering</li>
+</ul>
+<p>A final analytical step involved identifying <strong><em>group study patterns</em></strong>. By examining clusters of check-in times, we detected multiple students arriving within the same minute - a strong indicator of group visits. This observation led to three complementary features:</p>
+<ul>
+<li>A <strong><em>binary group visit indicator</em></strong></li>
+<li><strong><em>Exact group size</em></strong></li>
+<li><strong><em>Size-based categories</em></strong> (individual: <span class="math inline">\(= 1\)</span>, small: <span class="math inline">\(&lt; 3\)</span>, medium: <span class="math inline">\(3-6\)</span>, large: <span class="math inline">\(&gt; 6\)</span>)</li>
+</ul>
+<p>While some simultaneous check-ins might be coincidental, this classification captures potential <strong><em>social patterns</em></strong> in Learning Commons usage, particularly among friend groups.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../index.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Predicting Learning Commons Usage: Duration and Occupancy</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../notebooks/report/models_overview.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-title">Models Overview</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

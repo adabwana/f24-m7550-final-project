@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>M7550: Final Project - Evaluation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../notebooks/report/eval_framework.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../notebooks/report/eval.html"><span class="chapter-title">Evaluation</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">M7550: Final Project</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Predicting Learning Commons Usage: Duration and Occupancy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/feature_engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Feature Engineering</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/models_overview.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/model_training.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Training</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/model_testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Testing</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/eval_framework.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluation Framework</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../notebooks/report/eval.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Evaluation</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#best-model-configurations" id="toc-best-model-configurations" class="nav-link active" data-scroll-target="#best-model-configurations">Best Model Configurations</a>
+  <ul>
+  <li><a href="#duration-model" id="toc-duration-model" class="nav-link" data-scroll-target="#duration-model">Duration Model</a></li>
+  <li><a href="#occupancy-model" id="toc-occupancy-model" class="nav-link" data-scroll-target="#occupancy-model">Occupancy Model</a></li>
+  </ul></li>
+  <li><a href="#model-diagnostics" id="toc-model-diagnostics" class="nav-link" data-scroll-target="#model-diagnostics">Model Diagnostics</a>
+  <ul>
+  <li><a href="#duration-model-performance" id="toc-duration-model-performance" class="nav-link" data-scroll-target="#duration-model-performance">Duration Model Performance</a></li>
+  <li><a href="#occupancy-model-performance" id="toc-occupancy-model-performance" class="nav-link" data-scroll-target="#occupancy-model-performance">Occupancy Model Performance</a></li>
+  </ul></li>
+  <li><a href="#distribution-analysis" id="toc-distribution-analysis" class="nav-link" data-scroll-target="#distribution-analysis">Distribution Analysis</a>
+  <ul>
+  <li><a href="#predicted-vs.-actual-distributions" id="toc-predicted-vs.-actual-distributions" class="nav-link" data-scroll-target="#predicted-vs.-actual-distributions">Predicted vs.&nbsp;Actual Distributions</a></li>
+  <li><a href="#comparison-of-prediction-methods" id="toc-comparison-of-prediction-methods" class="nav-link" data-scroll-target="#comparison-of-prediction-methods">Comparison of Prediction Methods</a></li>
+  </ul></li>
+  <li><a href="#technical-challenges-and-insights" id="toc-technical-challenges-and-insights" class="nav-link" data-scroll-target="#technical-challenges-and-insights">Technical Challenges and Insights</a>
+  <ul>
+  <li><a href="#distribution-complexity" id="toc-distribution-complexity" class="nav-link" data-scroll-target="#distribution-complexity">Distribution Complexity</a></li>
+  <li><a href="#model-architecture-considerations" id="toc-model-architecture-considerations" class="nav-link" data-scroll-target="#model-architecture-considerations">Model Architecture Considerations</a></li>
+  <li><a href="#temporal-pattern-significance" id="toc-temporal-pattern-significance" class="nav-link" data-scroll-target="#temporal-pattern-significance">Temporal Pattern Significance</a></li>
+  </ul></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a>
+  <ul>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings</a></li>
+  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions">Future Directions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Evaluation</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="best-model-configurations" class="level2">
+<h2 class="anchored" data-anchor-id="best-model-configurations">Best Model Configurations</h2>
+
+<table width="100%">
+<tbody><tr>
+<td width="50%" valign="top" style="padding-right: 20px; border-right: 2px solid #ccc;">
+<section id="duration-model" class="level3">
+<h3 class="anchored" data-anchor-id="duration-model">Duration Model</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Model</td>
+<td><strong><em>PenalizedSplines</em></strong></td>
+</tr>
+<tr class="even">
+<td>Pipeline</td>
+<td><strong><em>vanilla</em></strong></td>
+</tr>
+<tr class="odd">
+<td>CV Method</td>
+<td><strong><em>kfold</em></strong></td>
+</tr>
+<tr class="even">
+<td>Ridge α</td>
+<td>14.38</td>
+</tr>
+<tr class="odd">
+<td>Spline knots</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td>Scaler</td>
+<td><strong><em>RobustScaler</em></strong></td>
+</tr>
+<tr class="odd">
+<td>RMSE</td>
+<td>59.47</td>
+</tr>
+<tr class="even">
+<td>R²</td>
+<td>0.059</td>
+</tr>
+</tbody>
+</table>
+</section></td>
+<td width="50%" valign="top" style="padding-left: 20px;">
+
+<section id="occupancy-model" class="level3">
+<h3 class="anchored" data-anchor-id="occupancy-model">Occupancy Model</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Model</td>
+<td><strong><em>PenalizedSplines</em></strong></td>
+</tr>
+<tr class="even">
+<td>Pipeline</td>
+<td><strong><em>vanilla</em></strong></td>
+</tr>
+<tr class="odd">
+<td>CV Method</td>
+<td><strong><em>rolling</em></strong></td>
+</tr>
+<tr class="even">
+<td>Ridge α</td>
+<td>29.76</td>
+</tr>
+<tr class="odd">
+<td>Spline knots</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td>Scaler</td>
+<td><strong><em>RobustScaler</em></strong></td>
+</tr>
+<tr class="odd">
+<td>RMSE</td>
+<td>3.64</td>
+</tr>
+<tr class="even">
+<td>R²</td>
+<td>0.303</td>
+</tr>
+</tbody>
+</table>
+</section></td>
+</tr>
+
+</tbody></table>
+<p>For predicting the ‘<strong><em>Duration</em></strong>’ target variable, we implemented a <strong><em>Penalized Cubic Spline model</em></strong> with 15 knots. Despite extensive testing of various approaches, including <strong><em>feature interactions</em></strong> and <strong><em>compression techniques</em></strong>, the vanilla pipeline consistently outperformed more complex alternatives. Notably, <strong><em>temporal cross-validation</em></strong> showed no meaningful advantage over the random KFold method. After thorough hyperparameter optimization, we determined the optimal Ridge penalty to be 14.38.</p>
+<p>Note: While this model achieved the <strong><em>lowest RMSE</em></strong> among all tested approaches, its low R² value of 0.059 indicates a <strong><em>significant limitation</em></strong> in explaining the variance in the response variable.</p>
+<p>The ‘<strong><em>Occupancy</em></strong>’ prediction results proved more encouraging. Using another <strong><em>Penalized Cubic Spline model</em></strong> with 15 knots, we found that <strong><em>rolling cross-validation</em></strong> provided superior results compared to other methods. Through systematic tuning, we identified an optimal Ridge penalty of 29.76. The resulting R² value of 0.303, while modest, represents a <strong><em>meaningful improvement</em></strong> over the Duration model and suggests better capture of the underlying patterns in the data.</p>
+</section>
+
+<section id="model-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="model-diagnostics">Model Diagnostics</h2>
+<section id="duration-model-performance" class="level3">
+<h3 class="anchored" data-anchor-id="duration-model-performance">Duration Model Performance</h3>
+<p>The diagnostic plots below visually evaluate the performance of the model in predicting the ‘<strong><em>Duration</em></strong>’ response variable. As noted earlier, the model struggles to explain the variance in the response. These plots compare actual and predicted values and provide insights into the residuals.</p>
+<p>In the first scatter plot, the model’s predictions are <strong><em>cap-off just under roughly 150</em></strong>, leading to a horizontal cluster of points. This consistent <strong><em>underestimation of larger responses</em></strong> is further reflected in the residual histogram, which has an extended left tail, and the residual QQ plot, where many negative residuals deviate significantly below the normal reference line. Additionally, the residual plot reveals <strong><em>non-constant variance</em></strong> and a distinct pattern, indicating that the model fails to capture the true underlying structure of the data.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/evaluation/Duration_PenalizedSplines_vanilla_kfold.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Duration Model Diagnostics</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>Summary:</strong> The duration prediction task proved particularly challenging, with models struggling to capture the full range of visit durations. The low R² value reflects the inherent complexity of predicting individual study session lengths. Our models consistently produced a compressed prediction range, systematically underestimating visits longer than 150 minutes while overestimating very short durations. This behavior suggests that additional features or alternative modeling approaches may be necessary to capture the full spectrum of study patterns.</p>
+</blockquote>
+</section>
+<section id="occupancy-model-performance" class="level3">
+<h3 class="anchored" data-anchor-id="occupancy-model-performance">Occupancy Model Performance</h3>
+<p>The <strong><em>Occupancy model</em></strong> diagnostics reveal more promising results. The scatter plots exhibit a distinct <strong><em>grid-like pattern</em></strong> due to the integer nature of both the response variable and the model’s predictions. Areas where multiple points share the same value appear as darker shades of blue in the scatter plots.</p>
+<p>Consistent with the improved R² observed for this model, the diagnostic plots reflect a <strong><em>better overall fit</em></strong> compared to the Duration model. Although a slight pattern is still visible in the residual plot, it is evident that this model aligns more closely with the underlying data for this problem.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/evaluation/Occupancy_PenalizedSplines_vanilla_rolling.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Occupancy Model Diagnostics</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>Summary:</strong> The occupancy prediction models demonstrated substantially better performance, particularly in capturing typical usage patterns. The models showed strongest accuracy in the modal range of 10-15 occupants, where most observations occur. While the overall distribution of predictions closely matched observed patterns, we observed minor discrepancies at the distribution tails, particularly during extremely busy or quiet periods. The superior R² value suggests that occupancy patterns follow more predictable trends than individual visit durations.</p>
+</blockquote>
+</section>
+</section>
+<section id="distribution-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="distribution-analysis">Distribution Analysis</h2>
+<section id="predicted-vs.-actual-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="predicted-vs.-actual-distributions">Predicted vs.&nbsp;Actual Distributions</h3>
+<p>To further evaluate the predictive performance of our models, we overlaid the distribution of predicted values onto histograms of the actual values. These plots provide a clearer depiction of how well our predictions align with the actual data. In both cases, the models appear to consistently <strong><em>overshoot the bulk of the observations</em></strong>. We suspect this overestimation is driven by the presence of <strong><em>extreme high values</em></strong> in the dataset, which the models struggled to accurately predict.</p>
+<p>This challenge likely contributes to the relatively <strong><em>high RMSE</em></strong> for our ‘Duration’ model. Large errors on these extreme values significantly inflate the RMSE, as it averages the squared differences across all predictions.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/evaluation/distribution_comparisons.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Distribution Comparisons</figcaption>
+</figure>
+</div>
+<p>The distribution comparisons above reveal distinct patterns for each response variable. For Duration (left panel), the predicted distribution (blue) exhibits <strong><em>notably less spread</em></strong> than the actual values (gray), with a pronounced peak near the mean. This compression of the predicted range manifests in consistent <strong><em>underestimation of extreme durations</em></strong>, particularly evident in the model’s inability to capture values beyond 150 minutes. These limitations align with our earlier observations of the model’s <strong><em>low R² (0.059)</em></strong> and <strong><em>elevated RMSE (59.47)</em></strong>.</p>
+<p>The Occupancy predictions (right panel) show <strong><em>more promising results</em></strong>. The predicted distribution more faithfully reproduces the actual data’s shape, particularly in the <strong><em>modal range of 10-15 occupants</em></strong>. However, some discrepancies persist at the extremes, with slight underestimation of low occupancy values and incomplete capture of the upper range. These characteristics explain the <strong><em>moderate R² value of 0.303</em></strong>, suggesting our model captures meaningful but incomplete patterns in the occupancy data.</p>
+</section>
+<section id="comparison-of-prediction-methods" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-of-prediction-methods">Comparison of Prediction Methods</h3>
+<p>The visualization below compares two distinct approaches to occupancy prediction: <strong><em>direct modeling</em></strong> using Penalized Splines and <strong><em>imputation based on Duration predictions</em></strong>. The imputation method estimates occupancy as a derived variable from Duration predictions, while our primary model targets occupancy directly through Penalized Splines optimization.</p>
+<p>This comparison reveals <strong><em>notable distributional differences</em></strong>. The direct modeling approach (shown in blue) demonstrates <strong><em>superior alignment</em></strong> with actual occupancy patterns, particularly in capturing the characteristic peak at 10-15 occupants. In contrast, the imputed predictions (shown in red) produce a <strong><em>more diffuse distribution</em></strong> with extended tails, suggesting systematic overestimation of extreme occupancy values. We attribute this overestimation to <strong><em>error propagation</em></strong> from the underlying Duration predictions.</p>
+<p>These results underscore a critical methodological insight: while imputation offers a practical alternative when direct measurements are unavailable, it introduces <strong><em>additional uncertainty</em></strong> compared to models trained explicitly on the target variable. The superior performance of our direct Penalized Splines approach validates our decision to prioritize dedicated occupancy modeling.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/evaluation/occupancy_comparison_histogram.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Occupancy Comparison Histogram</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="technical-challenges-and-insights" class="level2">
+<h2 class="anchored" data-anchor-id="technical-challenges-and-insights">Technical Challenges and Insights</h2>
+<p>Our modeling process revealed several key technical challenges that influenced our approach and results:</p>
+<section id="distribution-complexity" class="level3">
+<h3 class="anchored" data-anchor-id="distribution-complexity">Distribution Complexity</h3>
+<p>The underlying distributions of our target variables presented significant modeling challenges. Duration data exhibited strong right-skew characteristics, requiring careful consideration of transformation approaches. While log-normal transformations improved model training stability, they introduced complications in error interpretation on the original scale. The discrete nature of occupancy counts necessitated specialized handling, leading to our implementation of the RoundedRegressor wrapper to maintain prediction integrity.</p>
+</section>
+<section id="model-architecture-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="model-architecture-considerations">Model Architecture Considerations</h3>
+<p>Our systematic evaluation of model architectures yielded an unexpected insight: the vanilla pipeline consistently outperformed more sophisticated approaches. This finding suggests that:</p>
+<ol type="1">
+<li>The relationship between our features and targets may be more direct than initially hypothesized</li>
+<li>The additional complexity of interaction terms and dimensionality reduction might be introducing noise rather than capturing meaningful patterns</li>
+<li>The superior performance of simpler architectures indicates that careful feature engineering may be more valuable than architectural sophistication</li>
+</ol>
+</section>
+<section id="temporal-pattern-significance" class="level3">
+<h3 class="anchored" data-anchor-id="temporal-pattern-significance">Temporal Pattern Significance</h3>
+<p>The impact of temporal patterns emerged as a crucial factor, particularly in occupancy prediction. Rolling cross-validation consistently outperformed static approaches, suggesting that:</p>
+<ul>
+<li>Recent historical patterns carry strong predictive power</li>
+<li>The relationship between features and occupancy evolves over time</li>
+<li>Traditional k-fold validation may underestimate model performance in practical applications</li>
+</ul>
+<p>These insights have shaped our recommendations for future work and system deployment.</p>
+</section>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<section id="key-findings" class="level3">
+<h3 class="anchored" data-anchor-id="key-findings">Key Findings</h3>
+<p>Our analysis demonstrates that <strong><em>Penalized Cubic Spline models</em></strong> delivered the strongest performance for both Duration and Occupancy predictions. We are particularly satisfied with the <strong><em>Occupancy model’s capabilities</em></strong> and look forward to benchmarking it against our peers’ approaches.</p>
+</section>
+<section id="future-directions" class="level3">
+<h3 class="anchored" data-anchor-id="future-directions">Future Directions</h3>
+<p>This project’s scope was necessarily limited to the provided features. We believe incorporating <strong><em>external variables</em></strong> could substantially improve model performance. For instance, the timestamp data suggests an opportunity to integrate <strong><em>weather conditions</em></strong>, which likely influence Learning Commons usage patterns.</p>
+<p>Additionally, while the models covered in this course offered valuable insights, alternative approaches such as <strong><em>tree-based methods</em></strong> or <strong><em>neural networks</em></strong> might better capture the complex non-linear relationships we observed. Given the clear <strong><em>temporal dependencies</em></strong> in our target variables, time series modeling presents another promising avenue for investigation.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../notebooks/report/eval_framework.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Evaluation Framework</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

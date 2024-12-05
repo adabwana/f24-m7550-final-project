@@ -1,0 +1,7 @@
+format:
+  html: {toc: true, toc-depth: 4, theme: cosmo, number-sections: false}
+  revealjs: {theme: cosmo, navigation-mode: vertical, transition: slide, background-transition: fade, incremental: true}
+project: {type: book}
+book:
+  chapters: [index.qmd, notebooks/report/feature_engineering.md, notebooks/report/models_overview.md, notebooks/report/model_training.md, notebooks/report/model_testing.md, notebooks/report/eval_framework.md, notebooks/report/eval.md]
+  title: 'M7550: Final Project'

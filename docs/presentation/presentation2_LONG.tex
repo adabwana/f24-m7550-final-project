@@ -1,0 +1,681 @@
+\documentclass{beamer}
+\usetheme{Darmstadt}
+\usecolortheme{beaver}
+
+% Custom colors
+\definecolor{bgsubrown}{RGB}{79,44,29}
+\definecolor{bgsuorange}{RGB}{253,80,0}
+\setbeamercolor{structure}{fg=bgsubrown}
+% \setbeamercolor{title}{fg=white}
+\setbeamercolor{frametitle}{fg=bgsubrown}
+\setbeamercolor{alerted text}{fg=bgsuorange}
+
+% Add these lines to change section/subsection colors
+\setbeamercolor{section in toc}{fg=bgsuorange}
+\setbeamercolor{subsection in toc}{fg=bgsuorange}
+\setbeamercolor{section in head/foot}{fg=bgsuorange}
+\setbeamercolor{subsection in head/foot}{fg=bgsuorange}
+\setbeamercolor{title}{fg=bgsuorange}
+
+\usepackage{appendixnumberbeamer}
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{navigation symbols}{}
+
+% Additional packages
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{beamerappendixnote}
+
+\title{Representation Learning:\\A Review and New Perspectives}
+\subtitle{Bengio, Courville \& Vincent}
+\author{Jaryt Salvo}
+\institute{CS 7300 Unsupervised Learning | BGSU}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[fragile]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Outline}
+    \includegraphics[width=\textwidth,height=\paperheight]{presentation/images/outline_final.png}
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}[fragile]
+\frametitle{Overview}
+
+\begin{block}{The Core Problem}
+    \textbf{Challenge}: How do we enable autonomous extraction of meaningful patterns?
+    \vspace{0.2cm} \newline
+    \textbf{Goal}: Develop machines that can autonomously learn, extract, and organize discriminative information (representations) from data.
+\end{block}
+\pause
+
+\vspace{0.25cm}
+
+\begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+        \textbf{Key Topics}
+        \begin{itemize}
+            \item Feature Learning
+            \item Probabilistic Models
+            \item Auto-encoders
+            \item Manifold Learning
+            \item Deep Learning
+        \end{itemize}
+    \end{column}
+    \pause
+    
+    \begin{column}{0.48\textwidth}
+        \textbf{Why Important?}
+        \begin{itemize}
+            \item Reduces human/manual feature engineering
+            \item Better generalization
+            \item More robust features
+            \item Cross-domain transfer
+        \end{itemize}
+    \end{column}
+\end{columns}
+
+\end{frame}
+
+\section{Historical Progress}
+
+\begin{frame}[fragile]
+\frametitle{Historical Progress (2014)}
+\begin{columns}
+    \column{0.6\textwidth}
+    \begin{itemize}
+    \item \textbf{Speech Recognition}
+        \begin{itemize}
+        \item \href{https://www.microsoft.com/en-us/research/project/mavis/}{\textit{Microsoft MAVIS}}: 30\% error reduction
+        \end{itemize}
+    \item \textbf{Computer Vision}
+        \begin{itemize}
+        \item \href{https://yann.lecun.com/exdb/mnist/}{\textit{MNIST}}: 1.4\% $\rightarrow$ 0.27\% error
+        \item \href{https://en.wikipedia.org/wiki/ImageNet}{\textit{ImageNet}}: 26.1\% $\rightarrow$ 15.3\% error
+        \end{itemize}
+    \item \textbf{Natural Language}
+        \begin{itemize}
+        \item \href{https://ronan.collobert.com/senna/}{\textit{SENNA}} system for NLP tasks
+        \end{itemize}
+    \end{itemize}
+    \pause
+    
+    \column{0.4\textwidth}
+    \includegraphics[width=\textwidth]{presentation/images/growth.png}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Recent Breakthroughs (2014-Present)}
+\begin{columns}
+    \column{0.6\textwidth}
+    \begin{center}
+    \begin{tabular}{>{\columncolor{bgsubrown!20}}l l}
+    \toprule
+    \textbf{Domain} & \textbf{Achievement} \\
+    \midrule
+    Speech & \href{https://github.com/openai/whisper}{\textit{OpenAI Whisper}}: 3\% error rate \\
+    Vision & \href{https://github.com/ultralytics/yolov5}{\textit{YOLOv5}}: 140+ FPS detection \\
+    Language & \href{https://github.com/openai/gpt-3}{\textit{GPT-4}}: Human-level generation \\
+    Translation & \href{https://github.com/facebookresearch/seamless_communication}{\textit{SeamlessM4T}}: 100+ languages \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    \pause
+
+    \begin{block}{Transfer Learning Evolution}
+    \begin{itemize}
+    \item \textbf{2014}: Task-specific, limited domain transfer
+    \item \textbf{Now}: Cross-modal transfer (text $\leftrightarrow$ image $\leftrightarrow$ speech)
+    \end{itemize}
+    \end{block}
+    \pause
+
+    \column{0.1\textwidth}
+    \hfill
+
+    \column{0.35\textwidth}
+    \href{https://www.youtube.com/watch?v=iuumnjJWFO4&t=125s}{\includegraphics[width=\textwidth]{presentation/images/babel.png}}
+\end{columns}
+\end{frame}
+
+\section{Core Concepts}
+
+\begin{frame}[fragile]
+\frametitle{Core Concepts}
+\begin{columns}
+    \begin{column}{0.65\textwidth}
+        \begin{block}{Core Problem}
+            \textbf{Goal}: Train machines to autonomously learn, extract, and organize discriminative information (representations) from data.
+        \end{block}
+        \pause
+
+        \begin{itemize}
+        \item \textbf{Feature}: Measurable property of data
+        \item \textbf{Representation}: Internal encoding
+        \item \textbf{Learning}: Pattern discovery process
+        \end{itemize}
+        \pause
+
+        \begin{alertblock}{Why Features Matter}
+        Good features determine model success more than algorithm choice
+        \end{alertblock}
+    \end{column}
+    \pause
+    \begin{column}{0.4\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/nuts.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Key Priors in Learning}
+\begin{columns}
+    \begin{column}{0.4\textwidth}
+        \textbf{Geometric Properties}
+        \begin{itemize}
+        \item Smoothness
+        \item Manifold structure
+        \item Natural clustering
+        \end{itemize}
+        \pause
+        
+        \vspace{0.2cm}
+
+        \textbf{Factor Properties}
+        \begin{itemize}
+        \item Multiple factors
+        \item Hierarchy
+        \item Sparsity
+        \end{itemize}
+    \end{column}
+    \pause
+    
+    \begin{column}{0.6\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/smooth.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Key Priors in Learning}
+\begin{columns}
+    \begin{column}{0.4\textwidth}
+        \textbf{Learning Properties}
+        \begin{itemize}
+        \item Semi-supervised
+        \item Shared factors
+        \item Transfer
+        \end{itemize}
+        \pause
+
+        \vspace{0.2cm}
+        
+        \textbf{Coherence Properties}
+        \begin{itemize}
+        \item Temporal
+        \item Spatial
+        \item Causal
+        \end{itemize}
+    \end{column}
+    \pause
+
+    \begin{column}{0.6\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/shared.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\section{Representation}
+
+\subsection{Distributed Representations}
+
+\begin{frame}
+    \frametitle{Distributed Representations}
+    \textbf{Key Advantages}:
+    \begin{itemize}
+    \item Can represent $O(2^k)$ different concepts with only $O(N)$ units
+        \begin{itemize}
+        \item $N$ = total number of units/features viz. neurons (per layer)
+        \item $k$ = number of active units per concept (e.g. "cat")
+        \end{itemize}
+    \item Each unit participates in many different concepts
+    \item Learning is more efficient through parameter sharing
+    \end{itemize}
+    \pause
+
+    \begin{block}{Common Approaches}
+            \begin{itemize}
+            \item \textbf{Dense}: All units active per concept ($k = N$)
+                \begin{itemize}
+                \item Examples: RBMs, standard auto-encoders
+                \end{itemize}
+            \item \textbf{Sparse}: Few units active per concept ($k < N$)
+                \begin{itemize}
+                \item Examples: Sparse coding, multi-clustering
+                \end{itemize}
+            \item \textbf{Deep}: Multiple layers of distributed representations
+            \end{itemize}
+    \end{block}
+\end{frame}
+        
+\subsection{Deep Representations}
+
+\begin{frame}
+\frametitle{Deep Learning Insights}
+\begin{columns}
+    \begin{column}{0.5\textwidth}
+        \begin{block}{Key Benefits}
+        \begin{itemize}
+        \item Hierarchical feature reuse
+        \item Exponential expressiveness
+        \item Better abstraction
+        \item Higher layers capture more abstract concepts
+        \end{itemize}
+        \end{block}
+    \end{column}
+    
+    \begin{column}{0.5\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/depth.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\subsection{Disentangled Representations}
+
+\begin{frame}
+\frametitle{Disentangled Representations}
+\begin{columns}
+    \begin{column}{0.6\textwidth}
+        \textbf{Key Principle}
+        \begin{itemize}
+        \item Separate independent factors
+        \item Factors change independently
+        \item Few factors change at once
+        \end{itemize}
+        
+        \textbf{Goals}
+        \begin{itemize}
+        \item Preserve information
+        \item Handle complex interactions
+        \item Create robust representations
+        \end{itemize}
+    \end{column}
+    \pause
+
+    \begin{column}{0.4\textwidth}
+        \includegraphics[height=0.7\textheight]{presentation/images/disentanglement.png}
+    \end{column}
+\end{columns}
+
+\begin{alertblock}{Key Insight}
+Good representations separate factors while preserving useful information
+\end{alertblock}
+\end{frame}
+
+\section{Probabilistic Models}
+
+\begin{frame}[fragile]
+\frametitle{Probabilistic Models Overview}
+\begin{itemize}
+\item \textbf{Goal}: Recover latent variables that describe data distribution
+\item \textbf{Joint distribution}: $p(x, h)$ over observed ($x$) and latent ($h$)
+\item \textbf{Feature values}: Result of inferring $p(h|x)$ (posterior probability)
+\end{itemize}
+\pause
+
+\begin{center}
+% \small
+\begin{tabular}{m{0.5\textwidth}|m{0.45\textwidth}}
+\toprule
+\rowcolor{bgsubrown!20}
+\textbf{Directed Models} & \textbf{Undirected Models} \\
+\midrule
+\textit{Separately} model $p(x|h)$ and $p(h)$ & \textit{Joint} energy function $E(x,h)$ \\
+\midrule
+\textit{Enable} "explaining away" effects & More \textit{tractable} inference \\
+\midrule
+\textbf{Examples}: Sparse coding, PCA & \textbf{Examples}: RBMs, Boltzmann Machines \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\subsection{Directed Models}
+
+\begin{frame}
+\frametitle{Directed Models: Examples}
+\begin{center}
+\hspace{-1cm}
+\begin{tabular}{>{\columncolor{bgsubrown!20}}m{0.15\textwidth} m{0.32\textwidth} m{0.4\textwidth}}
+\toprule
+\textbf{Model} & \textbf{Key Features} & \textbf{Advantages} \\
+\midrule
+PCA & 
+• Gaussian prior\newline
+• Linear mapping & 
+• Simple interpretation\newline
+• Efficient computation \\
+\midrule
+Sparse Coding & 
+• L1 penalty\newline
+• Non-linear inference & 
+• Strong explaining away\newline
+• Works with limited labels \\
+\midrule
+Spike-and-Slab & 
+• Binary gates\newline
+• Continuous features & 
+• Superior to sparse coding\newline
+• NIPS'2011 TL winner \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\subsection{Undirected Models}
+
+\begin{frame}[fragile]
+\frametitle{Restricted Boltzmann Machines (RBMs)}
+\begin{columns}
+    \begin{column}{0.55\textwidth}
+        \textbf{Structure}
+        \begin{itemize}
+        \item Two-layer neural network
+        \item Visible layer (input)
+        \item Hidden layer (features)
+        \item No within-layer connections
+        \end{itemize}
+        \pause
+        
+        \textbf{Properties}
+        \begin{itemize}
+        \item Bidirectional connections
+        \item Tractable conditionals: $P(h|x)$ \& $P(x|h)$
+        \item Intractable partition function
+        \end{itemize}
+    \end{column}
+    \pause
+    
+    \begin{column}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/rbm.png}
+    \end{column}
+\end{columns}
+
+\begin{alertblock}{Key Property}
+Bipartite structure enables tractable inference while maintaining expressive power
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[plain]
+\frametitle{RBM Training Methods}
+\begin{center}
+\begin{tabular}{>{\columncolor{bgsubrown!20}}m{0.35\textwidth} m{0.55\textwidth}}
+\toprule
+\textbf{Method} & \textbf{Characteristics} \\
+\midrule
+Contrastive Divergence (CD) & 
+• Short Gibbs chain (often one step) \newline
+• Chain initialized at training data \newline
+• Approximates negative phase\\
+\midrule
+Stochastic Maximum Likelihood (SML/PCD) & 
+• Maintains continuous Gibbs chain \newline
+• Few steps per update \newline
+• Relies on good mixing\\
+\midrule
+Fast-weights PCD & 
+• Better mixing than standard SML \newline
+• Represents distribution diversity \newline
+• May generate spurious samples\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{alertblock}{Key Challenge}
+Maximize log-likelihood despite intractable partition function
+\end{alertblock}
+\end{frame}
+
+\section{Reconstruction-based Models}
+
+\subsection{Auto-Encoders}
+
+\begin{frame}
+\frametitle{Auto-Encoder Variations}
+\begin{columns}
+    \begin{column}{0.48\textwidth}
+        \textbf{Basic Types}
+        \begin{itemize}
+        \item \textit{Sparse} Auto-encoders
+            \begin{itemize}
+            \item L1/Student-t penalty
+            \item Target sparsity level
+            \end{itemize}
+        \item \textit{Denoising} Auto-encoders
+            \begin{itemize}
+            \item Corrupt input
+            \item Learn reconstruction
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \pause
+
+    \begin{column}{0.48\textwidth}
+        \textbf{Advanced Types}
+        \begin{itemize}
+        \item \textit{Contractive} Auto-encoders
+            \begin{itemize}
+            \item Penalize sensitivity
+            \item Robust features
+            \end{itemize}
+        \item \textit{Predictive Sparse} Decomposition
+            \begin{itemize}
+            \item Fast sparse coding
+            \item Efficient computation
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+\end{columns}
+\pause
+
+\begin{alertblock}{Key Challenge}
+Must prevent learning identity function through regularization or architecture
+\end{alertblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Alternative Training Methods}
+\begin{center}
+\begin{tabular}{>{\columncolor{bgsubrown!20}}l m{0.65\textwidth}}
+\toprule
+\textbf{Method} & \textbf{Key Features} \\
+\midrule
+Pseudo-likelihood & 
+• Maximizes conditional distributions $P(x_d|x_{-d})$\newline
+• Avoids partition function computation \\
+\midrule
+Score Matching & 
+• Matches score function (gradient of log-density)\newline
+• Works well with denoising variants \\
+\midrule
+Noise-contrastive & 
+• Transforms training into classification\newline
+• Distinguishes data from noise samples \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\section{Manifold Learning}
+
+\begin{frame}
+\frametitle{Learning Manifold Structure}
+\begin{columns}
+    \begin{column}{0.57\textwidth}
+        \begin{itemize}
+        \item \textbf{Local tangent space}:
+            \begin{itemize}
+            \item Captures locally valid transformations
+            \item Varies across manifold points
+            \item Analyzed via Jacobian SVD
+            \item Reveals prominent transformations
+            \end{itemize}
+        \pause
+
+        \item \textbf{Applications}:
+            \begin{itemize}
+            \item \textit{Manifold Tangent Classifier}
+            \item Tangent distance techniques
+            \item State-of-the-art MNIST results
+            \end{itemize}
+        \end{itemize}
+    \end{column}
+    \pause
+
+    \begin{column}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{presentation/images/manifolds.png}
+    \end{column}
+\end{columns}
+
+\begin{alertblock}{Key Insight}
+Tangent spaces reveal locally valid transformations that preserve semantic meaning
+\end{alertblock}
+\end{frame}
+
+\section{Building Invariance}
+
+\begin{frame}
+\frametitle{Building Invariance}
+\begin{columns}
+    \begin{column}{0.48\textwidth}
+        \textbf{Domain Knowledge}
+        \begin{itemize}
+        \item Topological structure
+        \item Input dimensionality
+        \item Local dependencies
+        \end{itemize}
+
+        \textbf{Data Augmentation}
+        \begin{itemize}
+        \item Random deformations
+        \item Affine transformations
+        \item Elastic distortions
+        \end{itemize}
+    \end{column}
+    \pause
+
+    \begin{column}{0.5\textwidth}
+        \hspace{-1.1cm}
+        \includegraphics[height=0.6\textheight]{presentation/images/invariance.png}
+    \end{column}
+\end{columns}
+
+\begin{block}{Convolutional Architecture}
+    \vspace{-0.2cm}
+    \begin{columns}
+        \column{0.38\textwidth}
+        \begin{itemize}
+        % \setlength{\itemsep}{0pt}
+        \item Local receptive fields
+        \item Feature sharing across positions
+        \end{itemize}
+        
+        \column{0.62\textwidth}
+        \begin{itemize}
+        % \setlength{\itemsep}{0pt}
+        \item Pooling for translation invariance
+        \item Tiled convolution for broader invariance
+        \end{itemize}
+    \end{columns}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Temporal Coherence}
+\begin{itemize}
+\item \textbf{Key Principles}:
+    \begin{itemize}
+    \item Identify slowly changing factors
+    \item Different timescales for factors
+    \item Group-wise feature movement
+    \end{itemize}
+\item \textbf{Approaches}:
+    \begin{itemize}
+    \item Transforming auto-encoders
+    \item Manifold Tangent Classifier
+    \item Structured sparsity penalties
+    \end{itemize}
+\end{itemize}
+
+\begin{alertblock}{Key Challenge}
+Balance between invariance and information preservation while handling non-linear interactions
+\end{alertblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sampling and Evaluation}
+\begin{itemize}
+\item \textbf{Sampling Challenges}:
+    \begin{itemize}
+    \item MCMC mixing becomes inefficient
+    \item Low-density areas block mixing
+    \item Deep representations may help
+    \end{itemize}
+\item \textbf{Evaluation Methods}:
+    \begin{itemize}
+    \item Task-specific metrics
+    \item Reconstruction error
+    \item Denoising reconstruction
+    \item AIS for partition function
+    \end{itemize}
+\end{itemize}
+
+\begin{alertblock}{Key Challenge}
+Distribution modes become sharper and separated, making sampling increasingly difficult
+\end{alertblock}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+\frametitle{Future Directions}
+\begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+        \textbf{Technical Challenges}
+        \begin{itemize}
+        \item Optimization methods
+        \item Inference efficiency
+        \item Feature interaction
+        \item Training stability
+        \item Sampling in deep models
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+        \textbf{Research Opportunities}
+        \begin{itemize}
+        \item Multimodal learning
+        \item Causality modeling
+        \item Few-shot learning
+        \item Interpretability
+        \item Better evaluation metrics
+        \end{itemize}
+    \end{column}
+\end{columns}
+
+\begin{alertblock}{Vision}
+Moving towards systems that learn more like humans: efficiently, adaptively, and with understanding
+\end{alertblock}
+\end{frame}
+
+\end{document} 

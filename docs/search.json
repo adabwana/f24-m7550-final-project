@@ -1,0 +1,324 @@
+[
+  {
+    "objectID": "index.html#project-overview",
+    "href": "index.html#project-overview",
+    "title": "M7550: Final Project",
+    "section": "Project Overview",
+    "text": "Project Overview\nIn our project, we implement systematic prediction methodologies for analyzing student utilization patterns within the BGSU Learning Commons (LC). Through rigorous statistical learning approaches, we address two distinct prediction challenges: visit duration estimation and occupancy forecasting. The implementation leverages specialized modeling architectures to capture the unique characteristics of each prediction task."
+  },
+  {
+    "objectID": "index.html#data-architecture",
+    "href": "index.html#data-architecture",
+    "title": "M7550: Final Project",
+    "section": "Data Architecture",
+    "text": "Data Architecture\nThe research framework employs a comprehensive dataset spanning two academic years. The training corpus encompasses Fall 2016 through Spring 2017, providing the foundation for model development and parameter optimization. Our validation framework utilizes subsequent academic year data (Fall 2017 - Spring 2018) to assess model generalization and stability. The feature space integrates demographic indicators, academic metrics, and temporal patterns, while accounting for an observed senior-class representation bias in the underlying data collection process."
+  },
+  {
+    "objectID": "index.html#methodological-framework",
+    "href": "index.html#methodological-framework",
+    "title": "M7550: Final Project",
+    "section": "Methodological Framework",
+    "text": "Methodological Framework\nOur preprocessing architecture implements systematic feature engineering across multiple domains. The temporal component decomposes visit patterns into hierarchical time scales, capturing daily rhythms, weekly cycles, and semester-long trends. Academic context modeling integrates course-level hierarchies with performance metrics, while our statistical standardization protocol employs RobustScaler methodology for outlier resilience.\nThe modeling architecture employs task-specific approaches while maintaining shared foundational components. The core implementation utilizes PenalizedSplines as the primary architecture, supplemented by Ridge and Lasso regression variants for linear modeling and KNN for local pattern capture. Duration-specific modeling incorporates Penalized Log-Normal GLM for pattern modeling, while occupancy prediction employs specialized Poisson and Weibull architectures for count-based forecasting."
+  },
+  {
+    "objectID": "index.html#implementation-results",
+    "href": "index.html#implementation-results",
+    "title": "M7550: Final Project",
+    "section": "Implementation Results",
+    "text": "Implementation Results\nThe duration prediction framework achieves an RMSE of 59.47 minutes with an R² of 0.059, utilizing PenalizedSplines with optimized parameters (Ridge α: 14.38, spline degree: 3, knot count: 15).\nThe occupancy prediction system demonstrates enhanced predictive capacity with an RMSE of 3.64 students and R² of 0.303, employing similar architectural components with task-specific parameter optimization."
+  },
+  {
+    "objectID": "index.html#technical-infrastructure",
+    "href": "index.html#technical-infrastructure",
+    "title": "M7550: Final Project",
+    "section": "Technical Infrastructure",
+    "text": "Technical Infrastructure\nOur implementation leverages the Python scientific computing ecosystem, with scikit-learn providing the core modeling framework and MLflow enabling systematic experiment tracking. The data processing pipeline integrates pandas and numpy for efficient computation, while visualization capabilities combine matplotlib, seaborn, and plotly for comprehensive analysis. The training infrastructure implements automated parameter optimization through grid search methodology, while maintaining systematic version control through MLflow’s tracking capabilities."
+  },
+  {
+    "objectID": "index.html#research-findings",
+    "href": "index.html#research-findings",
+    "title": "M7550: Final Project",
+    "section": "Research Findings",
+    "text": "Research Findings\nDuration prediction presents significant challenges due to high variance in visit patterns and right-skewed distributions. The limited predictive capacity (R² = 0.059) suggests underlying complexity in individual visit duration behaviors. In contrast, occupancy prediction demonstrates more robust performance (R² = 0.303), successfully capturing usage patterns and providing reliable concurrent usage estimates."
+  },
+  {
+    "objectID": "index.html#future-research-directions",
+    "href": "index.html#future-research-directions",
+    "title": "M7550: Final Project",
+    "section": "Future Research Directions",
+    "text": "Future Research Directions\nThis research framework enables several promising extensions. Environmental factor integration, particularly weather patterns, could enhance predictive capacity. Deep pattern analysis through advanced non-linear methodologies and specialized time series approaches warrant investigation. Additionally, ensemble architectures combining multiple modeling paradigms present opportunities for performance enhancement.\nImplementation details and comprehensive analysis available in associated documentation.\n\nsource: src/index.clj"
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#temporal-feature-engineering",
+    "href": "notebooks/report/feature_engineering.html#temporal-feature-engineering",
+    "title": "Feature Engineering",
+    "section": "Temporal Feature Engineering",
+    "text": "Temporal Feature Engineering\nOur feature engineering process began with temporal data extraction using the ‘lubridate’ package. The timestamp data provided several readily constructible features:\n\nDay of week\nWeekend indicator (Sunday-specific)\nCheck-in month\nCheck-in hour\n\nAnalysis of visit patterns revealed a non-linear relationship between check-in hour and visit duration. This observation prompted the creation of a more nuanced ‘Time Category’ variable with distinct periods:\n\nMorning (6am - 12pm)\nAfternoon (12pm - 5pm)\nEvening (5pm - 11pm)\nLate Night (11pm - 6am)\n\nThe ‘Expected Graduation’ variable presented a dimensionality challenge due to its categorical semester format. We addressed this by converting it to a numeric ‘Months Until Graduation’ metric, effectively reducing complexity while maintaining predictive potential."
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#course-related-features",
+    "href": "notebooks/report/feature_engineering.html#course-related-features",
+    "title": "Feature Engineering",
+    "section": "Course-Related Features",
+    "text": "Course-Related Features\nThe ‘Course Code by Thousands’ variable exhibited significant ambiguity when treated categorically. Our analysis indicated the need for a more structured approach, leading to the following classification systems:\n\nCourse Level Categories:\n\nSpecial (≤ 100)\nLower Classmen (≤ 3000)\nUpper Classmen (≤ 4000)\nGraduate (&gt; 4000)\n\nGPA Categories:\n\nExcellent (≥ 3.5)\nGood (≥ 3.0)\nSatisfactory (≥ 2.0)\nNeeds Improvement (&lt; 2.0)\n\nCredit Load Categories:\n\nPart Time (≤ 6)\nHalf Time (≤ 12)\nFull Time (≤ 18)\nOverload (&gt; 18)"
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#student-classification-features",
+    "href": "notebooks/report/feature_engineering.html#student-classification-features",
+    "title": "Feature Engineering",
+    "section": "Student Classification Features",
+    "text": "Student Classification Features\nThe dataset exhibited an unexpected concentration of ‘Senior’ classifications in our initial analysis. Further investigation revealed this stemmed from students accumulating excess credits for senior status without fulfilling graduation requirements. To address this imbalance while preserving useful information, we implemented a dual classification approach.\n\nClass Standing (Self-Reported):\n\nFirst Year (Freshman)\nSecond Year (Sophomore)\nThird Year (Junior)\nFourth Year (Senior)\nGraduate\nOther\n\nBGSU Standing (Credit-Based):\n\nFreshman (&lt; 30 credits)\nSophomore (&lt; 60 credits)\nJunior (&lt; 90 credits)\nSenior (≤ 120 credits)\nExtended (&gt; 120 credits)\n\n\nThe original Class Standing variable, while potentially containing valuable self-reported insights, required recoding. We preserved this information as ‘Class Standing Self Reported’ with progression labels from “First Year” through “Fourth Year”, along with “Graduate” and “Other” designations. Complementing this, we developed a more objective BGSU Standing metric based on credit hours. This dual approach preserves potentially valuable self-reported information while introducing a more objective credit-based metric."
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#course-name-and-type-features",
+    "href": "notebooks/report/feature_engineering.html#course-name-and-type-features",
+    "title": "Feature Engineering",
+    "section": "Course Name and Type Features",
+    "text": "Course Name and Type Features\nThe Course Name variable presented immediate challenges for model fitting in its raw form. While various approaches existed for handling this high-cardinality variable, we opted for a flexible keyword-based system. This approach identifies key terms within course names - for instance, classifying courses containing ‘Culture’, ‘Language’, or ‘Ethics’ under ‘Humanities’. Though this resulted in 14 distinct categories, it provides flexibility for subsequent modeling decisions through regularization or variable selection.\n\nIntroductory\nIntermediate\nAdvanced\nBusiness\nLaboratory\nMathematics\nComputer Science\nNatural Sciences\nSocial Sciences\nHumanities\nEducation\n\nSimilarly, the Course Type variable required substantial level reduction. We consolidated the original categories into natural academic groupings such as business courses, education courses, and STEM courses. For visits lacking course specifications, we designated a “No Response” category rather than discarding these observations.\n\nSTEM Core\nEngineering & Technology\nBusiness\nSocial Sciences\nHealth Sciences\nHumanities\n\nFor visits without a specified course association, we introduced a “No Response” category to maintain data completeness."
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#major-categories",
+    "href": "notebooks/report/feature_engineering.html#major-categories",
+    "title": "Feature Engineering",
+    "section": "Major Categories",
+    "text": "Major Categories\nThe Major variable demanded a similar keyword-based reduction strategy as Course Name. Through analysis of major descriptions, we identified recurring terms that allowed for logical grouping. For example, the ‘Mathematics’ category encompasses mathematics, statistics, and actuarial science majors. Our final categorization includes:\n\nMathematics (including statistics and actuarial science)\nBusiness\nComputing & Technology\nNatural Sciences\nHealth Sciences\nSocial Sciences\nEducation\nArts & Humanities\nPre-Professional\nGeneral Studies\n\nWe maintained an ‘Other’ category for majors that defied clear classification. The data structure also revealed an opportunity to identify students pursuing multiple degrees - we created this indicator by detecting comma-separated entries in the Major field."
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#visit-pattern-features",
+    "href": "notebooks/report/feature_engineering.html#visit-pattern-features",
+    "title": "Feature Engineering",
+    "section": "Visit Pattern Features",
+    "text": "Visit Pattern Features\nStudent ID analysis enabled the construction of several usage metrics. Beyond simple visit counts, we examined temporal patterns at multiple scales:\n\nTotal visits per student\nVisits per semester\nAverage weekly visits\nWeek volume categories\n\nExamination of visit frequency throughout the semester revealed clear patterns. Weeks 1-3, 9, 14, and 17 consistently showed lower activity levels, while the remaining weeks demonstrated higher traffic. This distinction proved valuable, as visit volume may influence individual visit duration. We encoded this insight through a binary ‘Volume’ indicator for each week."
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#course-load-and-performance-features",
+    "href": "notebooks/report/feature_engineering.html#course-load-and-performance-features",
+    "title": "Feature Engineering",
+    "section": "Course Load and Performance Features",
+    "text": "Course Load and Performance Features\nFor each student-semester combination, we developed metrics to capture academic context. We tracked the number of unique courses and examined the distribution of course levels based on the ‘Course Code by Thousands’ variable. Particular attention was paid to upper-division coursework, creating a specific metric for the proportion of 4000-level courses. Additionally, we implemented a GPA trend indicator that focuses on directional changes rather than absolute values, recognizing that the direction of GPA movement might be more informative than the magnitude.\n\nCount of unique courses\nDistribution of course levels\nProportion of upper-division courses (4000-level)\nGPA trend indicator (focusing on directional changes rather than absolute values)"
+  },
+  {
+    "objectID": "notebooks/report/feature_engineering.html#data-quality-and-group-dynamics",
+    "href": "notebooks/report/feature_engineering.html#data-quality-and-group-dynamics",
+    "title": "Feature Engineering",
+    "section": "Data Quality and Group Dynamics",
+    "text": "Data Quality and Group Dynamics\nOur preprocessing included essential validation steps. We verified Duration_in_Min calculations through comparison of check-in and check-out times, ensuring no negative values existed in the data. The Occupancy variable received similar scrutiny during its construction.\n\nDuration verification through check-in/check-out time comparison\nAccurate occupancy calculations\nIdentification of group visits through timestamp clustering\n\nA final analytical step involved identifying group study patterns. By examining clusters of check-in times, we detected multiple students arriving within the same minute - a strong indicator of group visits. This observation led to three complementary features:\n\nA binary group visit indicator\nExact group size\nSize-based categories (individual: \\(= 1\\), small: \\(&lt; 3\\), medium: \\(3-6\\), large: \\(&gt; 6\\))\n\nWhile some simultaneous check-ins might be coincidental, this classification captures potential social patterns in Learning Commons usage, particularly among friend groups."
+  },
+  {
+    "objectID": "notebooks/report/models_overview.html#framework-architecture",
+    "href": "notebooks/report/models_overview.html#framework-architecture",
+    "title": "Models Overview",
+    "section": "Framework Architecture",
+    "text": "Framework Architecture\nOur Learning Commons prediction system implements a comprehensive modeling framework designed to address the distinct challenges of duration and occupancy prediction. The architecture emphasizes modularity and systematic evaluation, enabling rigorous assessment of multiple modeling strategies while maintaining consistent validation protocols. The implementation can be found in the src/python/models directory, specifically in algorithms_duration.py, algorithms_occupancy.py, pipelines.py, and cross_validation.py."
+  },
+  {
+    "objectID": "notebooks/report/models_overview.html#core-components",
+    "href": "notebooks/report/models_overview.html#core-components",
+    "title": "Models Overview",
+    "section": "Core Components",
+    "text": "Core Components\nThe framework integrates three primary architectural components that work in concert to enable systematic model evaluation. At its foundation, the base algorithms provide the core predictive capabilities, each offering distinct approaches to pattern recognition. The feature processing pipelines implement sophisticated data transformations, while our cross-validation strategies ensure robust performance assessment.\n\nAlgorithm Architecture\nThe framework employs both shared and task-specific modeling approaches. Our duration prediction models include:\ndef get_model_definitions():\n    return {\n        'Ridge': (Ridge(), {\n            'model__alpha': np.logspace(0, 2, 10),\n            'select_features__k': np.arange(10, 55, 5),\n        }),\n        'Lasso': (Lasso(), {\n            'model__alpha': np.logspace(-2, 0, 10),\n            'select_features__k': np.arange(10, 55, 5),\n        }),\n        'PenalizedSplines': (Pipeline([\n            ('spline', SplineTransformer()),\n            ('ridge', Ridge())\n        ]), {\n            'model__spline__n_knots': [9, 11, 13, 15],\n            'model__spline__degree': [3],\n            'model__ridge__alpha': np.logspace(0, 2, 20),\n            'select_features__k': np.arange(10, 55, 5),\n        }),\n        'KNN': (KNeighborsRegressor(), {\n            'model__n_neighbors': np.arange(15, 22, 2), # Creates [15, 17, 19, 21]\n            'model__weights': ['uniform', 'distance'],\n            # 'model__metric': ['euclidean', 'manhattan'],\n            'select_features__k': np.arange(10, 55, 5),\n        }),\n    }\n\n\n\n\n\n\n\n\nModel Type\nKey Characteristics\nHyperparameter Range\n\n\n\n\nRidge\nLinear with L2 penalty\n\\(\\alpha \\in [10^0, 10^2]\\)\n\n\nLasso\nLinear with L1 penalty\n\\(\\alpha \\in [10^{-2}, 10^0]\\)\n\n\nPenalized-Splines\nCubic splines with ridge penalty\nknots: {9, 11, 13, 15},  ridge: \\(\\alpha \\in [10^0, 10^2]\\)\n\n\nKNN\nNon-parametric\nneighbors: {15, 17, 19, 21},  weights: {uniform, distance}\n\n\n\nThe framework emphasizes non-linear pattern capture through spline-based modeling while maintaining interpretability. The PenalizedSplines implementation serves as our primary architecture, employing cubic splines (degree=3) with optimized knot placement and ridge regularization.\n\n\nDuration Model Architecture\ndef get_model_definitions():\n    return {\n        'PenalizedLogNormal': (Pipeline([\n            ('log_transform', FunctionTransformer(\n                func=lambda x: np.log1p(np.clip(x, 1e-10, None)),  # clip to prevent log(0)\n                inverse_func=lambda x: np.expm1(x)\n            )),\n            ('ridge', Ridge())\n        ]), {\n            'model__ridge__alpha': np.logspace(0, 2, 20),\n            'select_features__k': np.arange(10, 55, 5),\n        }),\n    }\nOur duration models are based on the log-normal distribution, which is a common choice for modeling positive, right-skewed data. We saw this in our exploratory data analysis, where the duration data was right-skewed and most closely resembled a log-normal distribution.\n\n\n\nLog-normal Duration\n\n\n\n\nOccupancy Model Architecture\nFor occupancy prediction, we implement specialized count-based models through a custom wrapper:\nclass RoundedRegressor(BaseEstimator, RegressorMixin):\n    \"\"\"Ensures integer predictions for occupancy modeling.\"\"\"\n    def __init__(self, estimator):\n        self.estimator = estimator\n        \n    def predict(self, X):\n        y_pred = self.estimator_.predict(X)\n        y_pred_rounded = np.round(y_pred).astype(int)\n        return np.maximum(y_pred_rounded, 0)  # Ensure non-negative\nThis wrapper enables count-based modeling through specialized distributions:\ndef get_model_definitions():\n    return {\n        'PenalizedPoisson': (RoundedRegressor(Pipeline([\n            ('log_link', FunctionTransformer(\n                func=lambda x: np.log(np.clip(x, 1e-10, None)),\n                inverse_func=lambda x: np.exp(np.clip(x, -10, 10))\n            )),\n            ('ridge', Ridge())\n        ])), {\n            'model__estimator__ridge__alpha': np.logspace(0, 2, 20),\n            'select_features__k': np.arange(70, 100, 10),\n        }),\n        'PenalizedWeibull': (RoundedRegressor(Pipeline([\n            ('weibull_link', FunctionTransformer(\n                func=lambda x: np.log(-np.log(1 - np.clip(x/(x.max()+1), 1e-10, 1-1e-10))),\n                inverse_func=lambda x: (1 - np.exp(-np.exp(np.clip(x, -10, 10)))) * (x.max() + 1)\n            )),\n            ('ridge', Ridge())\n        ])), {\n            'model__estimator__ridge__alpha': np.logspace(0, 2, 20),\n            'select_features__k': np.arange(70, 100, 10),\n        })\n    }\nThese models are based on the Poisson and Weibull distributions, which are common choices for count-based modeling. We saw this in our exploratory data analysis, where the occupancy data was count-based and most closely resembled a Poisson distribution.\n\n\n\nPoisson Occupancy"
+  },
+  {
+    "objectID": "notebooks/report/models_overview.html#pipeline-architecture",
+    "href": "notebooks/report/models_overview.html#pipeline-architecture",
+    "title": "Models Overview",
+    "section": "Pipeline Architecture",
+    "text": "Pipeline Architecture\nOur framework implements three distinct preprocessing strategies:\ndef get_pipeline_definitions():\n    return {\n        'vanilla': lambda model: Pipeline([\n            ('scaler', 'passthrough'), \n            ('model', model)\n        ]),\n        'interact_select': lambda model: Pipeline([\n            ('scaler', 'passthrough'), \n            ('interactions', PolynomialFeatures(\n                degree=2, \n                interaction_only=True, \n                include_bias=False\n            )),\n            ('select_features', SelectKBest(\n                score_func=f_regression, \n                k=100\n            )),\n            ('model', model)\n        ]),\n        'pca_lda': lambda model: Pipeline([\n            ('scaler', 'passthrough'), \n            ('feature_union', FeatureUnion([\n                ('pca', PCA(n_components=0.95)),\n                ('lda', LinearDiscriminantAnalysis(n_components=10)),\n            ])),\n            ('interactions', PolynomialFeatures(\n                degree=2, \n                interaction_only=True, \n                include_bias=False\n            )),\n            ('select_features', SelectKBest(\n                score_func=f_regression, \n                k=100\n            )),\n            ('model', model)\n        ])\n    }\n\nVanilla Pipeline\n\nPipeline([\n    ('scaler', 'passthrough'), \n    ('model', model)\n])\nThis configuration maintains feature interpretability while providing robust baseline performance through careful scaling of our engineered feature set.\n\nInteraction Network Pipeline\n\nPipeline([\n    ('scaler', 'passthrough'), \n    ('interactions', PolynomialFeatures(degree=2)),\n    ('select', SelectKBest(score_func=f_regression)),\n    ('model', model)\n])\nThis interact_select pipeline implements a sparse interaction network, systematically capturing pairwise feature relationships while managing dimensionality through selective feature retention.\n\n\n\nInteraction Network\n\n\nThis approach functions as a simplified mesh neural network, restricting connections to binary interactions without activation functions. The SelectKBest component manages dimensionality by identifying the most influential features and interactions.\n\nDimensionality Reduction Pipeline\n\nPipeline([\n    ('scaler', 'passthrough'),\n    ('feature_union', FeatureUnion([\n        ('pca', PCA(n_components=0.95)),\n        ('lda', LinearDiscriminantAnalysis(n_components=10)),\n    ])),\n    ('interactions', PolynomialFeatures(degree=2)),\n    ('select', SelectKBest(score_func=f_regression)),\n    ('model', model)\n])\nThis pipeline combines two complementary dimensionality reduction techniques before interaction modeling. We extract principal components that explain 95% of the variance (PCA) alongside 10 linear discriminant components (LDA), aiming to capture both the dominant patterns in feature variation and natural class separations in the data. These reduced-dimension components are then allowed to interact, with SelectKBest filtering the most predictive combinations."
+  },
+  {
+    "objectID": "notebooks/report/models_overview.html#cross-validation-framework",
+    "href": "notebooks/report/models_overview.html#cross-validation-framework",
+    "title": "Models Overview",
+    "section": "Cross-Validation Framework",
+    "text": "Cross-Validation Framework\nThe framework implements three temporal validation strategies:\ndef get_cv_methods(n_samples: int):\n    n_splits = 10\n    default_test_size = n_samples // (n_splits + 1)\n\n    return {\n        'kfold': KFold(\n            n_splits=10, \n            shuffle=True, \n            random_state=3\n        ),\n        'rolling': TimeSeriesSplit(\n            n_splits=n_splits,\n            max_train_size=default_test_size * 5,\n            test_size=default_test_size\n        ),\n        'expanding': TimeSeriesSplit(\n            n_splits=n_splits,\n            test_size=default_test_size\n        )\n    }\nEach strategy serves a specific validation purpose: - K-fold: Baseline performance assessment through randomized splits - Rolling Window: Temporal pattern capture with fixed-size windows - Expanding Window: Long-term trend assessment with growing history\n\n\n\n\n\n\n\n\n\nStrategy\nDescription\nCharacteristics\nBest For\n\n\n\n\nkfold\nRandom k splits\n- Provides baseline performance- Less suitable for temporal patterns\nDuration prediction\n\n\nrolling\nFixed-size moving window\n- Captures recent temporal dependencies- Maintains consistent training size\nOccupancy prediction\n\n\nexpanding\nGrowing window\n- Accumulates historical data- Increases training size over time- Balances temporal and volume effects\nLong-term trends\n\n\n\nThis comprehensive modeling framework provides the foundation for both our training and testing implementations, enabling systematic optimization while maintaining rigorous validation standards."
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#training-framework-overview",
+    "href": "notebooks/report/model_training.html#training-framework-overview",
+    "title": "Model Training",
+    "section": "Training Framework Overview",
+    "text": "Training Framework Overview\nOur training framework implements a systematic approach to model development through parallel pipelines for duration and occupancy predictions. The architecture emphasizes modular design and reproducible experimentation, enabling independent optimization of model components while maintaining system cohesion. The implementation can be found in src/python/test_train/duration/TRAIN_duration.py and src/python/test_train/occupancy/TRAIN_occupancy.py."
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#model-definition-architecture",
+    "href": "notebooks/report/model_training.html#model-definition-architecture",
+    "title": "Model Training",
+    "section": "Model Definition Architecture",
+    "text": "Model Definition Architecture\nThe framework’s foundation lies in specialized model definitions for each prediction task:\n\nDuration Model Definitions\ndef get_model_definitions():\n    \"\"\"Define duration-specific model configurations.\"\"\"\n    return {\n        'PenalizedSplines': (\n            SplineRegressor(),\n            {\n                'model__n_knots': [10, 15, 20],\n                'model__ridge_alpha': [0.1, 1.0, 10.0],\n                'select_features__k': [10, 15, 'all']\n            }\n        ),\n        'GradientBoosting': (\n            GradientBoostingRegressor(),\n            {\n                'model__n_estimators': [100, 200],\n                'model__learning_rate': [0.01, 0.1],\n                'model__max_depth': [3, 5]\n            }\n        )\n    }\nThe duration models prioritize temporal pattern recognition through specialized regressors and carefully tuned hyperparameter ranges.\n\n\nOccupancy Model Definitions\ndef get_model_definitions():\n    \"\"\"Define occupancy-specific model configurations.\"\"\"\n    return {\n        'PoissonRegressor': (\n            PoissonRegressor(),\n            {\n                'model__alpha': [0.1, 1.0, 10.0],\n                'select_features__k': [10, 15, 'all']\n            }\n        ),\n        'RoundedRegressor': (\n            RoundedRegressorWrapper(Ridge()),\n            {\n                'model__alpha': [0.1, 1.0, 10.0],\n                'model__fit_intercept': [True, False]\n            }\n        )\n    }\nOccupancy models implement count-based constraints and integer prediction requirements through specialized wrappers and count-oriented algorithms."
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#pipeline-construction",
+    "href": "notebooks/report/model_training.html#pipeline-construction",
+    "title": "Model Training",
+    "section": "Pipeline Construction",
+    "text": "Pipeline Construction\nThe training pipeline implements three distinct preprocessing strategies:\ndef get_pipeline_definitions():\n    \"\"\"Define preprocessing pipeline variants.\"\"\"\n    return {\n        'vanilla': lambda model: Pipeline([\n            ('scaler', StandardScaler()),\n            ('model', model)\n        ]),\n        'interact_select': lambda model: Pipeline([\n            ('scaler', StandardScaler()),\n            ('interact', PolynomialFeatures(degree=2)),\n            ('select_features', SelectKBest()),\n            ('model', model)\n        ]),\n        'pca_lda': lambda model: Pipeline([\n            ('scaler', StandardScaler()),\n            ('reduce_dim', PCA(n_components=0.95)),\n            ('model', model)\n        ])\n    }\nEach pipeline variant addresses specific modeling challenges: - Vanilla Pipeline: Baseline feature standardization - Interaction Pipeline: Feature interaction discovery - Dimension Reduction Pipeline: Multicollinearity handling"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#cross-validation-strategy",
+    "href": "notebooks/report/model_training.html#cross-validation-strategy",
+    "title": "Model Training",
+    "section": "Cross-Validation Strategy",
+    "text": "Cross-Validation Strategy\nThe framework implements task-specific validation approaches:\ndef get_cv_methods(n_samples):\n    \"\"\"Configure cross-validation strategies.\"\"\"\n    return {\n        'kfold': KFold(n_splits=5, shuffle=True),\n        'rolling': RollingForecastCV(\n            min_train_size=int(0.6 * n_samples),\n            forecast_horizon=int(0.1 * n_samples)\n        ),\n        'expanding': ExpandingForecastCV(\n            min_train_size=int(0.6 * n_samples),\n            forecast_horizon=int(0.1 * n_samples)\n        )\n    }\nThese strategies enable: - K-Fold: Robust general performance estimation - Rolling Window: Temporal dependency handling - Expanding Window: Progressive data utilization"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#training-process-implementation",
+    "href": "notebooks/report/model_training.html#training-process-implementation",
+    "title": "Model Training",
+    "section": "Training Process Implementation",
+    "text": "Training Process Implementation\nThe training process orchestrates model fitting and evaluation:\ndef train_single_model(name, scale_type, cv_name, pipeline, params, cv, X_train, y_train):\n    \"\"\"Execute single model training iteration.\"\"\"\n    search = GridSearchCV(\n        pipeline, \n        params,\n        scoring=rmse_scorer,\n        cv=cv,\n        n_jobs=-1,\n        error_score='raise'\n    )\n    \n    with mlflow.start_run(run_name=model_name):\n        search.fit(X_train, y_train)\n        mlflow.log_metrics({\n            \"rmse\": -search.best_score_,\n            \"rmse_std\": search.cv_results_['std_test_score'][search.best_index_]\n        })\nThe implementation emphasizes: - Parallel Processing: Efficient resource utilization - Error Handling: Robust failure recovery - Metric Logging: Comprehensive performance tracking"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#mlflow-experiment-management",
+    "href": "notebooks/report/model_training.html#mlflow-experiment-management",
+    "title": "Model Training",
+    "section": "MLflow Experiment Management",
+    "text": "MLflow Experiment Management\nThe framework implements systematic experiment tracking through MLflow:\ndef setup_mlflow_experiments(experiment_base, model_names):\n    \"\"\"Configure MLflow experiment hierarchy.\"\"\"\n    for model_name in model_names:\n        experiment_name = f\"{experiment_base}/{model_name}\"\n        try:\n            mlflow.create_experiment(experiment_name)\n        except Exception as e:\n            print(f\"Experiment {experiment_name} already exists\")\nThis structure enables: - Hierarchical Organization: Nested experiment tracking - Version Control: Systematic model iteration - Parameter Tracking: Comprehensive configuration logging"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#task-specific-training-optimizations",
+    "href": "notebooks/report/model_training.html#task-specific-training-optimizations",
+    "title": "Model Training",
+    "section": "Task-Specific Training Optimizations",
+    "text": "Task-Specific Training Optimizations\n\nDuration Model Training\nDuration prediction implements specialized temporal modeling strategies:\ndef train_models(X_train, y_train, X_test, y_test):\n    \"\"\"Main training function for duration prediction.\"\"\"\n    mlflow.set_tracking_uri(\"http://127.0.0.1:5000\")\n    experiment_base = \"Duration_Pred\"\n    \n    # Get duration-specific definitions\n    models = get_model_definitions()  # From algorithms_duration.py\n    pipelines = get_pipeline_definitions()\n    cv_methods = get_cv_methods(len(X_train))\nKey optimizations include: - Temporal Feature Handling: Specialized preprocessing for time-based features - Spline-Based Modeling: Non-linear temporal pattern capture - Duration-Specific Metrics: RMSE optimization for time intervals\n\n\nOccupancy Model Training\nOccupancy prediction employs count-based modeling approaches:\ndef train_models(X_train, y_train, X_test, y_test):\n    \"\"\"Main training function for occupancy prediction.\"\"\"\n    experiment_base = \"Occupancy_Pred\"\n    \n    # Get occupancy-specific definitions\n    models = get_model_definitions()  # From algorithms_occupancy.py\n    pipelines = get_pipeline_definitions()\n    cv_methods = get_cv_methods(len(X_train))\nSpecialized components include: - Integer Constraints: Count-based prediction enforcement - Capacity Limits: Maximum occupancy validation - Poisson Modeling: Count distribution optimization"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#resource-management",
+    "href": "notebooks/report/model_training.html#resource-management",
+    "title": "Model Training",
+    "section": "Resource Management",
+    "text": "Resource Management\nThe framework implements efficient resource utilization:\ndef train_single_model(name, scale_type, cv_name, pipeline, params, cv, X_train, y_train):\n    \"\"\"Execute single model training iteration.\"\"\"\n    with joblib.parallel_backend('loky'):\n        search = GridSearchCV(\n            pipeline, \n            params,\n            scoring=rmse_scorer,\n            cv=cv,\n            n_jobs=-1,\n            error_score='raise'\n        )\n        search.fit(X_train, y_train)\nKey features include: - Parallel Processing: Multi-core utilization through joblib - Memory Management: Efficient garbage collection - Error Recovery: Robust failure handling"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#model-persistence-strategy",
+    "href": "notebooks/report/model_training.html#model-persistence-strategy",
+    "title": "Model Training",
+    "section": "Model Persistence Strategy",
+    "text": "Model Persistence Strategy\nThe framework implements systematic model versioning and storage:\ndef evaluate_final_models(results, X_test, y_test):\n    \"\"\"Evaluate and persist final model versions.\"\"\"\n    final_results = []\n    \n    for result in results:\n        model_name = f\"{result['model']}_{result['pipeline_type']}_{result['cv_method']}\"\n        try:\n            model = mlflow.sklearn.load_model(f\"models:/{model_name}/latest\")\n            y_pred = model.predict(X_test)\n            \n            final_results.append({\n                'Model': result['model'],\n                'Pipeline': result['pipeline_type'],\n                'CV_Method': result['cv_method'],\n                'RMSE': np.sqrt(mean_squared_error(y_test, y_pred)),\n                'R2': r2_score(y_test, y_pred)\n            })\n            \n        except Exception as e:\n            logger.error(f\"Error evaluating {model_name}: {str(e)}\")\n            continue\nThe persistence strategy ensures: - Version Control: Systematic model iteration tracking - Reproducibility: Complete parameter logging - Deployment Readiness: Production-ready model storage"
+  },
+  {
+    "objectID": "notebooks/report/model_training.html#training-framework-benefits",
+    "href": "notebooks/report/model_training.html#training-framework-benefits",
+    "title": "Model Training",
+    "section": "Training Framework Benefits",
+    "text": "Training Framework Benefits\nThe implementation delivers several key advantages:\n\nExperimental Rigor\n\n\nSystematic hyperparameter optimization\nComprehensive cross-validation\nRobust error handling\n\n\nReproducibility\n\n\nComplete parameter logging\nSystematic version control\nComprehensive experiment tracking\n\n\nScalability\n\n\nEfficient resource utilization\nParallel processing capabilities\nModular component design\n\nThis training framework provides a robust foundation for model development, enabling systematic optimization while maintaining reproducibility and scalability."
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#testing-framework-overview",
+    "href": "notebooks/report/model_testing.html#testing-framework-overview",
+    "title": "Model Testing",
+    "section": "Testing Framework Overview",
+    "text": "Testing Framework Overview\nOur testing framework implements comprehensive model validation and performance analysis through systematic evaluation pipelines. While the training chapter covers model development, this framework focuses on rigorous assessment of model behavior and production readiness. The implementation can be found in src/python/test_train/duration/TEST_duration.py and src/python/test_train/occupancy/TEST_occupancy.py."
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#test-data-management",
+    "href": "notebooks/report/model_testing.html#test-data-management",
+    "title": "Model Testing",
+    "section": "Test Data Management",
+    "text": "Test Data Management\nThe testing pipeline begins with careful data preparation:\n# Data preparation for testing\ndf = pd.read_csv(f'{project_root}/data/processed/train_engineered.csv')\n\ntarget = 'Duration_In_Min'  # or 'Occupancy'\nfeatures_to_drop = ['Student_IDs', 'Semester', 'Class_Standing', 'Major',\n                   'Expected_Graduation', 'Course_Name', 'Course_Number',\n                   'Course_Type', 'Course_Code_by_Thousands',\n                   'Check_Out_Time', 'Session_Length_Category', \n                   target, target_2]\n\nX, y = prepare_data(df, target, features_to_drop)\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, shuffle=False  # Maintains chronological order\n)\nThis preparation ensures: - Feature Consistency: Matching training data structure - Temporal Integrity: Preserved time-series ordering - Data Independence: Proper train-test separation"
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#model-loading-and-validation",
+    "href": "notebooks/report/model_testing.html#model-loading-and-validation",
+    "title": "Model Testing",
+    "section": "Model Loading and Validation",
+    "text": "Model Loading and Validation\nThe framework implements systematic model retrieval and validation:\ndef check_mlflow_connection():\n    \"\"\"Verify MLflow server connection and configuration.\"\"\"\n    try:\n        client = mlflow.tracking.MlflowClient()\n        client.search_experiments()\n        return True\n    except Exception as e:\n        print(f\"Error connecting to MLflow server: {e}\")\n        return False\n\n# Test each model variant\nfor experiment in experiments:\n    model_name = experiment.name.split('/')[-1]\n    for pipeline_type in ['vanilla', 'interact_select', 'pca_lda']:\n        for cv_name in ['kfold', 'rolling', 'expanding']:\n            try:\n                model = mlflow.sklearn.load_model(f\"models:/{full_model_name}/latest\")\n                print(f\"    Successfully loaded model\")\n            except Exception as e:\n                print(f\"    Couldn't load model: {e}\")\n                continue\nThis process ensures: - Model Availability: Systematic version checking - Configuration Validation: Pipeline compatibility verification - Error Handling: Robust failure recovery"
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#performance-assessment",
+    "href": "notebooks/report/model_testing.html#performance-assessment",
+    "title": "Model Testing",
+    "section": "Performance Assessment",
+    "text": "Performance Assessment\n\nMetric Computation\nThe framework implements comprehensive performance evaluation:\ndef calculate_metrics(y_test, y_pred):\n    \"\"\"Compute comprehensive performance metrics.\"\"\"\n    metrics = {\n        'RMSE': np.sqrt(mean_squared_error(y_test, y_pred)),\n        'R2': r2_score(y_test, y_pred)\n    }\n    return metrics\n\n\nResults Visualization\nOur testing pipeline generates systematic performance visualizations:\ndef plot_prediction_analysis(y_test, y_pred, model_name):\n    \"\"\"Generate prediction analysis visualization.\"\"\"\n    fig = plt.figure(figsize=(10, 6))\n    plt.scatter(y_test, y_pred, alpha=0.5)\n    plt.plot([y_test.min(), y_test.max()], \n             [y_test.min(), y_test.max()], 'r--')\n    plt.title(f'Prediction Analysis: {model_name}')\n    return fig\n\ndef plot_feature_importance_biplot(X_test, y_test, y_pred, feature_names, results_path):\n    \"\"\"Generate feature importance visualization.\"\"\"\n    correlations = []\n    for feature in X_test.columns:\n        corr = np.corrcoef(X_test[feature], y_test - y_pred)[0,1]\n        correlations.append((feature, abs(corr)))"
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#task-specific-testing",
+    "href": "notebooks/report/model_testing.html#task-specific-testing",
+    "title": "Model Testing",
+    "section": "Task-Specific Testing",
+    "text": "Task-Specific Testing\n\nDuration Model Validation\nDuration testing focuses on temporal accuracy:\n# Duration-specific testing configuration\nexperiment_base = \"Duration_Pred\"\nif metrics['RMSE'] &lt; best_model_rmse:\n    best_model_rmse = metrics['RMSE']\n    best_model_predictions = y_pred\n    plot_feature_importance_biplot(\n        X_test, y_test, y_pred, \n        X_test.columns,\n        f'{project_root}/results/duration'\n    )\nKey validation aspects: - Temporal Error Analysis: Time-based accuracy assessment - Distribution Validation: Duration pattern verification - Feature Impact Analysis: Time-feature importance evaluation\n\n\nOccupancy Model Validation\nOccupancy testing implements count-based validation:\n# Occupancy-specific testing configuration\nexperiment_base = \"Occupancy_Pred\"\nmetrics = calculate_metrics(y_test, y_pred.round())  # Integer predictions\nsave_visualization_results(results_df, project_root)\nCritical validation components: - Integer Prediction: Count constraint verification - Range Validation: Occupancy limit checking - Peak Analysis: High-traffic period accuracy"
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#results-management",
+    "href": "notebooks/report/model_testing.html#results-management",
+    "title": "Model Testing",
+    "section": "Results Management",
+    "text": "Results Management\nThe framework implements systematic result collection and analysis:\n# Process experiment results\nif experiment_results:\n    top_3_results = sorted(\n        experiment_results, \n        key=lambda x: x['RMSE']\n    )[:3]\n    test_results.extend(top_3_results)\n\n# Create results DataFrame\nresults_df = pd.DataFrame(test_results)\nprint(\"\\nTop 3 Models per Experiment:\")\nprint(results_df.sort_values('RMSE'))\nThis process ensures: - Systematic Comparison: Cross-model performance analysis - Result Persistence: Comprehensive metric logging - Performance Ranking: Objective model selection"
+  },
+  {
+    "objectID": "notebooks/report/model_testing.html#testing-framework-benefits",
+    "href": "notebooks/report/model_testing.html#testing-framework-benefits",
+    "title": "Model Testing",
+    "section": "Testing Framework Benefits",
+    "text": "Testing Framework Benefits\n\nComprehensive Validation\n\n\nMulti-metric performance assessment\nCross-model comparison capabilities\nSystematic visualization generation\n\n\nProduction Readiness\n\n\nRobust error handling\nPerformance regression detection\nDeployment validation checks\n\n\nResult Interpretability\n\n\nClear performance visualization\nFeature importance analysis\nError pattern identification\n\nThis testing framework ensures thorough model validation while maintaining clear performance insights."
+  },
+  {
+    "objectID": "notebooks/report/eval_framework.html#framework-overview",
+    "href": "notebooks/report/eval_framework.html#framework-overview",
+    "title": "Evaluation Framework",
+    "section": "Framework Overview",
+    "text": "Framework Overview\nOur evaluation framework implements a hierarchical analysis strategy designed to extract actionable insights from model performance data. Through systematic aggregation and comparison of results, the framework enables data-driven model selection and optimization decisions. The implementation can be found in src/python/evaluation/model_evals.py and src/python/evaluation/best_model_params.py."
+  },
+  {
+    "objectID": "notebooks/report/eval_framework.html#analysis-architecture",
+    "href": "notebooks/report/eval_framework.html#analysis-architecture",
+    "title": "Evaluation Framework",
+    "section": "Analysis Architecture",
+    "text": "Analysis Architecture\n\nPerformance Aggregation Pipeline\nThe framework’s primary component implements systematic performance analysis across multiple dimensions:\ndef load_and_analyze(filepath, dataset_name):\n    \"\"\"Hierarchical model performance analysis.\"\"\"\n    df = pd.read_csv(filepath)\n    \n    # Cross-validation strategy analysis\n    cv_groups = df.groupby('CV_Method')[['RMSE', 'R2']].agg(['mean', 'std'])\n    cv_groups = cv_groups.sort_values(('RMSE', 'mean'))\n    \n    # Pipeline architecture analysis\n    pipeline_groups = df.groupby('Pipeline')[['RMSE', 'R2']].agg(['mean', 'std'])\n    pipeline_groups = pipeline_groups.sort_values(('RMSE', 'mean'))\n    \n    # Model type analysis\n    model_groups = df.groupby('Model')[['RMSE', 'R2']].agg(['mean', 'std'])\n    model_groups = model_groups.sort_values(('RMSE', 'mean'))\nThis hierarchical approach enables:\n\nCross-validation Impact Analysis: Understanding validation strategy effectiveness\nPipeline Architecture Comparison: Assessing preprocessing impact\nModel Type Performance: Evaluating algorithm selection\n\n\n\nBest Model Identification\nThe framework implements systematic best model selection:\ndef get_best_model_params(eval_path, experiment_base):\n    \"\"\"Extract optimal model configuration.\"\"\"\n    # Identify best performer\n    df = pd.read_csv(eval_path)\n    best_row = df.loc[df['RMSE'].idxmin()]\n    \n    # Retrieve detailed configuration\n    model_name = f\"{best_row['Model']}_{best_row['Pipeline']}_{best_row['CV_Method']}\"\n    client = MlflowClient()\n    experiment = client.get_experiment_by_name(f\"{experiment_base}/{best_row['Model']}\")\n    \n    # Get run details\n    best_run = client.search_runs(\n        experiment_ids=[experiment.experiment_id],\n        filter_string=f\"attributes.run_name = '{model_name}'\"\n    )[0]\nThis process ensures:\n\nObjective Selection: Performance-based model identification\nConfiguration Retrieval: Complete parameter extraction\nReproducibility: Full model lineage tracking"
+  },
+  {
+    "objectID": "notebooks/report/eval_framework.html#task-specific-evaluation",
+    "href": "notebooks/report/eval_framework.html#task-specific-evaluation",
+    "title": "Evaluation Framework",
+    "section": "Task-Specific Evaluation",
+    "text": "Task-Specific Evaluation\n\nDuration Model Analysis\nThe framework reveals critical insights for duration prediction:\ndef save_and_print_results(results, dataset_type):\n    \"\"\"Format and persist evaluation results.\"\"\"\n    print(f\"\\n====== Best Model for Duration Prediction ======\")\n    print(f\"Model: {results['model']}\")\n    print(f\"Pipeline: {results['pipeline']}\")\n    print(f\"CV Method: {results['cv_method']}\")\n    print(f\"RMSE: {results['rmse']:.4f}\")\n    print(f\"R2: {results['r2']:.4f}\")\nKey findings include:\n\nModel Selection Impact: Performance variation across architectures\nPipeline Effectiveness: Preprocessing strategy comparison\nValidation Strategy: Cross-validation method influence\n\n\n\nOccupancy Model Analysis\nFor occupancy prediction, the framework provides structured insights:\n# Best model configuration persistence\noutput_file = os.path.join(output_dir, f\"occupancy_best_model.json\")\nwith open(output_file, 'w') as f:\n    json.dump(results, f, indent=2)\nCritical evaluation aspects:\n\nCount Prediction Accuracy: Integer constraint impact\nPipeline Comparison: Feature engineering effectiveness\nValidation Assessment: Temporal splitting influence"
+  },
+  {
+    "objectID": "notebooks/report/eval_framework.html#results-management",
+    "href": "notebooks/report/eval_framework.html#results-management",
+    "title": "Evaluation Framework",
+    "section": "Results Management",
+    "text": "Results Management\nThe framework implements systematic result organization:\ndef main():\n    \"\"\"Execute comprehensive evaluation pipeline.\"\"\"\n    # Process occupancy results\n    occupancy_eval = \"results/occupancy/test_evaluation.csv\"\n    if os.path.exists(occupancy_eval):\n        occ_results = get_best_model_params(occupancy_eval, \"Occupancy_Pred\")\n        save_and_print_results(occ_results, \"occupancy\")\n    \n    # Process duration results\n    duration_eval = \"results/duration/test_evaluation.csv\"\n    if os.path.exists(duration_eval):\n        dur_results = get_best_model_params(duration_eval, \"Duration_Pred\")\n        save_and_print_results(dur_results, \"duration\")\nThis organization ensures:\n\nSystematic Analysis: Consistent evaluation across tasks\nResult Persistence: Structured output storage\nReproducible Insights: Clear analysis lineage"
+  },
+  {
+    "objectID": "notebooks/report/eval_framework.html#framework-benefits",
+    "href": "notebooks/report/eval_framework.html#framework-benefits",
+    "title": "Evaluation Framework",
+    "section": "Framework Benefits",
+    "text": "Framework Benefits\nThe evaluation framework delivers three primary advantages:\n\nComprehensive Analysis\n\n\nMulti-dimensional performance assessment\nCross-model comparison methodology\nStatistical significance evaluation\n\n\nInsight Generation\n\n\nParameter sensitivity understanding\nArchitecture impact quantification\nValidation strategy assessment\n\n\nDecision Support\n\n\nObjective model selection\nConfiguration optimization\nDeployment readiness validation\n\nThis evaluation framework provides the analytical foundation for model selection and optimization decisions, complementing the training and testing processes with rigorous performance analysis."
+  },
+  {
+    "objectID": "notebooks/report/eval.html#best-model-configurations",
+    "href": "notebooks/report/eval.html#best-model-configurations",
+    "title": "Evaluation",
+    "section": "Best Model Configurations",
+    "text": "Best Model Configurations\n\n\n\n\n\nDuration Model\n\n\n\nComponent\nConfiguration\n\n\n\n\nModel\nPenalizedSplines\n\n\nPipeline\nvanilla\n\n\nCV Method\nkfold\n\n\nRidge α\n14.38\n\n\nSpline knots\n15\n\n\nScaler\nRobustScaler\n\n\nRMSE\n59.47\n\n\nR²\n0.059\n\n\n\n\n\n\n\nOccupancy Model\n\n\n\nComponent\nConfiguration\n\n\n\n\nModel\nPenalizedSplines\n\n\nPipeline\nvanilla\n\n\nCV Method\nrolling\n\n\nRidge α\n29.76\n\n\nSpline knots\n15\n\n\nScaler\nRobustScaler\n\n\nRMSE\n3.64\n\n\nR²\n0.303\n\n\n\n\n\n\n\nFor predicting the ‘Duration’ target variable, we implemented a Penalized Cubic Spline model with 15 knots. Despite extensive testing of various approaches, including feature interactions and compression techniques, the vanilla pipeline consistently outperformed more complex alternatives. Notably, temporal cross-validation showed no meaningful advantage over the random KFold method. After thorough hyperparameter optimization, we determined the optimal Ridge penalty to be 14.38.\nNote: While this model achieved the lowest RMSE among all tested approaches, its low R² value of 0.059 indicates a significant limitation in explaining the variance in the response variable.\nThe ‘Occupancy’ prediction results proved more encouraging. Using another Penalized Cubic Spline model with 15 knots, we found that rolling cross-validation provided superior results compared to other methods. Through systematic tuning, we identified an optimal Ridge penalty of 29.76. The resulting R² value of 0.303, while modest, represents a meaningful improvement over the Duration model and suggests better capture of the underlying patterns in the data."
+  },
+  {
+    "objectID": "notebooks/report/eval.html#model-diagnostics",
+    "href": "notebooks/report/eval.html#model-diagnostics",
+    "title": "Evaluation",
+    "section": "Model Diagnostics",
+    "text": "Model Diagnostics\n\nDuration Model Performance\nThe diagnostic plots below visually evaluate the performance of the model in predicting the ‘Duration’ response variable. As noted earlier, the model struggles to explain the variance in the response. These plots compare actual and predicted values and provide insights into the residuals.\nIn the first scatter plot, the model’s predictions are cap-off just under roughly 150, leading to a horizontal cluster of points. This consistent underestimation of larger responses is further reflected in the residual histogram, which has an extended left tail, and the residual QQ plot, where many negative residuals deviate significantly below the normal reference line. Additionally, the residual plot reveals non-constant variance and a distinct pattern, indicating that the model fails to capture the true underlying structure of the data.\n\n\n\nDuration Model Diagnostics\n\n\n\nSummary: The duration prediction task proved particularly challenging, with models struggling to capture the full range of visit durations. The low R² value reflects the inherent complexity of predicting individual study session lengths. Our models consistently produced a compressed prediction range, systematically underestimating visits longer than 150 minutes while overestimating very short durations. This behavior suggests that additional features or alternative modeling approaches may be necessary to capture the full spectrum of study patterns.\n\n\n\nOccupancy Model Performance\nThe Occupancy model diagnostics reveal more promising results. The scatter plots exhibit a distinct grid-like pattern due to the integer nature of both the response variable and the model’s predictions. Areas where multiple points share the same value appear as darker shades of blue in the scatter plots.\nConsistent with the improved R² observed for this model, the diagnostic plots reflect a better overall fit compared to the Duration model. Although a slight pattern is still visible in the residual plot, it is evident that this model aligns more closely with the underlying data for this problem.\n\n\n\nOccupancy Model Diagnostics\n\n\n\nSummary: The occupancy prediction models demonstrated substantially better performance, particularly in capturing typical usage patterns. The models showed strongest accuracy in the modal range of 10-15 occupants, where most observations occur. While the overall distribution of predictions closely matched observed patterns, we observed minor discrepancies at the distribution tails, particularly during extremely busy or quiet periods. The superior R² value suggests that occupancy patterns follow more predictable trends than individual visit durations."
+  },
+  {
+    "objectID": "notebooks/report/eval.html#distribution-analysis",
+    "href": "notebooks/report/eval.html#distribution-analysis",
+    "title": "Evaluation",
+    "section": "Distribution Analysis",
+    "text": "Distribution Analysis\n\nPredicted vs. Actual Distributions\nTo further evaluate the predictive performance of our models, we overlaid the distribution of predicted values onto histograms of the actual values. These plots provide a clearer depiction of how well our predictions align with the actual data. In both cases, the models appear to consistently overshoot the bulk of the observations. We suspect this overestimation is driven by the presence of extreme high values in the dataset, which the models struggled to accurately predict.\nThis challenge likely contributes to the relatively high RMSE for our ‘Duration’ model. Large errors on these extreme values significantly inflate the RMSE, as it averages the squared differences across all predictions.\n\n\n\nDistribution Comparisons\n\n\nThe distribution comparisons above reveal distinct patterns for each response variable. For Duration (left panel), the predicted distribution (blue) exhibits notably less spread than the actual values (gray), with a pronounced peak near the mean. This compression of the predicted range manifests in consistent underestimation of extreme durations, particularly evident in the model’s inability to capture values beyond 150 minutes. These limitations align with our earlier observations of the model’s low R² (0.059) and elevated RMSE (59.47).\nThe Occupancy predictions (right panel) show more promising results. The predicted distribution more faithfully reproduces the actual data’s shape, particularly in the modal range of 10-15 occupants. However, some discrepancies persist at the extremes, with slight underestimation of low occupancy values and incomplete capture of the upper range. These characteristics explain the moderate R² value of 0.303, suggesting our model captures meaningful but incomplete patterns in the occupancy data.\n\n\nComparison of Prediction Methods\nThe visualization below compares two distinct approaches to occupancy prediction: direct modeling using Penalized Splines and imputation based on Duration predictions. The imputation method estimates occupancy as a derived variable from Duration predictions, while our primary model targets occupancy directly through Penalized Splines optimization.\nThis comparison reveals notable distributional differences. The direct modeling approach (shown in blue) demonstrates superior alignment with actual occupancy patterns, particularly in capturing the characteristic peak at 10-15 occupants. In contrast, the imputed predictions (shown in red) produce a more diffuse distribution with extended tails, suggesting systematic overestimation of extreme occupancy values. We attribute this overestimation to error propagation from the underlying Duration predictions.\nThese results underscore a critical methodological insight: while imputation offers a practical alternative when direct measurements are unavailable, it introduces additional uncertainty compared to models trained explicitly on the target variable. The superior performance of our direct Penalized Splines approach validates our decision to prioritize dedicated occupancy modeling.\n\n\n\nOccupancy Comparison Histogram"
+  },
+  {
+    "objectID": "notebooks/report/eval.html#technical-challenges-and-insights",
+    "href": "notebooks/report/eval.html#technical-challenges-and-insights",
+    "title": "Evaluation",
+    "section": "Technical Challenges and Insights",
+    "text": "Technical Challenges and Insights\nOur modeling process revealed several key technical challenges that influenced our approach and results:\n\nDistribution Complexity\nThe underlying distributions of our target variables presented significant modeling challenges. Duration data exhibited strong right-skew characteristics, requiring careful consideration of transformation approaches. While log-normal transformations improved model training stability, they introduced complications in error interpretation on the original scale. The discrete nature of occupancy counts necessitated specialized handling, leading to our implementation of the RoundedRegressor wrapper to maintain prediction integrity.\n\n\nModel Architecture Considerations\nOur systematic evaluation of model architectures yielded an unexpected insight: the vanilla pipeline consistently outperformed more sophisticated approaches. This finding suggests that:\n\nThe relationship between our features and targets may be more direct than initially hypothesized\nThe additional complexity of interaction terms and dimensionality reduction might be introducing noise rather than capturing meaningful patterns\nThe superior performance of simpler architectures indicates that careful feature engineering may be more valuable than architectural sophistication\n\n\n\nTemporal Pattern Significance\nThe impact of temporal patterns emerged as a crucial factor, particularly in occupancy prediction. Rolling cross-validation consistently outperformed static approaches, suggesting that:\n\nRecent historical patterns carry strong predictive power\nThe relationship between features and occupancy evolves over time\nTraditional k-fold validation may underestimate model performance in practical applications\n\nThese insights have shaped our recommendations for future work and system deployment."
+  },
+  {
+    "objectID": "notebooks/report/eval.html#conclusions",
+    "href": "notebooks/report/eval.html#conclusions",
+    "title": "Evaluation",
+    "section": "Conclusions",
+    "text": "Conclusions\n\nKey Findings\nOur analysis demonstrates that Penalized Cubic Spline models delivered the strongest performance for both Duration and Occupancy predictions. We are particularly satisfied with the Occupancy model’s capabilities and look forward to benchmarking it against our peers’ approaches.\n\n\nFuture Directions\nThis project’s scope was necessarily limited to the provided features. We believe incorporating external variables could substantially improve model performance. For instance, the timestamp data suggests an opportunity to integrate weather conditions, which likely influence Learning Commons usage patterns.\nAdditionally, while the models covered in this course offered valuable insights, alternative approaches such as tree-based methods or neural networks might better capture the complex non-linear relationships we observed. Given the clear temporal dependencies in our target variables, time series modeling presents another promising avenue for investigation."
+  }
+]
