@@ -46,3 +46,6 @@ Rplots.pdf
 !Presentation.pdf
 *.png
 !presentation/images/eda/dist_*
+
+xxx*
+prompts/

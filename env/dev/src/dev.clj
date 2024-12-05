@@ -9,11 +9,15 @@
   (clay/make!
    {:format              [:quarto :html]
     :book                {:title "M7550: Final Project"}
-    :subdirs-to-sync     ["notebooks" "data" "images"]
+    :subdirs-to-sync     ["notebooks" "data" 
+                          "presentation" "images" "presentation/images"]
     :source-path         ["src/index.clj"
-                          ;; "notebooks/python/features.ipynb"
-                          ;; "notebooks/python/model.ipynb"
-                          "notebooks/r/Final project.Rmd"]
+                          "notebooks/report/feature_engineering.md"
+                          "notebooks/report/models_overview.md"
+                          "notebooks/report/model_training.md"
+                          "notebooks/report/model_testing.md"
+                          "notebooks/report/eval_framework.md"
+                          "notebooks/report/eval.md"]
     :base-target-path    "docs"
     :clean-up-target-dir true
     :engines             {:r      {:host r-host
