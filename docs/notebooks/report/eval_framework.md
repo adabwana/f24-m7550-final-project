@@ -1,14 +1,16 @@
 # Evaluation Framework
 
-## Framework Overview
+This chapter details our systematic approach to model evaluation and comparison. Our evaluation framework serves three key objectives:
 
-Our evaluation framework implements a **_hierarchical analysis strategy_** designed to extract actionable insights from model performance data. Through systematic aggregation and comparison of results, the framework enables data-driven model selection and optimization decisions. The implementation can be found in [`src/python/evaluation/model_evals.py`](https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/evaluation/model_evals.py) and [`src/python/evaluation/best_model_params.py`](https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/evaluation/best_model_params.py).
+1. **Performance Analysis**: Aggregate and compare metrics across different model configurations
+2. **Model Selection**: Identify and extract the best performing model configurations
+3. **Result Documentation**: Generate comprehensive performance reports and visualizations
 
-## Analysis Architecture
+The core evaluation code is shared between two scripts: [`src/python/evaluation/model_evals.py`](https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/evaluation/model_evals.py) and [`src/python/evaluation/best_model_params.py`](https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/evaluation/best_model_params.py). These scripts work together to provide a complete evaluation pipeline for both duration and occupancy predictions.
 
-### Performance Aggregation Pipeline
+## Performance Analysis Pipeline
 
-The framework's primary component implements systematic performance analysis across multiple dimensions:
+Our framework begins by aggregating performance metrics across different model configurations:
 
 ```python
 def load_and_analyze(filepath, dataset_name):
@@ -28,15 +30,11 @@ def load_and_analyze(filepath, dataset_name):
     model_groups = model_groups.sort_values(('RMSE', 'mean'))
 ```
 
-This hierarchical approach enables:
+This hierarchical analysis enables us to understand performance patterns across different aspects of our modeling approach.
 
-- **_Cross-validation Impact Analysis_**: Understanding validation strategy effectiveness
-- **_Pipeline Architecture Comparison_**: Assessing preprocessing impact
-- **_Model Type Performance_**: Evaluating algorithm selection
+## Best Model Identification
 
-### Best Model Identification
-
-The framework implements systematic best model selection:
+The framework systematically identifies and extracts the optimal model configurations:
 
 ```python
 def get_best_model_params(eval_path, experiment_base):
@@ -49,63 +47,35 @@ def get_best_model_params(eval_path, experiment_base):
     model_name = f"{best_row['Model']}_{best_row['Pipeline']}_{best_row['CV_Method']}"
     client = MlflowClient()
     experiment = client.get_experiment_by_name(f"{experiment_base}/{best_row['Model']}")
-    
-    # Get run details
-    best_run = client.search_runs(
-        experiment_ids=[experiment.experiment_id],
-        filter_string=f"attributes.run_name = '{model_name}'"
-    )[0]
 ```
 
-This process ensures:
+This process ensures we capture not just the best performance metrics, but the complete configuration that achieved them.
 
-- **_Objective Selection_**: Performance-based model identification
-- **_Configuration Retrieval_**: Complete parameter extraction
-- **_Reproducibility_**: Full model lineage tracking
+## Results Documentation
 
-## Task-Specific Evaluation
-
-### Duration Model Analysis
-
-The framework reveals critical insights for duration prediction:
+The framework implements systematic result formatting and storage:
 
 ```python
 def save_and_print_results(results, dataset_type):
     """Format and persist evaluation results."""
-    print(f"\n====== Best Model for Duration Prediction ======")
+    print(f"\n====== Best Model for {dataset_type.title()} Prediction ======")
     print(f"Model: {results['model']}")
     print(f"Pipeline: {results['pipeline']}")
     print(f"CV Method: {results['cv_method']}")
     print(f"RMSE: {results['rmse']:.4f}")
     print(f"R2: {results['r2']:.4f}")
+    
+    # Save configuration
+    output_file = os.path.join(output_dir, f"{dataset_type}_best_model.json")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
 ```
 
-Key findings include:
+This approach ensures consistent documentation of results across both prediction tasks.
 
-- **_Model Selection Impact_**: Performance variation across architectures
-- **_Pipeline Effectiveness_**: Preprocessing strategy comparison
-- **_Validation Strategy_**: Cross-validation method influence
+## Evaluation Pipeline
 
-### Occupancy Model Analysis
-
-For occupancy prediction, the framework provides structured insights:
-
-```python
-# Best model configuration persistence
-output_file = os.path.join(output_dir, f"occupancy_best_model.json")
-with open(output_file, 'w') as f:
-    json.dump(results, f, indent=2)
-```
-
-Critical evaluation aspects:
-
-- **_Count Prediction Accuracy_**: Integer constraint impact
-- **_Pipeline Comparison_**: Feature engineering effectiveness
-- **_Validation Assessment_**: Temporal splitting influence
-
-## Results Management
-
-The framework implements systematic result organization:
+The main evaluation pipeline processes both prediction tasks:
 
 ```python
 def main():
@@ -123,29 +93,23 @@ def main():
         save_and_print_results(dur_results, "duration")
 ```
 
-This organization ensures:
+## Framework Components
 
-- **_Systematic Analysis_**: Consistent evaluation across tasks
-- **_Result Persistence_**: Structured output storage
-- **_Reproducible Insights_**: Clear analysis lineage
+The implementation includes several key features for comprehensive evaluation:
 
-## Framework Benefits
+1. **Analysis Systems**
+   - Performance metric aggregation
+   - Cross-model comparison
+   - Statistical analysis
 
-The evaluation framework delivers three primary advantages:
+2. **Result Processing**
+   - Parameter extraction
+   - Configuration logging
+   - Performance ranking
 
-1. **_Comprehensive Analysis_**
-- Multi-dimensional performance assessment
-- Cross-model comparison methodology
-- Statistical significance evaluation
+3. **Output Generation**
+   - Result formatting
+   - Metric visualization
+   - Configuration persistence
 
-2. **_Insight Generation_**
-- Parameter sensitivity understanding
-- Architecture impact quantification
-- Validation strategy assessment
-
-3. **_Decision Support_**
-- Objective model selection
-- Configuration optimization
-- Deployment readiness validation
-
-This evaluation framework provides the analytical foundation for model selection and optimization decisions, complementing the training and testing processes with rigorous performance analysis.
+These components work together to provide systematic performance analysis and model selection capabilities, ensuring we can confidently identify and document our best performing models.

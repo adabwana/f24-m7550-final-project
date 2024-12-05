@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>M7550: Final Project - Models Overview</title>
+<title>M7550: Final Project - Models &amp; Pipelines</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,7 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../notebooks/report/model_training.html" rel="next">
+<link href="../../notebooks/report/eval.html" rel="next">
 <link href="../../notebooks/report/feature_engineering.html" rel="prev">
 <script src="../../site_libs/quarto-html/quarto.js"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
@@ -110,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../notebooks/report/models_overview.html"><span class="chapter-title">Models Overview</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../notebooks/report/models_overview.html"><span class="chapter-title">**Models &amp; Pipelines**</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -142,32 +142,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/feature_engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Feature Engineering</span></a>
+  <a href="../../notebooks/report/feature_engineering.html" class="sidebar-item-text sidebar-link"><span class="chapter-title"><strong>Feature Engineering</strong></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/models_overview.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Models Overview</span></a>
+  <a href="../../notebooks/report/models_overview.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title"><strong>Models &amp; Pipelines</strong></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/model_training.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Training</span></a>
+  <a href="../../notebooks/report/eval.html" class="sidebar-item-text sidebar-link"><span class="chapter-title"><strong>Evaluation</strong></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/model_testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Model Testing</span></a>
+  <a href="../../notebooks/report/predictions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Predictions</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/eval_framework.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluation Framework</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../notebooks/report/eval.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluation</span></a>
+  <a href="../../notebooks/report/appendix.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Appendix</span></a>
   </div>
 </li>
     </ul>
@@ -181,14 +176,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#framework-architecture" id="toc-framework-architecture" class="nav-link active" data-scroll-target="#framework-architecture">Framework Architecture</a></li>
+  <li><a href="#cross-validation-methodology" id="toc-cross-validation-methodology" class="nav-link" data-scroll-target="#cross-validation-methodology">Cross-Validation Methodology</a></li>
   <li><a href="#core-components" id="toc-core-components" class="nav-link" data-scroll-target="#core-components">Core Components</a>
   <ul>
-  <li><a href="#algorithm-architecture" id="toc-algorithm-architecture" class="nav-link" data-scroll-target="#algorithm-architecture">Algorithm Architecture</a></li>
+  <li><a href="#cross-validation-framework" id="toc-cross-validation-framework" class="nav-link" data-scroll-target="#cross-validation-framework">Cross-Validation Framework</a></li>
+  <li><a href="#algorithm-architecture" id="toc-algorithm-architecture" class="nav-link" data-scroll-target="#algorithm-architecture">Algorithm Architecture</a>
+  <ul class="collapse">
   <li><a href="#duration-model-architecture" id="toc-duration-model-architecture" class="nav-link" data-scroll-target="#duration-model-architecture">Duration Model Architecture</a></li>
   <li><a href="#occupancy-model-architecture" id="toc-occupancy-model-architecture" class="nav-link" data-scroll-target="#occupancy-model-architecture">Occupancy Model Architecture</a></li>
   </ul></li>
-  <li><a href="#pipeline-architecture" id="toc-pipeline-architecture" class="nav-link" data-scroll-target="#pipeline-architecture">Pipeline Architecture</a></li>
-  <li><a href="#cross-validation-framework" id="toc-cross-validation-framework" class="nav-link" data-scroll-target="#cross-validation-framework">Cross-Validation Framework</a></li>
+  <li><a href="#pipeline-architecture" id="toc-pipeline-architecture" class="nav-link" data-scroll-target="#pipeline-architecture">Pipeline Architecture</a>
+  <ul class="collapse">
+  <li><a href="#vanilla-pipeline" id="toc-vanilla-pipeline" class="nav-link" data-scroll-target="#vanilla-pipeline"><strong><em>Vanilla Pipeline</em></strong></a></li>
+  <li><a href="#interaction-network-pipeline" id="toc-interaction-network-pipeline" class="nav-link" data-scroll-target="#interaction-network-pipeline"><strong><em>Interaction Network Pipeline</em></strong></a></li>
+  <li><a href="#dimensionality-reduction-pipeline" id="toc-dimensionality-reduction-pipeline" class="nav-link" data-scroll-target="#dimensionality-reduction-pipeline"><strong><em>Dimensionality Reduction Pipeline</em></strong></a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#framework-integration" id="toc-framework-integration" class="nav-link" data-scroll-target="#framework-integration">Framework Integration</a></li>
   </ul>
 </nav>
     </div>
@@ -197,7 +201,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Models Overview</span></h1>
+<h1 class="title"><span class="chapter-title"><strong>Models &amp; Pipelines</strong></span></h1>
 </div>
 
 
@@ -214,250 +218,47 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="framework-architecture" class="level2">
 <h2 class="anchored" data-anchor-id="framework-architecture">Framework Architecture</h2>
-<p>Our Learning Commons prediction system implements a comprehensive modeling framework designed to address the distinct challenges of duration and occupancy prediction. The architecture emphasizes <strong><em>modularity</em></strong> and <strong><em>systematic evaluation</em></strong>, enabling rigorous assessment of multiple modeling strategies while maintaining consistent validation protocols. The implementation can be found in the <code>src/python/models</code> directory, specifically in <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/algorithms_duration.py"><code>algorithms_duration.py</code></a>, <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/algorithms_occupancy.py"><code>algorithms_occupancy.py</code></a>, <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/pipelines.py"><code>pipelines.py</code></a>, and <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/cross_validation.py"><code>cross_validation.py</code></a>.</p>
+<p>The modeling framework implements <strong><em>prediction pipelines</em></strong> that operate on the engineered features described in the previous chapter. The implementation resides in the <code>src/python/models</code> directory: <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/algorithms_duration.py"><code>algorithms_duration.py</code></a>, <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/algorithms_occupancy.py"><code>algorithms_occupancy.py</code></a>, <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/pipelines.py"><code>pipelines.py</code></a>, and <a href="https://github.com/adabwana/f24-m7550-final-project/blob/master/src/python/models/cross_validation.py"><code>cross_validation.py</code></a>.</p>
+</section>
+<section id="cross-validation-methodology" class="level2">
+<h2 class="anchored" data-anchor-id="cross-validation-methodology">Cross-Validation Methodology</h2>
+<p>Our prediction framework operates on two complementary datasets: <code>LC_train</code>, containing both features and response variables, and <code>LC_test</code>, containing only features. The validation process begins with a <strong><em>strategic partition</em></strong> of <code>LC_train</code> into training and holdout segments, allocating 80% and 20% of the data respectively.</p>
+<p>The training segment serves as the foundation for <strong><em>model development</em></strong> through cross-validation. During this phase, we systematically evaluate different <strong><em>model architectures</em></strong>, <strong><em>pipeline configurations</em></strong>, and <strong><em>hyperparameter combinations</em></strong>. Each candidate model undergoes rigorous testing across multiple data splits, allowing us to assess its stability and predictive power under varying conditions.</p>
+<p>The holdout segment provides <strong><em>validation</em></strong> of our model choices. By evaluating performance on this previously unseen data, we can detect potential <strong><em>overfitting</em></strong> and ensure our model generalizes effectively beyond its training examples. This validation guides our selection of the optimal model configuration, including the choice between architectures like <code>Ridge</code> or <code>Lasso</code> regression, pipeline variants such as <strong><em>vanilla</em></strong> or <strong><em>interaction-based</em></strong> approaches, and appropriate cross-validation strategies.</p>
+<p>After identifying the strongest configuration through this validation process, we proceed to train our production model. This final training phase utilizes the complete <code>LC_train</code> dataset, incorporating all available labeled data to maximize the model’s predictive capabilities. The resulting model can then generate predictions for the unlabeled <code>LC_test</code> data with confidence grounded in our thorough validation methodology.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/modeling/model_building.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Cross-Validation</figcaption>
+</figure>
+</div>
 </section>
 <section id="core-components" class="level2">
 <h2 class="anchored" data-anchor-id="core-components">Core Components</h2>
-<p>The framework integrates three primary architectural components that work in concert to enable systematic model evaluation. At its foundation, the <strong><em>base algorithms</em></strong> provide the core predictive capabilities, each offering distinct approaches to pattern recognition. The <strong><em>feature processing pipelines</em></strong> implement sophisticated data transformations, while our <strong><em>cross-validation strategies</em></strong> ensure robust performance assessment.</p>
-<section id="algorithm-architecture" class="level3">
-<h3 class="anchored" data-anchor-id="algorithm-architecture">Algorithm Architecture</h3>
-<p>The framework employs both shared and task-specific modeling approaches. Our duration prediction models include:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Ridge'</span>: (Ridge(), {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">10</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Lasso'</span>: (Lasso(), {</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__alpha'</span>: np.logspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">10</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedSplines'</span>: (Pipeline([</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'spline'</span>, SplineTransformer()),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        ]), {</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__spline__n_knots'</span>: [<span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">15</span>],</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__spline__degree'</span>: [<span class="dv">3</span>],</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'KNN'</span>: (KNeighborsRegressor(), {</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__n_neighbors'</span>: np.arange(<span class="dv">15</span>, <span class="dv">22</span>, <span class="dv">2</span>), <span class="co"># Creates [15, 17, 19, 21]</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__weights'</span>: [<span class="st">'uniform'</span>, <span class="st">'distance'</span>],</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 'model__metric': ['euclidean', 'manhattan'],</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<table class="table">
-<colgroup>
-<col style="width: 23%">
-<col style="width: 36%">
-<col style="width: 40%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Model Type</th>
-<th>Key Characteristics</th>
-<th>Hyperparameter Range</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Ridge</td>
-<td>Linear with L2 penalty</td>
-<td><span class="math inline">\(\alpha \in [10^0, 10^2]\)</span></td>
-</tr>
-<tr class="even">
-<td>Lasso</td>
-<td>Linear with L1 penalty</td>
-<td><span class="math inline">\(\alpha \in [10^{-2}, 10^0]\)</span></td>
-</tr>
-<tr class="odd">
-<td>Penalized-Splines</td>
-<td>Cubic splines with ridge penalty</td>
-<td>knots: {9, 11, 13, 15}, <br> ridge: <span class="math inline">\(\alpha \in [10^0, 10^2]\)</span></td>
-</tr>
-<tr class="even">
-<td>KNN</td>
-<td>Non-parametric</td>
-<td>neighbors: {15, 17, 19, 21}, <br> weights: {uniform, distance}</td>
-</tr>
-</tbody>
-</table>
-<p>The framework emphasizes <strong><em>non-linear pattern capture</em></strong> through spline-based modeling while maintaining interpretability. The <strong><em>PenalizedSplines</em></strong> implementation serves as our primary architecture, employing cubic splines (degree=3) with optimized knot placement and ridge regularization.</p>
-</section>
-<section id="duration-model-architecture" class="level3">
-<h3 class="anchored" data-anchor-id="duration-model-architecture">Duration Model Architecture</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedLogNormal'</span>: (Pipeline([</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'log_transform'</span>, FunctionTransformer(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log1p(np.clip(x, <span class="fl">1e-10</span>, <span class="va">None</span>)),  <span class="co"># clip to prevent log(0)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: np.expm1(x)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        ]), {</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Our duration models are based on the log-normal distribution, which is a common choice for modeling positive, right-skewed data. We saw this in our exploratory data analysis, where the duration data was right-skewed and most closely resembled a log-normal distribution.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="../../presentation/images/eda/duration_distribution.jpg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Log-normal Duration</figcaption>
-</figure>
-</div>
-</section>
-<section id="occupancy-model-architecture" class="level3">
-<h3 class="anchored" data-anchor-id="occupancy-model-architecture">Occupancy Model Architecture</h3>
-<p>For occupancy prediction, we implement specialized count-based models through a custom wrapper:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RoundedRegressor(BaseEstimator, RegressorMixin):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ensures integer predictions for occupancy modeling."""</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, estimator):</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.estimator <span class="op">=</span> estimator</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> predict(<span class="va">self</span>, X):</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> <span class="va">self</span>.estimator_.predict(X)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        y_pred_rounded <span class="op">=</span> np.<span class="bu">round</span>(y_pred).astype(<span class="bu">int</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.maximum(y_pred_rounded, <span class="dv">0</span>)  <span class="co"># Ensure non-negative</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This wrapper enables count-based modeling through specialized distributions:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedPoisson'</span>: (RoundedRegressor(Pipeline([</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'log_link'</span>, FunctionTransformer(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log(np.clip(x, <span class="fl">1e-10</span>, <span class="va">None</span>)),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: np.exp(np.clip(x, <span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>))</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        ])), {</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__estimator__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">70</span>, <span class="dv">100</span>, <span class="dv">10</span>),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        }),</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedWeibull'</span>: (RoundedRegressor(Pipeline([</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'weibull_link'</span>, FunctionTransformer(</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log(<span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> np.clip(x<span class="op">/</span>(x.<span class="bu">max</span>()<span class="op">+</span><span class="dv">1</span>), <span class="fl">1e-10</span>, <span class="dv">1</span><span class="op">-</span><span class="fl">1e-10</span>))),</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: (<span class="dv">1</span> <span class="op">-</span> np.exp(<span class="op">-</span>np.exp(np.clip(x, <span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>)))) <span class="op">*</span> (x.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        ])), {</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__estimator__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">70</span>, <span class="dv">100</span>, <span class="dv">10</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        })</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>These models are based on the Poisson and Weibull distributions, which are common choices for count-based modeling. We saw this in our exploratory data analysis, where the occupancy data was count-based and most closely resembled a Poisson distribution.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="../../presentation/images/eda/occupancy_distribution.jpg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Poisson Occupancy</figcaption>
-</figure>
-</div>
-</section>
-</section>
-<section id="pipeline-architecture" class="level2">
-<h2 class="anchored" data-anchor-id="pipeline-architecture">Pipeline Architecture</h2>
-<p>Our framework implements three distinct preprocessing strategies:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_pipeline_definitions():</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'vanilla'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        ]),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'interact_select'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'interactions'</span>, PolynomialFeatures(</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                degree<span class="op">=</span><span class="dv">2</span>, </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                interaction_only<span class="op">=</span><span class="va">True</span>, </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                include_bias<span class="op">=</span><span class="va">False</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'select_features'</span>, SelectKBest(</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                score_func<span class="op">=</span>f_regression, </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                k<span class="op">=</span><span class="dv">100</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        ]),</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pca_lda'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'feature_union'</span>, FeatureUnion([</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                (<span class="st">'pca'</span>, PCA(n_components<span class="op">=</span><span class="fl">0.95</span>)),</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>                (<span class="st">'lda'</span>, LinearDiscriminantAnalysis(n_components<span class="op">=</span><span class="dv">10</span>)),</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            ])),</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'interactions'</span>, PolynomialFeatures(</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>                degree<span class="op">=</span><span class="dv">2</span>, </span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                interaction_only<span class="op">=</span><span class="va">True</span>, </span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                include_bias<span class="op">=</span><span class="va">False</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'select_features'</span>, SelectKBest(</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>                score_func<span class="op">=</span>f_regression, </span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>                k<span class="op">=</span><span class="dv">100</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>            )),</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        ])</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ol type="1">
-<li><strong><em>Vanilla Pipeline</em></strong></li>
-</ol>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Pipeline([</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'model'</span>, model)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This configuration maintains feature interpretability while providing robust baseline performance through careful scaling of our engineered feature set.</p>
-<ol start="2" type="1">
-<li><strong><em>Interaction Network Pipeline</em></strong></li>
-</ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Pipeline([</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'interactions'</span>, PolynomialFeatures(degree<span class="op">=</span><span class="dv">2</span>)),</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'select'</span>, SelectKBest(score_func<span class="op">=</span>f_regression)),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'model'</span>, model)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This <strong><em>interact_select</em></strong> pipeline implements a sparse interaction network, systematically capturing pairwise feature relationships while managing dimensionality through selective feature retention.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="../../presentation/images/modeling/poor_man_network.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Interaction Network</figcaption>
-</figure>
-</div>
-<p>This approach functions as a simplified mesh neural network, restricting connections to binary interactions without activation functions. The <strong><em>SelectKBest</em></strong> component manages dimensionality by identifying the most influential features and interactions.</p>
-<ol start="3" type="1">
-<li><strong><em>Dimensionality Reduction Pipeline</em></strong></li>
-</ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Pipeline([</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'feature_union'</span>, FeatureUnion([</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'pca'</span>, PCA(n_components<span class="op">=</span><span class="fl">0.95</span>)),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        (<span class="st">'lda'</span>, LinearDiscriminantAnalysis(n_components<span class="op">=</span><span class="dv">10</span>)),</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    ])),</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'interactions'</span>, PolynomialFeatures(degree<span class="op">=</span><span class="dv">2</span>)),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'select'</span>, SelectKBest(score_func<span class="op">=</span>f_regression)),</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'model'</span>, model)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This pipeline combines two complementary dimensionality reduction techniques before interaction modeling. We extract principal components that explain 95% of the variance (<strong><em>PCA</em></strong>) alongside 10 linear discriminant components (<strong><em>LDA</em></strong>), aiming to capture both the dominant patterns in feature variation and natural class separations in the data. These reduced-dimension components are then allowed to interact, with <strong><em>SelectKBest</em></strong> filtering the most predictive combinations.</p>
-</section>
-<section id="cross-validation-framework" class="level2">
-<h2 class="anchored" data-anchor-id="cross-validation-framework">Cross-Validation Framework</h2>
-<p>The framework implements three temporal validation strategies:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cv_methods(n_samples: <span class="bu">int</span>):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    n_splits <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    default_test_size <span class="op">=</span> n_samples <span class="op">//</span> (n_splits <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'kfold'</span>: KFold(</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span><span class="dv">10</span>, </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            shuffle<span class="op">=</span><span class="va">True</span>, </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            random_state<span class="op">=</span><span class="dv">3</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        ),</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'rolling'</span>: TimeSeriesSplit(</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span>n_splits,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            max_train_size<span class="op">=</span>default_test_size <span class="op">*</span> <span class="dv">5</span>,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            test_size<span class="op">=</span>default_test_size</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        ),</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'expanding'</span>: TimeSeriesSplit(</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span>n_splits,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            test_size<span class="op">=</span>default_test_size</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each strategy serves a specific validation purpose: - <strong><em>K-fold</em></strong>: Baseline performance assessment through randomized splits - <strong><em>Rolling Window</em></strong>: Temporal pattern capture with fixed-size windows - <strong><em>Expanding Window</em></strong>: Long-term trend assessment with growing history</p>
+<p>To implement this validation methodology effectively, our framework relies on three essential elements: <strong><em>base algorithms</em></strong> that handle the core prediction tasks, <strong><em>feature processing pipelines</em></strong> that transform raw data into meaningful inputs, and <strong><em>cross-validation strategies</em></strong> that ensure reliable performance assessment. We will start with the cross-validation framework because we discussed the purpose directly above.</p>
+<section id="cross-validation-framework" class="level3">
+<h3 class="anchored" data-anchor-id="cross-validation-framework">Cross-Validation Framework</h3>
+<p>The framework implements three <strong><em>validation strategies</em></strong>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cv_methods(n_samples: <span class="bu">int</span>):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    n_splits <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    default_test_size <span class="op">=</span> n_samples <span class="op">//</span> (n_splits <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'kfold'</span>: KFold(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span><span class="dv">10</span>, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            shuffle<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            random_state<span class="op">=</span><span class="dv">3</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'rolling'</span>: TimeSeriesSplit(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span>n_splits,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            max_train_size<span class="op">=</span>default_test_size <span class="op">*</span> <span class="dv">5</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            test_size<span class="op">=</span>default_test_size</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'expanding'</span>: TimeSeriesSplit(</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            n_splits<span class="op">=</span>n_splits,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            test_size<span class="op">=</span>default_test_size</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="table">
 <colgroup>
 <col style="width: 20%">
@@ -494,7 +295,204 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>This comprehensive modeling framework provides the foundation for both our training and testing implementations, enabling systematic optimization while maintaining rigorous validation standards.</p>
+</section>
+<section id="algorithm-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="algorithm-architecture">Algorithm Architecture</h3>
+<p>The duration prediction models include:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Ridge'</span>: (Ridge(), {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">10</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Lasso'</span>: (Lasso(), {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__alpha'</span>: np.logspace(<span class="op">-</span><span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedSplines'</span>: (Pipeline([</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'spline'</span>, SplineTransformer()),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        ]), {</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__spline__n_knots'</span>: [<span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">15</span>],</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__spline__degree'</span>: [<span class="dv">3</span>],</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'KNN'</span>: (KNeighborsRegressor(), {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__n_neighbors'</span>: np.arange(<span class="dv">15</span>, <span class="dv">22</span>, <span class="dv">2</span>),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__weights'</span>: [<span class="st">'uniform'</span>, <span class="st">'distance'</span>],</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 36%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model Type</th>
+<th>Key Characteristics</th>
+<th>Hyperparameter Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Ridge</code></td>
+<td>Linear with <strong><em>L2 penalty</em></strong></td>
+<td><span class="math inline">\(\alpha \in [10^0, 10^2]\)</span></td>
+</tr>
+<tr class="even">
+<td><code>Lasso</code></td>
+<td>Linear with <strong><em>L1 penalty</em></strong></td>
+<td><span class="math inline">\(\alpha \in [10^{-2}, 10^0]\)</span></td>
+</tr>
+<tr class="odd">
+<td><code>PenalizedSplines</code></td>
+<td><strong><em>Cubic splines</em></strong> with ridge penalty</td>
+<td>knots: {9, 11, 13, 15}, <br> ridge: <span class="math inline">\(\alpha \in [10^0, 10^2]\)</span></td>
+</tr>
+<tr class="even">
+<td><code>KNN</code></td>
+<td><strong><em>Non-parametric</em></strong></td>
+<td>neighbors: {15, 17, 19, 21}, <br> weights: {uniform, distance}</td>
+</tr>
+</tbody>
+</table>
+<section id="duration-model-architecture" class="level4">
+<h4 class="anchored" data-anchor-id="duration-model-architecture">Duration Model Architecture</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedLogNormal'</span>: (Pipeline([</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'log_transform'</span>, FunctionTransformer(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log1p(np.clip(x, <span class="fl">1e-10</span>, <span class="va">None</span>)),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: np.expm1(x)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        ]), {</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">10</span>, <span class="dv">55</span>, <span class="dv">5</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The duration models use <strong><em>log-normal distribution</em></strong> to handle right-skewed data, as shown in the distribution analysis:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/eda/duration_distribution.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Log-normal Duration</figcaption>
+</figure>
+</div>
+</section>
+<section id="occupancy-model-architecture" class="level4">
+<h4 class="anchored" data-anchor-id="occupancy-model-architecture">Occupancy Model Architecture</h4>
+<p>The occupancy models use a custom wrapper for count-based predictions:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RoundedRegressor(BaseEstimator, RegressorMixin):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ensures integer predictions for occupancy modeling."""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, estimator):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.estimator <span class="op">=</span> estimator</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> predict(<span class="va">self</span>, X):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        y_pred <span class="op">=</span> <span class="va">self</span>.estimator_.predict(X)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        y_pred_rounded <span class="op">=</span> np.<span class="bu">round</span>(y_pred).astype(<span class="bu">int</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.maximum(y_pred_rounded, <span class="dv">0</span>)  <span class="co"># Ensure non-negative</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This wrapper enables count-based modeling through both the commonly shared Ridge, Lasso, PenalizedSplines, and KNN algorithms, as well as specialized distributions:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_model_definitions():</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedPoisson'</span>: (RoundedRegressor(Pipeline([</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'log_link'</span>, FunctionTransformer(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log(np.clip(x, <span class="fl">1e-10</span>, <span class="va">None</span>)),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: np.exp(np.clip(x, <span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        ])), {</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__estimator__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">70</span>, <span class="dv">100</span>, <span class="dv">10</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        }),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">'PenalizedWeibull'</span>: (RoundedRegressor(Pipeline([</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'weibull_link'</span>, FunctionTransformer(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                func<span class="op">=</span><span class="kw">lambda</span> x: np.log(<span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> np.clip(x<span class="op">/</span>(x.<span class="bu">max</span>()<span class="op">+</span><span class="dv">1</span>), <span class="fl">1e-10</span>, <span class="dv">1</span><span class="op">-</span><span class="fl">1e-10</span>))),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                inverse_func<span class="op">=</span><span class="kw">lambda</span> x: (<span class="dv">1</span> <span class="op">-</span> np.exp(<span class="op">-</span>np.exp(np.clip(x, <span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>)))) <span class="op">*</span> (x.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'ridge'</span>, Ridge())</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        ])), {</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">'model__estimator__ridge__alpha'</span>: np.logspace(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">20</span>),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>            <span class="st">'select_features__k'</span>: np.arange(<span class="dv">70</span>, <span class="dv">100</span>, <span class="dv">10</span>),</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The occupancy data follows a Poisson (based on it being a count-based variable) distribution. We also found that a Weibull distribution could provide a better fit:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/eda/occupancy_distribution.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Poisson Occupancy</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="pipeline-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="pipeline-architecture">Pipeline Architecture</h3>
+<p>The framework contains three <strong><em>preprocessing pipelines</em></strong>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_pipeline_definitions():</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'vanilla'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        ]),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'interact_select'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'interactions'</span>, PolynomialFeatures(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                degree<span class="op">=</span><span class="dv">2</span>, </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                interaction_only<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                include_bias<span class="op">=</span><span class="va">False</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'select_features'</span>, SelectKBest(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                score_func<span class="op">=</span>f_regression, </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                k<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        ]),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'pca_lda'</span>: <span class="kw">lambda</span> model: Pipeline([</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'scaler'</span>, <span class="st">'passthrough'</span>), </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'feature_union'</span>, FeatureUnion([</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                (<span class="st">'pca'</span>, PCA(n_components<span class="op">=</span><span class="fl">0.95</span>)),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                (<span class="st">'lda'</span>, LinearDiscriminantAnalysis(n_components<span class="op">=</span><span class="dv">10</span>)),</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>            ])),</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'interactions'</span>, PolynomialFeatures(</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                degree<span class="op">=</span><span class="dv">2</span>, </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>                interaction_only<span class="op">=</span><span class="va">True</span>, </span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>                include_bias<span class="op">=</span><span class="va">False</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'select_features'</span>, SelectKBest(</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                score_func<span class="op">=</span>f_regression, </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>                k<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>            )),</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>            (<span class="st">'model'</span>, model)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        ])</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="vanilla-pipeline" class="level4">
+<h4 class="anchored" data-anchor-id="vanilla-pipeline"><strong><em>Vanilla Pipeline</em></strong></h4>
+<p>This configuration maintains feature interpretability while providing robust baseline performance through careful scaling of our engineered feature set.</p>
+</section>
+<section id="interaction-network-pipeline" class="level4">
+<h4 class="anchored" data-anchor-id="interaction-network-pipeline"><strong><em>Interaction Network Pipeline</em></strong></h4>
+<p>This <strong><em>interact_select</em></strong> pipeline implements a <strong><em>sparse interaction network</em></strong>, systematically capturing pairwise feature relationships while managing dimensionality through selective feature retention.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../presentation/images/modeling/poor_man_network.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Interaction Network</figcaption>
+</figure>
+</div>
+<p>This approach was intended to function as a <strong><em>simplified mesh network</em></strong>, restricting connections to binary interactions without activation functions. The <code>SelectKBest</code> component manages dimensionality by identifying the most influential features and interactions.</p>
+</section>
+<section id="dimensionality-reduction-pipeline" class="level4">
+<h4 class="anchored" data-anchor-id="dimensionality-reduction-pipeline"><strong><em>Dimensionality Reduction Pipeline</em></strong></h4>
+<p>This pipeline combines two complementary dimensionality reduction techniques before interaction modeling. We extract principal components that explain 95% of the variance (<strong><em>PCA</em></strong>) alongside 10 linear discriminant components (<strong><em>LDA</em></strong>), aiming to capture both the dominant patterns in feature variation and natural class separations in the data. These reduced-dimension components are then allowed to interact, with <code>SelectKBest</code> filtering the most predictive combinations.</p>
+</section>
+</section>
+</section>
+<section id="framework-integration" class="level2">
+<h2 class="anchored" data-anchor-id="framework-integration">Framework Integration</h2>
+<p>The modeling framework described here serves as the foundation for our <strong><em>training and testing procedures</em></strong>. The model architectures process the engineered features from the previous chapter, while the pipeline configurations and cross-validation framework establish the structure for <strong><em>training optimization</em></strong> detailed in the next chapter.</p>
+<p>The training chapter demonstrates how these components are orchestrated through <code>MLflow</code> experiment tracking and <strong><em>hyperparameter optimization</em></strong>.</p>
 
 
 </section>
@@ -736,12 +734,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../../notebooks/report/feature_engineering.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Feature Engineering</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title"><strong>Feature Engineering</strong></span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../notebooks/report/model_training.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-title">Model Training</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../notebooks/report/eval.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-title"><strong>Evaluation</strong></span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
