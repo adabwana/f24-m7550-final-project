@@ -21,10 +21,10 @@ number-depth: 0
 ### Predicting Learning Commons Usage: Duration and Occupancy
 
 <p align="center">
-**Fall 2024 | Math 7550 Statistical Learning I | Date: 12/5/24**
+**Fall 2024 | Math 7550 Statistical Learning I | Date: 12/6/24**
 </p>
 
-**By:** Emma Naiyue Liang, Ryan Rankin, Jaryt Salvo, & Jason Turk
+**By:** Emma Naiyue Liang, Ryan Renken, Jaryt Salvo, & Jason Turk
 
 *************
 
