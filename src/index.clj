@@ -22,7 +22,9 @@
 
 *************
 
-**View our code base on [GitHub](https://github.com/adabwana/f24-m7550-final-project)**
+<p align=\"center\" style=\"font-size: 1.5em;\">
+**[View our code base on GitHub](https://github.com/adabwana/f24-m7550-final-project)**
+</p>
 
 ## Project Overview
 
