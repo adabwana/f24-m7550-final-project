@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
 from sklearn.preprocessing import RobustScaler, StandardScaler, MinMaxScaler
 import mlflow
+import os
 
 # Local imports
 project_root = '/workspace'
@@ -168,6 +169,9 @@ def evaluate_final_models(results, X_test, y_test):
     return final_results
 
 def main():
+    # Create necessary directories
+    os.makedirs(f'{project_root}/results/occupancy', exist_ok=True)
+    
     # Load and prepare data
     X_train, X_test, y_train, y_test = load_and_prepare_data(project_root)
     

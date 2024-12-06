@@ -11,20 +11,20 @@ def get_pipeline_definitions():
             ('scaler', 'passthrough'), 
             ('model', model)
         ]),
-        'interact_select': lambda model: Pipeline([
-            ('scaler', 'passthrough'), 
-            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
-            ('select_features', SelectKBest(score_func=f_regression, k=100)),
-            ('model', model)
-        ]),
-        'pca_lda': lambda model: Pipeline([
-            ('scaler', 'passthrough'), 
-            ('feature_union', FeatureUnion([
-                ('pca', PCA(n_components=0.95)),
-                ('lda', LinearDiscriminantAnalysis(n_components=10)),
-            ])),
-            ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
-            ('select_features', SelectKBest(score_func=f_regression, k=100)),
-            ('model', model)
-        ])
+        # 'interact_select': lambda model: Pipeline([
+        #     ('scaler', 'passthrough'), 
+        #     ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+        #     ('select_features', SelectKBest(score_func=f_regression, k=100)),
+        #     ('model', model)
+        # ]),
+        # 'pca_lda': lambda model: Pipeline([
+        #     ('scaler', 'passthrough'), 
+        #     ('feature_union', FeatureUnion([
+        #         ('pca', PCA(n_components=0.95)),
+        #         ('lda', LinearDiscriminantAnalysis(n_components=10)),
+        #     ])),
+        #     ('interactions', PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)),
+        #     ('select_features', SelectKBest(score_func=f_regression, k=100)),
+        #     ('model', model)
+        # ])
     } 

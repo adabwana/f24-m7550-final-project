@@ -22,6 +22,8 @@
 
 *************
 
+**View our code base on [GitHub](https://github.com/adabwana/f24-m7550-final-project)**
+
 ## Project Overview
 
 In our project, we implement systematic prediction methodologies for analyzing student utilization patterns within the BGSU Learning Commons (LC). Through rigorous statistical learning approaches, we address two distinct prediction challenges: **_visit duration estimation_** and **_occupancy forecasting_**. The implementation leverages specialized modeling architectures to capture the unique characteristics of each prediction task.
