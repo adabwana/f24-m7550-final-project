@@ -18,7 +18,7 @@
 **Fall 2024 | Math 7550 Statistical Learning I | Date: " current-date "**
 </p>
 
-**By:** Emma Naiyue Liang, Ryan Rankin, Jaryt Salvo, & Jason Turk
+**By:** Emma Naiyue Liang, Ryan Renken, Jaryt Salvo, & Jason Turk
 
 *************
 
